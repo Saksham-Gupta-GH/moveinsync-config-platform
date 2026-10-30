@@ -27,3 +27,4 @@ jobs:
 
       - name: Compile and Run All Automated Tests
         run: ./mvnw test --batch-mode
+

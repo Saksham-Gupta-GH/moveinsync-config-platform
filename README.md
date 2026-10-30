@@ -1,7 +1,7 @@
 # MoveInSync Hierarchical Tenant Configuration Platform
 ### Distributed Configuration Engine with Sub-Microsecond In-Memory Reads & Live SSE Propagation
 **Author:** Saksham Gupta  
-**Email:** [saksham77779@gmail.com](mailto:saksham77779@gmail.com) | **Repository:** [github.com/Saksham-Gupta-GH/moveinsync-config-platform](https://github.com/Saksham-Gupta-GH/moveinsync-config-platform)
+**Email:** [saksham77779@gmail.com](mailto:saksham77779@gmail.com) | **Repository:** [github.com/Saksham-Gupta-GH/moveinsync-config-platform](https://github.com/Saksham-Gupta-GH/moveinsync-config-platform) | **Project Drive & Demo Video:** [Google Drive Workspace](https://drive.google.com/drive/folders/1zfCg8OQt5gG956xa37XqlY4AIlT5vYnw?usp=sharing)
 
 ---
 
