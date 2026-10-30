@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  config-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: moveinsync-config-server
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SERVER_PORT=8080
+      - SPRING_DATASOURCE_URL=jdbc:sqlite:/app/data/config_server.db
+    volumes:
+      - config-data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 15s
+
+volumes:
+  config-data:
