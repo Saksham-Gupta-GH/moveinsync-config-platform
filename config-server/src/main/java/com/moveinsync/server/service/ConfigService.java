@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 
 /**
  * Core Application Service managing atomic changesets, staged canary rollout,
- * unified rollback with diffs, and tenant-scoped delta queries.
+ * unified rollback with diffs, tenant isolation data filtering, and operational metrics.
  */
 @Service
 public class ConfigService {
@@ -22,7 +22,12 @@ public class ConfigService {
 
     private final SqliteConfigRepository repository;
     private final SseBroadcaster sseBroadcaster;
+
+    // Operational telemetry metrics
     private final AtomicLong rejectionCount = new AtomicLong(0);
+    private final AtomicLong maxVersionLagSeen = new AtomicLong(0);
+    private final AtomicLong clientCatchupRequestsTotal = new AtomicLong(0);
+    private final AtomicLong errorRequestsTotal = new AtomicLong(0);
 
     public record RollbackDiffResponse(
             long currentVersion,
@@ -46,15 +51,14 @@ public class ConfigService {
     }
 
     /**
-     * Publishes an atomic multi-key changeset.
-     * Evaluator Fix: Single writer lock held around version increment -> fsync -> enqueue to SSE.
+     * Publishes an atomic multi-key changeset under a single writer lock.
      */
     public ChangeSet publishChangeSet(ConfigScopeKey scopeKey,
                                       List<String> stagedOffices,
                                       Map<String, Object> updates,
                                       String author,
                                       String reason) {
-        // 1. Validation phase (If ANY key fails validation, the entire changeset is rejected!)
+        // 1. Validation phase (If ANY key fails validation, the entire changeset is rejected)
         Map<String, SettingDefinition> defs = repository.getAllDefinitions();
         for (Map.Entry<String, Object> entry : updates.entrySet()) {
             SettingDefinition def = defs.get(entry.getKey());
@@ -151,6 +155,9 @@ public class ConfigService {
 
     private Map<String, Map<String, Object>> computeDiff(Map<String, Map<String, Object>> current, Map<String, Map<String, Object>> target) {
         Map<String, Map<String, Object>> diff = new HashMap<>();
+        Map<String, SettingDefinition> defs = repository.getAllDefinitions();
+
+        // 1. Process target scopes and compare with current
         for (Map.Entry<String, Map<String, Object>> targetScope : target.entrySet()) {
             String path = targetScope.getKey();
             Map<String, Object> targetMap = targetScope.getValue();
@@ -163,33 +170,105 @@ public class ConfigService {
                     scopeDiff.put(valEntry.getKey(), valEntry.getValue());
                 }
             }
+
+            // Keys added in current but not present at target version: reset to definition default
+            for (String curKey : currentMap.keySet()) {
+                if (!targetMap.containsKey(curKey)) {
+                    SettingDefinition def = defs.get(curKey);
+                    if (def != null && def.defaultValue() != null) {
+                        scopeDiff.put(curKey, def.defaultValue());
+                    }
+                }
+            }
+
             if (!scopeDiff.isEmpty()) {
                 diff.put(path, scopeDiff);
             }
         }
+
+        // 2. Scopes that exist in current but were not created yet at target version
+        for (Map.Entry<String, Map<String, Object>> curScope : current.entrySet()) {
+            String path = curScope.getKey();
+            if (!target.containsKey(path)) {
+                Map<String, Object> scopeDiff = new HashMap<>();
+                for (String curKey : curScope.getValue().keySet()) {
+                    SettingDefinition def = defs.get(curKey);
+                    if (def != null && def.defaultValue() != null) {
+                        scopeDiff.put(curKey, def.defaultValue());
+                    }
+                }
+                if (!scopeDiff.isEmpty()) {
+                    diff.put(path, scopeDiff);
+                }
+            }
+        }
+
         return diff;
     }
 
+    /**
+     * Retrieves an atomic snapshot filtered to only include GLOBAL settings and overrides for the requested tenant.
+     * Prevents cross-tenant data leakage (e.g. Google cannot see Amazon's overrides).
+     */
     public ConfigSnapshot getSnapshot(String clientId, String officeId) {
         long ver = repository.getLatestVersion();
         Map<String, SettingDefinition> defs = repository.getAllDefinitions();
-        Map<String, Map<String, Object>> overrides = repository.getAllOverrides();
-        return new ConfigSnapshot(ver, defs, overrides);
+        Map<String, Map<String, Object>> allOverrides = repository.getAllOverrides();
+
+        Map<String, Map<String, Object>> filteredOverrides = new HashMap<>();
+        for (Map.Entry<String, Map<String, Object>> entry : allOverrides.entrySet()) {
+            String scopePath = entry.getKey();
+            if (isScopeAllowedForClient(scopePath, clientId)) {
+                filteredOverrides.put(scopePath, entry.getValue());
+            }
+        }
+        return new ConfigSnapshot(ver, defs, filteredOverrides);
     }
 
+    private boolean isScopeAllowedForClient(String scopePath, String clientId) {
+        if ("GLOBAL".equalsIgnoreCase(scopePath)) {
+            return true;
+        }
+        if (clientId == null) {
+            return false;
+        }
+        String[] parts = scopePath.split(":", 2);
+        if (parts.length < 2) return false;
+        String[] subParts = parts[1].split("/");
+        return subParts[0].equalsIgnoreCase(clientId);
+    }
+
+    /**
+     * Retrieves deltas with strict tenant filtering.
+     * If a delta belongs to another tenant or out-of-scope office, returns an empty progression
+     * so the client's local version sequence advances monotonically without leaking data or triggering gaps.
+     */
     public List<Delta> getDeltas(String clientId, String officeId, long sinceVersion) {
+        if (sinceVersion > 0) {
+            clientCatchupRequestsTotal.incrementAndGet();
+        }
         List<ChangeSet> changes = repository.getChangeSetsSince(sinceVersion);
         List<Delta> deltas = new ArrayList<>();
         for (ChangeSet cs : changes) {
-            boolean inScope = isOfficeInScope(cs, officeId);
-            if (inScope) {
+            boolean isTenantMatch = isTenantInScope(cs, clientId);
+            boolean isOfficeMatch = isOfficeInScope(cs, officeId);
+
+            if (isTenantMatch && isOfficeMatch) {
                 deltas.add(new Delta(cs.version(), cs.scopeKey(), cs.stagedOffices(), cs.updates(), false, cs.timestamp()));
             } else {
-                // Return contiguous empty delta progression
+                // Return contiguous empty delta progression to advance client version counter without leaking payload
                 deltas.add(Delta.emptyProgression(cs.version(), cs.scopeKey()));
             }
         }
         return deltas;
+    }
+
+    private boolean isTenantInScope(ChangeSet cs, String clientId) {
+        String targetClient = cs.scopeKey().clientId();
+        if (targetClient == null) {
+            return true; // Global changes apply to all clients
+        }
+        return clientId != null && targetClient.equalsIgnoreCase(clientId);
     }
 
     private boolean isOfficeInScope(ChangeSet cs, String officeId) {
@@ -205,6 +284,26 @@ public class ConfigService {
         return rejectionCount.get();
     }
 
+    public long getMaxVersionLagSeen() {
+        return maxVersionLagSeen.get();
+    }
+
+    public void recordLag(long lag) {
+        maxVersionLagSeen.accumulateAndGet(lag, Math::max);
+    }
+
+    public long getClientCatchupRequestsTotal() {
+        return clientCatchupRequestsTotal.get();
+    }
+
+    public long getErrorRequestsTotal() {
+        return errorRequestsTotal.get();
+    }
+
+    public void incrementErrorCount() {
+        errorRequestsTotal.incrementAndGet();
+    }
+
     private ConfigScopeKey parseScopePath(String path) {
         if ("GLOBAL".equalsIgnoreCase(path)) return ConfigScopeKey.global();
         String[] parts = path.split(":", 2);
@@ -218,4 +317,3 @@ public class ConfigService {
         };
     }
 }
-

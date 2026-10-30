@@ -57,6 +57,7 @@ public class ConfigController {
                                            @RequestBody SettingDefinition def) {
         var principal = securityContext.authenticate(apiKey);
         if (principal.role() != SecurityContextHolder.Role.ADMIN) {
+            configService.incrementErrorCount();
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse("FORBIDDEN", "Only ADMIN can define settings", Instant.now()));
         }
         configService.registerDefinition(def);
@@ -64,7 +65,8 @@ public class ConfigController {
     }
 
     @GetMapping("/definitions")
-    public ResponseEntity<Map<String, SettingDefinition>> getDefinitions() {
+    public ResponseEntity<?> getDefinitions(@RequestHeader(value = "X-API-Key", required = false) String apiKey) {
+        securityContext.authenticate(apiKey);
         return ResponseEntity.ok(configService.getDefinitions());
     }
 
@@ -73,6 +75,7 @@ public class ConfigController {
                                               @RequestBody PublishChangeSetRequest req) {
         var principal = securityContext.authenticate(apiKey);
         if (principal.role() == SecurityContextHolder.Role.EMPLOYEE) {
+            configService.incrementErrorCount();
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse("FORBIDDEN", "Read-only clients cannot publish changesets", Instant.now()));
         }
         if (req.scopeKey().clientId() != null) {
@@ -89,6 +92,7 @@ public class ConfigController {
                                               @RequestParam(value = "author", defaultValue = "admin") String author) {
         var principal = securityContext.authenticate(apiKey);
         if (principal.role() == SecurityContextHolder.Role.EMPLOYEE) {
+            configService.incrementErrorCount();
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse("FORBIDDEN", "Insufficient privileges", Instant.now()));
         }
         ChangeSet cs = configService.promoteChangeSet(id, author);
@@ -100,6 +104,7 @@ public class ConfigController {
                                       @RequestBody RollbackRequest req) {
         var principal = securityContext.authenticate(apiKey);
         if (principal.role() != SecurityContextHolder.Role.ADMIN) {
+            configService.incrementErrorCount();
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse("FORBIDDEN", "Only ADMIN can trigger rollbacks", Instant.now()));
         }
         var resp = configService.rollback(req.targetVersion(), req.dryRun(), req.author());
@@ -139,6 +144,8 @@ public class ConfigController {
 
         long latest = configService.getLatestVersion();
         long lag = Math.max(0, latest - clientVersion);
+        configService.recordLag(lag);
+
         return ResponseEntity.ok(Map.of(
                 "version", latest,
                 "client_version", clientVersion,
@@ -148,7 +155,7 @@ public class ConfigController {
 
     /**
      * Real-time Server-Sent Events (SSE) Stream.
-     * Evaluator Fix: Subscription requires client_id + office_id for tenant filtering & staged canary scoping.
+     * Subscription requires client_id + office_id for tenant filtering & staged canary scoping.
      */
     @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter stream(@RequestHeader(value = "X-API-Key", required = false) String apiKey,
@@ -162,17 +169,20 @@ public class ConfigController {
 
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(ValidationException e) {
+        configService.incrementErrorCount();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse("INVALID_SETTING_VALUE", e.getMessage(), Instant.now()));
     }
 
     @ExceptionHandler(SecurityException.class)
     public ResponseEntity<ErrorResponse> handleSecurityException(SecurityException e) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse("TENANT_ISOLATION_VIOLATION", e.getMessage(), Instant.now()));
+        configService.incrementErrorCount();
+        HttpStatus status = e.getMessage().contains("Authentication failed") ? HttpStatus.UNAUTHORIZED : HttpStatus.FORBIDDEN;
+        return ResponseEntity.status(status).body(new ErrorResponse("AUTH_ERROR", e.getMessage(), Instant.now()));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException e) {
+        configService.incrementErrorCount();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse("BAD_REQUEST", e.getMessage(), Instant.now()));
     }
 }
-

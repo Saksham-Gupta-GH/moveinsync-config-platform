@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 
 /**
  * Manages Server-Sent Events (SSE) subscriptions with bounded queues, slow-consumer isolation,
- * tenant filtering, and contiguous version progression for staged rollouts.
+ * tenant filtering, contiguous version progression for staged rollouts, and serialized per-subscriber dispatch.
  */
 @Service
 public class SseBroadcaster {
@@ -68,7 +68,7 @@ public class SseBroadcaster {
 
     /**
      * Broadcasts a delta to all subscribers in strict monotonic version order.
-     * Evaluator Fix (Option A): Out-of-scope subscribers receive an empty delta with the same version
+     * Option A: Out-of-scope subscribers receive an empty delta with the same version
      * so their local version counter advances contiguously without triggering false gaps.
      */
     public void broadcast(Delta delta) {
@@ -98,7 +98,7 @@ public class SseBroadcaster {
                 continue;
             }
 
-            // Asynchronously drain pending deltas to the client emitter
+            // Asynchronously drain pending deltas to the client emitter with per-subscriber serialization
             dispatchExecutor.submit(() -> sendPending(session));
         }
     }
@@ -120,20 +120,27 @@ public class SseBroadcaster {
         return delta.stagedOffices().contains(subscriberOfficeId);
     }
 
+    /**
+     * Serialized dispatch per subscriber: synchronizing on session ensures that multiple
+     * concurrent dispatch tasks drain the queue in strict FIFO order without interleaving versions,
+     * while guaranteeing thread safety on Spring's SseEmitter.send().
+     */
     private void sendPending(SubscriberSession session) {
-        Delta delta;
-        while ((delta = session.queue().poll()) != null) {
-            try {
-                String json = mapper.writeValueAsString(delta);
-                session.emitter().send(SseEmitter.event()
-                        .name("delta")
-                        .id(String.valueOf(delta.version()))
-                        .data(json));
-            } catch (Exception e) {
-                log.fine("Error sending SSE to " + session.id() + ": " + e.getMessage());
-                session.emitter().complete();
-                subscribers.remove(session.id());
-                break;
+        synchronized (session) {
+            Delta delta;
+            while ((delta = session.queue().poll()) != null) {
+                try {
+                    String json = mapper.writeValueAsString(delta);
+                    session.emitter().send(SseEmitter.event()
+                            .name("delta")
+                            .id(String.valueOf(delta.version()))
+                            .data(json));
+                } catch (Exception e) {
+                    log.fine("Error sending SSE to " + session.id() + ": " + e.getMessage());
+                    session.emitter().complete();
+                    subscribers.remove(session.id());
+                    break;
+                }
             }
         }
     }
