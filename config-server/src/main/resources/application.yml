@@ -1,0 +1,23 @@
+server:
+  port: 8080
+  tomcat:
+    threads:
+      max: 500
+      min-spare: 20
+
+spring:
+  application:
+    name: moveinsync-config-server
+  datasource:
+    url: jdbc:sqlite:config_server.db
+    driver-class-name: org.sqlite.JDBC
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
