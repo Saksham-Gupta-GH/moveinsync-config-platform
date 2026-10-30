@@ -41,3 +41,4 @@ HEALTHCHECK --interval=5s --timeout=3s --retries=5 --start-period=10s \
   CMD curl -f http://localhost:8080/actuator/health || exit 1
 
 ENTRYPOINT ["java", "-XX:+UseG1GC", "-XX:MaxRAMPercentage=75.0", "-jar", "app.jar"]
+

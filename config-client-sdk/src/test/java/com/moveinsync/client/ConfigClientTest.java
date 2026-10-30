@@ -69,3 +69,4 @@ class ConfigClientTest {
         assertThat(loaded.get().resolve("escort_required", "Google", "BLR-1", null)).contains(true);
     }
 }
+

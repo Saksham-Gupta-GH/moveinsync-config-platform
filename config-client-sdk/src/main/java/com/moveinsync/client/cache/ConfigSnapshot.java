@@ -132,3 +132,4 @@ public record ConfigSnapshot(
         return new ConfigSnapshot(version, merged, overrides);
     }
 }
+

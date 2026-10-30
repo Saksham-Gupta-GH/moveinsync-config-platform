@@ -37,3 +37,4 @@ echo "Press Ctrl+C to stop the server."
 echo "==============================================================================="
 
 java -jar config-server/target/config-server-1.0.0-SNAPSHOT.jar
+

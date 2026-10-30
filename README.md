@@ -216,3 +216,4 @@ docker compose up --build
 2. **SSE Streaming Tier (Single Node vs Distributed Fleet):**
    - *Single Node Capacity:* With non-blocking chunked streaming, a single JVM instance comfortably supports 10,000–15,000 concurrent SSE subscribers before TCP socket file-descriptor limits occur.
    - *Horizontal Scaling:* For fleets exceeding 50,000 vehicle devices, cluster nodes can coordinate delta broadcasts via Redis Pub/Sub or Apache Kafka with consistent hashing per tenant.
+

@@ -13,3 +13,4 @@ public record Explanation(
         @JsonProperty("resolvedFrom") Scope resolvedFrom,
         @JsonProperty("hierarchy") Map<Scope, Object> hierarchy
 ) {}
+

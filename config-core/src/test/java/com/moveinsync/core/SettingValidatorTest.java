@@ -112,3 +112,4 @@ class SettingValidatorTest {
                 .hasMessageContaining("not permitted");
     }
 }
+

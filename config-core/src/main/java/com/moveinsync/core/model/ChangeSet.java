@@ -38,3 +38,4 @@ public record ChangeSet(
         if (timestamp == null) timestamp = Instant.now();
     }
 }
+

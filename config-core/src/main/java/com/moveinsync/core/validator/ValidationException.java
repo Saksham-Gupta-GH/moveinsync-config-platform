@@ -15,3 +15,4 @@ public class ValidationException extends RuntimeException {
         return key;
     }
 }
+

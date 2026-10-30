@@ -68,3 +68,4 @@ class StagedRolloutAndPromoteTest {
         assertThat(hydPromoted.get(0).changes()).containsEntry("staged_feature_flag", true);
     }
 }
+

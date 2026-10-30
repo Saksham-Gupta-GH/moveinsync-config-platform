@@ -40,3 +40,4 @@ public class MetricsController {
         return ResponseEntity.ok(metrics);
     }
 }
+

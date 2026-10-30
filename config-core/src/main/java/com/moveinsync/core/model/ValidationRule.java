@@ -30,3 +30,4 @@ public record ValidationRule(
         return new ValidationRule(null, null, null, null, allowed, false);
     }
 }
+

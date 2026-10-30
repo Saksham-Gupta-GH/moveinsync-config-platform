@@ -51,3 +51,4 @@ class CompoundValidationRejectionTest {
         assertThat(snapshot.resolve("valid_key", "Google", "BLR-1", null)).contains(10);
     }
 }
+

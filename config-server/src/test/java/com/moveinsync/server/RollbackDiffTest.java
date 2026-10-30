@@ -57,3 +57,4 @@ class RollbackDiffTest {
         assertThat(snapshot.resolve("max_ride_time_mins", "Google", "BLR-1", null)).contains(100);
     }
 }
+

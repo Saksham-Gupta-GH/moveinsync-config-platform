@@ -20,3 +20,4 @@ public enum Scope {
         return priority;
     }
 }
+

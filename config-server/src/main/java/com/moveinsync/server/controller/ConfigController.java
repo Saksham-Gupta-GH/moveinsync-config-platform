@@ -175,3 +175,4 @@ public class ConfigController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse("BAD_REQUEST", e.getMessage(), Instant.now()));
     }
 }
+
