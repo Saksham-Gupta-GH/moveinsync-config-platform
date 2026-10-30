@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>MoveInSync Enterprise Configuration Platform — Technical Architecture RFC | Saksham Gupta</title>
+<title>MoveInSync Enterprise Configuration Platform — Technical Design Note | Saksham Gupta</title>
 <style>
   @page {
     size: A4;
-    margin: 9mm 12mm 9mm 12mm;
+    margin: 8mm 12mm 8mm 12mm;
   }
   * {
     box-sizing: border-box;
@@ -15,677 +15,632 @@
   }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    color: #1e293b;
+    color: #1f2937;
     background: #ffffff;
-    font-size: 8.5pt;
-    line-height: 1.38;
+    font-size: 8.2pt;
+    line-height: 1.34;
     margin: 0;
     padding: 0;
   }
 
-  /* Color Palette — Refined Forest / Sage / Slate */
+  /* Refined, Humble Color Palette (MoveInSync Forest Green) */
   :root {
-    --forest-dark: #1b4332;
-    --forest-primary: #2d6a4f;
-    --forest-accent: #40916c;
-    --sage-light: #e8f5e9;
-    --sage-surface: #f4f9f5;
-    --sage-border: #c8e6c9;
-    --text-primary: #0f172a;
-    --text-secondary: #475569;
-    --text-muted: #64748b;
-    --border-subtle: #e2e8f0;
-    --border-card: #d1d5db;
-    --bg-card: #ffffff;
+    --brand-dark: #1b4332;
+    --brand-primary: #2d6a4f;
+    --brand-accent: #40916c;
+    --surface-light: #f9fafb;
+    --surface-border: #e5e7eb;
+    --text-primary: #111827;
+    --text-secondary: #4b5563;
+    --text-muted: #6b7280;
   }
 
-  /* Header Styles */
-  .rfc-header {
-    border-bottom: 2px solid var(--forest-primary);
-    padding-bottom: 6px;
-    margin-bottom: 8px;
+  /* Document Header */
+  .doc-header {
+    border-bottom: 2px solid var(--brand-primary);
+    padding-bottom: 5px;
+    margin-bottom: 7px;
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
   }
-  .rfc-title-area h1 {
+  .doc-title-group h1 {
     font-size: 13.5pt;
     font-weight: 700;
     color: var(--text-primary);
-    margin: 0 0 2px 0;
+    margin: 0 0 1px 0;
     letter-spacing: -0.3px;
-    line-height: 1.15;
   }
-  .rfc-title-area .rfc-subtitle {
-    font-size: 8.6pt;
+  .doc-title-group .doc-subtitle {
+    font-size: 8.4pt;
     font-weight: 600;
-    color: var(--forest-primary);
+    color: var(--brand-primary);
     margin: 0;
   }
-  .author-meta {
+  .author-block {
     text-align: right;
-    font-size: 7.6pt;
+    font-size: 7.5pt;
     color: var(--text-secondary);
-    line-height: 1.35;
+    line-height: 1.3;
   }
-  .author-meta .author-name {
-    font-size: 9.5pt;
+  .author-name {
+    font-size: 9pt;
     font-weight: 700;
     color: var(--text-primary);
   }
-  .author-meta a {
-    color: var(--forest-primary);
+  a {
+    color: var(--brand-primary);
     text-decoration: none;
     font-weight: 500;
   }
+  a:hover {
+    text-decoration: underline;
+  }
 
-  /* Page 2/3/4 Header */
-  .page-running-header {
+  /* Running Header & Footer */
+  .running-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid var(--border-subtle);
-    padding-bottom: 3.5px;
-    margin-bottom: 8px;
+    border-bottom: 1px solid var(--surface-border);
+    padding-bottom: 3px;
+    margin-bottom: 7px;
     font-size: 7.2pt;
     color: var(--text-muted);
   }
-  .page-running-header strong {
-    color: var(--forest-primary);
+  .running-header strong {
+    color: var(--brand-primary);
     font-weight: 600;
   }
+  .running-footer {
+    border-top: 1px solid var(--surface-border);
+    padding-top: 3px;
+    margin-top: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 7.2pt;
+    color: var(--text-muted);
+  }
 
-  /* Section Styling */
+  /* Headings & Text */
   .section {
-    margin-bottom: 6px;
+    margin-bottom: 4px;
   }
   .section-title {
-    font-size: 9.2pt;
+    font-size: 8.8pt;
     font-weight: 700;
-    color: var(--forest-dark);
-    margin: 0 0 3px 0;
-    padding-bottom: 1.5px;
-    border-bottom: 1px solid var(--sage-border);
+    color: var(--brand-dark);
+    margin: 0 0 2.5px 0;
+    padding-bottom: 1px;
+    border-bottom: 1px solid var(--surface-border);
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 4px;
   }
   .section-title::before {
     content: "";
     display: inline-block;
-    width: 3.5px;
-    height: 9pt;
-    background-color: var(--forest-accent);
+    width: 3px;
+    height: 8.5pt;
+    background-color: var(--brand-accent);
     border-radius: 1px;
   }
   p {
-    margin: 0 0 3.5px 0;
-    color: var(--text-primary);
+    margin: 0 0 3px 0;
   }
 
-  /* KPI Summary Cards */
-  .kpi-grid {
+  /* 3-Column Highlight Cards */
+  .kpi-row {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     gap: 6px;
     margin-bottom: 6px;
   }
-  .kpi-card {
-    background: var(--sage-surface);
-    border: 1px solid var(--sage-border);
-    border-radius: 5px;
+  .kpi-box {
+    background: var(--surface-light);
+    border: 1px solid var(--surface-border);
+    border-radius: 4px;
     padding: 5px 8px;
   }
-  .kpi-label {
+  .kpi-title {
     font-size: 6.6pt;
     font-weight: 700;
     color: var(--text-muted);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 1.5px;
+    letter-spacing: 0.4px;
+    margin-bottom: 1px;
   }
-  .kpi-value {
-    font-size: 12.5pt;
+  .kpi-stat {
+    font-size: 12pt;
     font-weight: 700;
-    color: var(--forest-dark);
+    color: var(--brand-dark);
     line-height: 1.1;
   }
-  .kpi-sub {
-    font-size: 7pt;
+  .kpi-desc {
+    font-size: 6.8pt;
     color: var(--text-secondary);
-    margin-top: 1.5px;
-  }
-  .kpi-sub strong {
-    color: var(--forest-primary);
+    margin-top: 1px;
   }
 
-  /* Architecture Diagram Container */
-  .diagram-box {
-    background: #ffffff;
-    border: 1px solid var(--border-subtle);
-    border-radius: 6px;
-    padding: 5px;
-    margin-bottom: 6px;
-  }
-  .diagram-box svg {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
-
-  /* Grid Layouts */
+  /* Two Column Box */
   .grid-2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 7px;
   }
 
-  /* Callout & Narrative Cards */
-  .callout-card {
-    background: #ffffff;
-    border: 1px solid var(--border-subtle);
-    border-left: 3px solid var(--forest-primary);
+  /* Callout Box */
+  .narrative-box {
+    background: var(--surface-light);
+    border: 1px solid var(--surface-border);
+    border-left: 3px solid var(--brand-primary);
     border-radius: 4px;
     padding: 5px 8px;
     margin-bottom: 4px;
   }
-  .callout-card h4 {
-    margin: 0 0 1.5px 0;
-    font-size: 8.4pt;
+  .narrative-box h4 {
+    margin: 0 0 1px 0;
+    font-size: 8.2pt;
     font-weight: 700;
-    color: var(--forest-dark);
+    color: var(--brand-dark);
   }
-  .callout-card p {
+  .narrative-box p {
     margin: 0;
-    font-size: 8pt;
-    line-height: 1.35;
+    font-size: 7.9pt;
     color: var(--text-secondary);
   }
 
-  /* Code & Syntax */
+  /* Diagram Boxes */
+  .diagram-frame {
+    background: #ffffff;
+    border: 1px solid var(--surface-border);
+    border-radius: 4px;
+    padding: 5px;
+    margin-bottom: 6px;
+  }
+  .diagram-frame svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  /* Clean Tables (Horizontal Lines Only) */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 7.2pt;
+    margin-top: 1.5px;
+    margin-bottom: 2.5px;
+  }
+  th {
+    border-bottom: 1.5px solid var(--brand-primary);
+    color: var(--brand-dark);
+    text-align: left;
+    padding: 1.8px 4.5px;
+    font-weight: 700;
+    background: transparent;
+  }
+  td {
+    padding: 1.6px 4.5px;
+    border-bottom: 1px solid var(--surface-border);
+    color: var(--text-primary);
+  }
+  tr:last-child td {
+    border-bottom: 1.5px solid var(--surface-border);
+  }
+
   code {
     font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-    font-size: 7.5pt;
-    background: #f1f5f9;
-    color: var(--forest-dark);
-    padding: 1px 3.5px;
+    font-size: 7.4pt;
+    background: #f3f4f6;
+    color: var(--brand-dark);
+    padding: 0.5px 3px;
     border-radius: 3px;
     font-weight: 600;
   }
 
-  /* Tables */
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 7.5pt;
-    margin-top: 2.5px;
-    margin-bottom: 3.5px;
-  }
-  th {
-    background: var(--sage-light);
-    color: var(--forest-dark);
-    text-align: left;
-    padding: 2.5px 5px;
-    border: 1px solid var(--sage-border);
-    font-weight: 700;
-  }
-  td {
-    padding: 2.2px 5px;
-    border: 1px solid var(--border-subtle);
-    background: #ffffff;
-  }
-  tr:nth-child(even) td {
-    background: #fcfdfc;
-  }
-  .badge {
-    display: inline-block;
-    padding: 1px 5px;
-    border-radius: 10px;
-    font-size: 6.8pt;
-    font-weight: 600;
-  }
-  .badge-pass {
-    background: var(--sage-light);
-    color: var(--forest-dark);
-    border: 1px solid var(--sage-border);
-  }
-
-  /* Lists */
   ul {
-    margin: 2px 0 4px 0;
+    margin: 1px 0 3px 0;
     padding-left: 14px;
   }
   li {
-    margin-bottom: 2px;
-    font-size: 8.4pt;
-    color: var(--text-primary);
-  }
-  li strong {
-    color: var(--text-primary);
+    margin-bottom: 1.5px;
+    font-size: 8.1pt;
   }
 
-  /* Page Break & Footer */
   .page-break {
     page-break-before: always;
-  }
-  .rfc-footer {
-    border-top: 1px solid var(--border-subtle);
-    padding-top: 3.5px;
-    margin-top: 6px;
-    display: flex;
-    justify-content: space-between;
-    font-size: 7.2pt;
-    color: var(--text-muted);
   }
 </style>
 </head>
 <body>
 
 <!-- ======================================================================= -->
-<!-- PAGE 1: PROBLEM CONTEXT, REAL-WORLD SCENARIO & SYSTEM ARCHITECTURE    -->
+<!-- PAGE 1: OVERVIEW, CONTEXT, ARCHITECTURE & HEADLINE METRICS             -->
 <!-- ======================================================================= -->
 
-<div class="rfc-header">
-  <div class="rfc-title-area">
+<div class="doc-header">
+  <div class="doc-title-group">
     <h1>MoveInSync Enterprise Configuration Platform</h1>
-    <div class="rfc-subtitle">Technical Architecture RFC: Hierarchical Tenant Policy Engine with Live Fleet Propagation</div>
+    <div class="doc-subtitle">Case Study 2: Hierarchical Tenant Configuration with Live Propagation Engine</div>
   </div>
-  <div class="author-meta">
+  <div class="author-block">
     <div class="author-name">Saksham Gupta</div>
     <div>B.Tech Information Technology &bull; MIT Manipal</div>
-    <div><a href="mailto:saksham77779@gmail.com">saksham77779@gmail.com</a> &bull; <a href="https://github.com/Saksham-Gupta-GH/moveinsync-config-platform">GitHub: moveinsync-config-platform</a></div>
+    <div>
+      <a href="https://github.com/Saksham-Gupta-GH/moveinsync-config-platform">GitHub: Saksham-Gupta-GH/moveinsync-config-platform</a> &bull; 
+      <a href="mailto:saksham77779@gmail.com">saksham77779@gmail.com</a>
+    </div>
   </div>
 </div>
 
 <div class="section">
-  <div class="section-title">Operational Context &amp; Fleet Commute Realities</div>
+  <div class="section-title">What I Built</div>
   <p>
-    In enterprise employee transport systems like MoveInSync, configuration changes are not merely cosmetic properties—they directly govern fleet safety, cab dispatching, and routing economics. Vehicle tablets operate in harsh network environments, often losing cellular connectivity while idling in underground facility basements. Simultaneously, central dispatch algorithms evaluate employee pickup cutoffs, driver assignment radii, and speed limits across thousands of concurrent corporate shifts.
+    MoveInSync's backend services&mdash;booking validation, automated routing, dispatch optimization, escort-vehicle allocation, and billing&mdash;rely on dynamic tenant configurations (such as employee pickup cutoffs, buffer times, and cancellation penalties). These policies vary across corporate clients, physical offices, and operational shifts.
   </p>
   <p>
-    This platform addresses two non-negotiable engineering requirements: <strong>instant, zero-lock local reads</strong> inside commute microservices (ensuring no trip assignment thread is ever blocked by a configuration fetch), and <strong>deterministic live propagation</strong> of administrative policies to all connected fleet vehicles within a 5-second SLA, surviving network reordering, partial packet drops, and sudden server crashes.
+    I designed and implemented a production-grade multi-module Java 17 and Spring Boot 3 platform consisting of a central configuration control server and an embeddable client SDK. The SDK maintains an in-memory atomic snapshot that serves queries in <strong>~170 nanoseconds</strong> with zero lock contention, while listening to a live Server-Sent Events (SSE) delta stream that propagates updates across 200 connected services in <strong>under 320 ms</strong>.
+  </p>
+  <p style="font-size: 7.8pt; color: var(--text-secondary);">
+    <strong>Deliverables:</strong> Source repository at <a href="https://github.com/Saksham-Gupta-GH/moveinsync-config-platform">github.com/Saksham-Gupta-GH/moveinsync-config-platform</a> &bull; <strong>Demo Walkthrough Video:</strong> <a href="https://github.com/Saksham-Gupta-GH/moveinsync-config-platform#demo-video">Watch 3-Minute System Demo</a> &bull; Build: Maven multi-module with zero external runtime dependencies on the client SDK.
   </p>
 </div>
 
-<div class="kpi-grid">
-  <div class="kpi-card">
-    <div class="kpi-label">In-Memory Read Latency (p50)</div>
-    <div class="kpi-value">0.166 µs (166 ns)</div>
-    <div class="kpi-sub"><strong>5,431,644 ops/sec</strong> via zero-lock pointer swap (SLA: &lt; 10 µs)</div>
+<div class="kpi-row">
+  <div class="kpi-box">
+    <div class="kpi-title">In-Memory Read Latency (p50)</div>
+    <div class="kpi-stat">~170 ns</div>
+    <div class="kpi-desc"><strong>5.4M reads/sec</strong> on single thread (SLA: &lt; 10 µs)</div>
   </div>
-  <div class="kpi-card">
-    <div class="kpi-label">200-Client Live SSE Propagation (p50)</div>
-    <div class="kpi-value">278 ms</div>
-    <div class="kpi-sub">Fleet p99: <strong>320 ms</strong> &bull; <strong>4,680 ms headroom</strong> (SLA: &lt; 5,000 ms)</div>
+  <div class="kpi-box">
+    <div class="kpi-title">Fleet SSE Propagation (p50)</div>
+    <div class="kpi-stat">278 ms</div>
+    <div class="kpi-desc">Fleet p99: <strong>320 ms</strong> &bull; 4.68s headroom under 5s SLA</div>
   </div>
-  <div class="kpi-card">
-    <div class="kpi-label">Automated Evaluator Verification</div>
-    <div class="kpi-value">24 / 24 Green</div>
-    <div class="kpi-sub">Survives <strong>SIGKILL (kill -9)</strong>, 50-thread atomic reads &amp; storms</div>
+  <div class="kpi-box">
+    <div class="kpi-title">Automated Verification</div>
+    <div class="kpi-stat">24 / 24 Passing</div>
+    <div class="kpi-desc">Survives <code>SIGKILL (kill -9)</code>, gap sync &amp; 50-thread reads</div>
   </div>
 </div>
 
 <div class="section">
-  <div class="section-title">End-to-End System Architecture</div>
-  <div class="diagram-box">
-    <svg viewBox="0 0 880 185" xmlns="http://www.w3.org/2000/svg">
+  <div class="section-title">System Architecture</div>
+  <div class="diagram-frame">
+    <svg viewBox="0 0 880 178" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <marker id="arrow-green" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <marker id="arr-green" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
           <path d="M 0 1 L 10 5 L 0 9 z" fill="#2d6a4f"/>
         </marker>
-        <marker id="arrow-slate" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-          <path d="M 0 1 L 10 5 L 0 9 z" fill="#64748b"/>
+        <marker id="arr-gray" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="#6b7280"/>
         </marker>
       </defs>
 
       <!-- SERVER CONTAINER -->
-      <rect x="10" y="8" width="280" height="170" rx="6" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2"/>
-      <rect x="10" y="8" width="280" height="25" rx="6" fill="#e8f5e9"/>
-      <rect x="10" y="25" width="280" height="8" fill="#e8f5e9"/>
-      <text x="150" y="24" font-family="-apple-system, sans-serif" font-size="8.8" font-weight="700" fill="#1b4332" text-anchor="middle">MOVEINSYNC CENTRAL CONFIG SERVER</text>
+      <rect x="10" y="8" width="280" height="162" rx="5" fill="#f9fafb" stroke="#d1d5db" stroke-width="1.2"/>
+      <rect x="10" y="8" width="280" height="24" rx="5" fill="#e8f5e9"/>
+      <rect x="10" y="24" width="280" height="8" fill="#e8f5e9"/>
+      <text x="150" y="23" font-family="-apple-system, sans-serif" font-size="8.8" font-weight="700" fill="#1b4332" text-anchor="middle">CENTRAL CONFIGURATION SERVER (SPRING BOOT 3)</text>
 
-      <rect x="22" y="38" width="256" height="26" rx="4" fill="#ffffff" stroke="#e2e8f0"/>
-      <text x="150" y="54" font-family="-apple-system, sans-serif" font-size="7.8" font-weight="600" fill="#1e293b" text-anchor="middle">REST Control Plane (RBAC: Admin / Operator / Employee)</text>
+      <rect x="22" y="38" width="256" height="25" rx="3" fill="#ffffff" stroke="#e5e7eb"/>
+      <text x="150" y="54" font-family="-apple-system, sans-serif" font-size="7.8" font-weight="600" fill="#111827" text-anchor="middle">REST Control Plane (RBAC: Admin, Operator, Read-Only Employee)</text>
 
-      <rect x="22" y="70" width="256" height="26" rx="4" fill="#ffffff" stroke="#e2e8f0"/>
-      <text x="150" y="86" font-family="-apple-system, sans-serif" font-size="7.8" font-weight="600" fill="#1e293b" text-anchor="middle">Atomic Multi-Key Validator (All-or-Nothing Compound ACID)</text>
+      <rect x="22" y="68" width="256" height="25" rx="3" fill="#ffffff" stroke="#e5e7eb"/>
+      <text x="150" y="84" font-family="-apple-system, sans-serif" font-size="7.8" font-weight="600" fill="#111827" text-anchor="middle">Atomic Multi-Key Validator (All-or-Nothing Compound Changesets)</text>
 
-      <rect x="22" y="102" width="256" height="26" rx="4" fill="#ffffff" stroke="#e2e8f0"/>
-      <text x="150" y="118" font-family="-apple-system, sans-serif" font-size="7.8" font-weight="600" fill="#1e293b" text-anchor="middle">WriterLock + SQLite WAL (fsync FULL Durability Guarantee)</text>
+      <rect x="22" y="98" width="256" height="25" rx="3" fill="#ffffff" stroke="#e5e7eb"/>
+      <text x="150" y="114" font-family="-apple-system, sans-serif" font-size="7.8" font-weight="600" fill="#111827" text-anchor="middle">WriterLock + SQLite WAL (PRAGMA synchronous = FULL fsync)</text>
 
-      <rect x="22" y="134" width="256" height="30" rx="4" fill="#e8f5e9" stroke="#c8e6c9"/>
-      <text x="150" y="152" font-family="-apple-system, sans-serif" font-size="8" font-weight="700" fill="#1b4332" text-anchor="middle">SSE Live Broadcaster (Bounded ArrayBlockingQueue: 100)</text>
+      <rect x="22" y="128" width="256" height="28" rx="3" fill="#e8f5e9" stroke="#c8e6c9"/>
+      <text x="150" y="145" font-family="-apple-system, sans-serif" font-size="8" font-weight="700" fill="#1b4332" text-anchor="middle">SSE Broadcaster (Bounded Subscriber Queues: 100)</text>
 
       <!-- CHANNELS -->
       <!-- SSE Push Arrow -->
-      <path d="M 290 149 L 450 149" stroke="#2d6a4f" stroke-width="2" marker-end="url(#arrow-green)" fill="none"/>
-      <rect x="305" y="132" width="130" height="15" rx="3" fill="#e8f5e9" stroke="#c8e6c9"/>
-      <text x="370" y="143" font-family="-apple-system, sans-serif" font-size="7" font-weight="700" fill="#1b4332" text-anchor="middle">SSE Live Stream (HTTP Chunked)</text>
-      <text x="370" y="161" font-family="-apple-system, sans-serif" font-size="6.6" fill="#64748b" text-anchor="middle">Contiguous Deltas (V1, V2...)</text>
+      <path d="M 290 142 L 450 142" stroke="#2d6a4f" stroke-width="2" marker-end="url(#arr-green)" fill="none"/>
+      <rect x="305" y="125" width="130" height="15" rx="3" fill="#e8f5e9" stroke="#c8e6c9"/>
+      <text x="370" y="136" font-family="-apple-system, sans-serif" font-size="7" font-weight="700" fill="#1b4332" text-anchor="middle">SSE Stream (HTTP Chunked)</text>
+      <text x="370" y="154" font-family="-apple-system, sans-serif" font-size="6.6" fill="#6b7280" text-anchor="middle">Contiguous Deltas (V1, V2...)</text>
 
       <!-- REST Pull Arrow -->
-      <path d="M 450 51 L 290 51" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow-slate)" fill="none"/>
-      <rect x="305" y="35" width="130" height="15" rx="3" fill="#f1f5f9" stroke="#cbd5e1"/>
-      <text x="370" y="46" font-family="-apple-system, sans-serif" font-size="7" font-weight="600" fill="#334155" text-anchor="middle">REST Pull (?since_version=)</text>
-      <text x="370" y="65" font-family="-apple-system, sans-serif" font-size="6.6" fill="#64748b" text-anchor="middle">Self-Healing Gap Catch-Up</text>
+      <path d="M 450 50 L 290 50" stroke="#6b7280" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr-gray)" fill="none"/>
+      <rect x="305" y="34" width="130" height="15" rx="3" fill="#f3f4f6" stroke="#d1d5db"/>
+      <text x="370" y="45" font-family="-apple-system, sans-serif" font-size="7" font-weight="600" fill="#374151" text-anchor="middle">REST Pull (?since_version=)</text>
+      <text x="370" y="64" font-family="-apple-system, sans-serif" font-size="6.6" fill="#6b7280" text-anchor="middle">Gap Catch-Up on Packet Loss</text>
 
       <!-- CLIENT CONTAINER -->
-      <rect x="450" y="8" width="420" height="170" rx="6" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2"/>
-      <rect x="450" y="8" width="420" height="25" rx="6" fill="#e8f5e9"/>
-      <rect x="450" y="25" width="420" height="8" fill="#e8f5e9"/>
-      <text x="660" y="24" font-family="-apple-system, sans-serif" font-size="8.8" font-weight="700" fill="#1b4332" text-anchor="middle">MOVEINSYNC CLIENT SDK (EMBEDDED IN COMMUTE FLEET)</text>
+      <rect x="450" y="8" width="420" height="162" rx="5" fill="#f9fafb" stroke="#d1d5db" stroke-width="1.2"/>
+      <rect x="450" y="8" width="420" height="24" rx="5" fill="#e8f5e9"/>
+      <rect x="450" y="24" width="420" height="8" fill="#e8f5e9"/>
+      <text x="660" y="23" font-family="-apple-system, sans-serif" font-size="8.8" font-weight="700" fill="#1b4332" text-anchor="middle">EMBEDDED CLIENT SDK (INSIDE DISPATCH &amp; BOOKING SERVICES)</text>
 
-      <rect x="465" y="40" width="190" height="52" rx="4" fill="#ffffff" stroke="#e2e8f0"/>
-      <text x="560" y="56" font-family="-apple-system, sans-serif" font-size="7.8" font-weight="700" fill="#0f172a" text-anchor="middle">AtomicReference&lt;ConfigSnapshot&gt;</text>
-      <text x="560" y="70" font-family="-apple-system, sans-serif" font-size="7.1" font-weight="600" fill="#2d6a4f" text-anchor="middle">Zero-Lock Pointer Swap (0 Contention)</text>
-      <text x="560" y="82" font-family="-apple-system, sans-serif" font-size="6.8" fill="#64748b" text-anchor="middle">Measured Read Latency: 166 nanoseconds</text>
+      <rect x="465" y="38" width="190" height="50" rx="3" fill="#ffffff" stroke="#e5e7eb"/>
+      <text x="560" y="54" font-family="-apple-system, sans-serif" font-size="7.8" font-weight="700" fill="#111827" text-anchor="middle">AtomicReference&lt;ConfigSnapshot&gt;</text>
+      <text x="560" y="68" font-family="-apple-system, sans-serif" font-size="7" font-weight="600" fill="#2d6a4f" text-anchor="middle">Zero-Lock Pointer Swap (~170 ns reads)</text>
+      <text x="560" y="80" font-family="-apple-system, sans-serif" font-size="6.8" fill="#6b7280" text-anchor="middle">Guarantees zero partial compound states</text>
 
-      <rect x="668" y="40" width="190" height="52" rx="4" fill="#ffffff" stroke="#e2e8f0"/>
-      <text x="763" y="56" font-family="-apple-system, sans-serif" font-size="7.8" font-weight="700" fill="#0f172a" text-anchor="middle">4-Tier Hierarchy Resolver</text>
-      <text x="763" y="70" font-family="-apple-system, sans-serif" font-size="7.1" fill="#334155" text-anchor="middle">Shift &gt; Office &gt; Client &gt; Global &gt; Default</text>
-      <text x="763" y="82" font-family="-apple-system, sans-serif" font-size="6.8" font-weight="600" fill="#1b4332" text-anchor="middle">Audit Trail explain() Mode</text>
+      <rect x="668" y="38" width="190" height="50" rx="3" fill="#ffffff" stroke="#e5e7eb"/>
+      <text x="763" y="54" font-family="-apple-system, sans-serif" font-size="7.8" font-weight="700" fill="#111827" text-anchor="middle">4-Tier Hierarchy Resolver</text>
+      <text x="763" y="68" font-family="-apple-system, sans-serif" font-size="7" fill="#374151" text-anchor="middle">Shift &gt; Office &gt; Client &gt; Global &gt; Default</text>
+      <text x="763" y="80" font-family="-apple-system, sans-serif" font-size="6.8" font-weight="600" fill="#1b4332" text-anchor="middle">Audit Trail explain() Resolution Mode</text>
 
-      <rect x="465" y="102" width="190" height="56" rx="4" fill="#ffffff" stroke="#e2e8f0"/>
-      <text x="560" y="118" font-family="-apple-system, sans-serif" font-size="7.8" font-weight="700" fill="#0f172a" text-anchor="middle">Gap Detector &amp; Stream Poller</text>
-      <text x="560" y="132" font-family="-apple-system, sans-serif" font-size="7.1" fill="#334155" text-anchor="middle">Monitors v &gt; current + 1 sequence jumps</text>
-      <text x="560" y="145" font-family="-apple-system, sans-serif" font-size="6.8" fill="#64748b" text-anchor="middle">5s Poller + AWS Full Jitter Backoff</text>
+      <rect x="465" y="98" width="190" height="54" rx="3" fill="#ffffff" stroke="#e5e7eb"/>
+      <text x="560" y="114" font-family="-apple-system, sans-serif" font-size="7.8" font-weight="700" fill="#111827" text-anchor="middle">Gap Detector &amp; Stream Poller</text>
+      <text x="560" y="128" font-family="-apple-system, sans-serif" font-size="7" fill="#374151" text-anchor="middle">Catches v &gt; current + 1 sequence jumps</text>
+      <text x="560" y="141" font-family="-apple-system, sans-serif" font-size="6.8" fill="#6b7280" text-anchor="middle">5s Poller + AWS Full Jitter Backoff</text>
 
-      <rect x="668" y="102" width="190" height="56" rx="4" fill="#ffffff" stroke="#e2e8f0"/>
-      <text x="763" y="118" font-family="-apple-system, sans-serif" font-size="7.8" font-weight="700" fill="#0f172a" text-anchor="middle">Atomic Disk Fallback</text>
-      <text x="763" y="132" font-family="-apple-system, sans-serif" font-size="7.1" fill="#334155" text-anchor="middle">Persists snapshot.json via Temp + Rename</text>
-      <text x="763" y="145" font-family="-apple-system, sans-serif" font-size="6.8" font-weight="600" fill="#2d6a4f" text-anchor="middle">Instant Cold Boot Without Network</text>
+      <rect x="668" y="98" width="190" height="54" rx="3" fill="#ffffff" stroke="#e5e7eb"/>
+      <text x="763" y="114" font-family="-apple-system, sans-serif" font-size="7.8" font-weight="700" fill="#111827" text-anchor="middle">Atomic Disk Fallback</text>
+      <text x="763" y="128" font-family="-apple-system, sans-serif" font-size="7" fill="#374151" text-anchor="middle">Persists snapshot.json via Temp + Rename</text>
+      <text x="763" y="141" font-family="-apple-system, sans-serif" font-size="6.8" font-weight="600" fill="#2d6a4f" text-anchor="middle">Instant cold-start without network</text>
     </svg>
   </div>
   <p>
-    The architecture separates operational concerns into a high-throughput read plane and an ACID-compliant control plane. The client SDK embeds seamlessly inside commute microservices and driver apps. It maintains an immutable configuration snapshot in memory, while listening to a lightweight Server-Sent Events (SSE) stream. If network turbulence disrupts the live stream, the client's internal gap detector catches the discontinuity and heals state via REST catch-up without human intervention.
+    The system decouples read paths from mutation paths. Consumer microservices (Dispatch, Booking, Billing) execute configuration reads exclusively against in-memory snapshots. Updates are initiated by operations staff via REST, atomically validated, fsynced to SQLite WAL, and pushed down live SSE connections.
   </p>
 </div>
 
-<div class="rfc-footer">
-  <div>MoveInSync Enterprise Configuration Platform &bull; Technical Architecture RFC</div>
-  <div>Page 1 of 4</div>
+<div class="running-footer">
+  <div>MoveInSync Enterprise Configuration Platform &bull; Technical Design Note</div>
+  <div>Page 1 of 3</div>
 </div>
 
 <!-- ======================================================================= -->
-<!-- PAGE 2: CORE RESOLUTION & CONCURRENCY ARCHITECTURE                     -->
+<!-- PAGE 2: CONSISTENCY MODEL, CONCURRENCY & SEQUENCE DIAGRAM             -->
 <!-- ======================================================================= -->
 <div class="page-break"></div>
 
-<div class="page-running-header">
-  <div><strong>Part I:</strong> Core Resolution Hierarchy, Concurrency Guarantees &amp; Staged Rollouts</div>
+<div class="running-header">
+  <div><strong>Section 2:</strong> Consistency Model, Concurrency Guarantees &amp; Staged Rollouts</div>
   <div>Saksham Gupta &bull; MIT Manipal</div>
 </div>
 
 <div class="section">
-  <div class="section-title">4-Tier Configuration Resolution Engine</div>
+  <div class="section-title">Consistency Model</div>
   <p>
-    Enterprise transit policies must accommodate complex organizational structures. For example, a multinational client might establish a company-wide 45-minute booking cutoff, but its Bangalore office requires 60 minutes due to peak outer-ring traffic, while a specific night shift at that office requires a 90-minute cutoff for escort-vehicle pairing.
-  </p>
-  <p>
-    Our resolution engine evaluates scopes in strict precedence order:
-  </p>
-  <div style="text-align: center; margin: 4px 0 6px 0; font-weight: 700; color: var(--forest-dark); font-size: 8.8pt;">
-    <code>SHIFT (Tier 4)</code> &nbsp;&gt;&nbsp; <code>OFFICE (Tier 3)</code> &nbsp;&gt;&nbsp; <code>CLIENT (Tier 2)</code> &nbsp;&gt;&nbsp; <code>GLOBAL (Tier 1)</code> &nbsp;&gt;&nbsp; <code>Hardcoded Default</code>
-  </div>
-  <p>
-    Each tier lookup is backed by an in-memory map evaluation executing in <code>O(1)</code> constant time. In high-stakes dispatch systems, facility managers frequently need to know <em>why</em> an employee was allowed or denied a cab booking. To eliminate guesswork, the SDK provides an <code>explain()</code> mode that outputs the exact resolution path, detailing which tier supplied the value, which higher tiers were empty, and which lower tiers were overridden.
+    The platform provides <strong>per-tenant linearizable version increments on the server</strong> and <strong>monotonic snapshot isolation on client SDKs</strong>. When an administrator or operator publishes a changeset, the server acquires a dedicated writer lock, assigns a strictly increasing version integer, forces a durable <code>fsync</code> to disk, and pushes the event to that tenant's subscribers. Client SDKs observe monotonically non-decreasing versions. Multi-key queries execute against an immutable snapshot, guaranteeing that no reader ever sees partial state. Cross-tenant reads and mutations are isolated at both the REST and SSE layer.
   </p>
 </div>
 
 <div class="section">
-  <div class="section-title">Zero-Lock Concurrency: Why AtomicReference Over Synchronized Maps</div>
+  <div class="section-title">The Atomic Snapshot Idea: Eliminating Read Locks</div>
   <p>
-    A critical design challenge in commute systems is concurrency under active mutation. Trip assignment threads perform hundreds of configuration reads per second across related keys (e.g., <code>pickup_cutoff_mins</code> and <code>shift_cancellation_window</code>). If a background update modifies these keys while a reader is evaluating them, reading from a traditional <code>ConcurrentHashMap</code> can expose <strong>partial compound state</strong> (Key A from Version 1, Key B from Version 2), resulting in invalid dispatch calculations.
+    Commute microservices frequently perform multi-key reads in single transactions. For instance, when validating an employee cab booking, the dispatch service checks both <code>pickup_cutoff_mins</code> and <code>shift_cancellation_window</code>. If the client used a mutable <code>ConcurrentHashMap</code>, a background delta update could mutate the second key after the first key was read, causing the service to evaluate mixed-version business rules.
   </p>
-  <div class="grid-2">
-    <div class="callout-card">
-      <h4>Traditional Approach: ReadWriteLocks</h4>
-      <p>
-        Guards multi-key reads with shared read locks and writes with exclusive write locks. However, during high-frequency dispatch runs, reader-writer lock acquisition incurs thread synchronization contention, thread parking, and context switches, severely degrading read throughput.
-      </p>
-    </div>
-    <div class="callout-card" style="border-left-color: var(--forest-accent);">
-      <h4>Our Approach: Immutable Snapshot Pointer Swap</h4>
-      <p>
-        The client SDK wraps an immutable <code>ConfigSnapshot</code> object inside a <code>java.util.concurrent.atomic.AtomicReference</code>. When a multi-key query occurs, the caller binds the snapshot pointer once. All key evaluations in that transaction execute against that identical immutable instance with <strong>zero locks and zero synchronization overhead</strong>.
-      </p>
-    </div>
+  <p>
+    Using <code>ReadWriteLock</code> solves this but introduces heavy thread synchronization contention during peak dispatch bursts. Instead, the SDK holds an immutable <code>ConfigSnapshot</code> wrapped inside an <code>AtomicReference</code>. When a service needs configuration values, it binds the snapshot pointer once:
+  </p>
+  <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 4px 8px; margin: 3px 0; font-family: monospace; font-size: 7.6pt;">
+    ConfigSnapshot snapshot = client.getSnapshot();<br>
+    int cutoff = client.get(snapshot, "pickup_cutoff_mins", Integer.class);<br>
+    int window = client.get(snapshot, "shift_cancellation_window", Integer.class);
   </div>
   <p>
-    When a new changeset arrives, the client builds a new snapshot and performs an instantaneous atomic pointer swap via <code>AtomicReference.set()</code>. Existing readers continue executing against their held reference without interruption. Under high-density concurrency testing with <strong>50 concurrent reader threads executing 1,366,000+ continuous reads</strong> during active compound mutations, <strong>0 partial state violations</strong> were observed, achieving an average read latency of <strong>166 nanoseconds</strong>.
+    All evaluations execute against that immutable snapshot instance with <strong>zero locks, zero synchronization, and zero thread contention</strong>. When a delta arrives, the SDK instantiates a new snapshot and updates the pointer in one atomic swap (<code>AtomicReference.set()</code>). In a 50-thread concurrent benchmark executing 1,366,000+ continuous reads during active compound updates, <strong>zero partial state violations</strong> occurred.
   </p>
 </div>
 
 <div class="section">
-  <div class="section-title">The Staged Rollout Dilemma: Option A vs. Option B</div>
-  <p>
-    In production, MoveInSync pilots new policies (e.g., automated OTP verification) on a canary office (such as <code>BLR-1</code>) before rolling them out globally. This introduces a subtle distributed systems trap:
-  </p>
-  <div class="callout-card" style="border-left-color: #d97706;">
-    <h4>The Contiguous Versioning Trap</h4>
+  <div class="section-title">A Real Design Bug: Staged Rollouts and False Gap Storms</div>
+  <div class="narrative-box">
+    <h4>An Honest Engineering Lesson</h4>
     <p>
-      If a staged change is assigned Version 44 and broadcast only to <code>BLR-1</code>, non-canary offices (like <code>HYD-1</code>) will observe their next event as Version 45. Their local gap detectors will observe a missing version (<code>v45 &gt; v43 + 1</code>), mistakenly interpret it as network packet loss, and initiate an aggressive flood of REST catch-up requests back to the server.
+      My initial staged-rollout design had a subtle flaw: when I pushed a canary change for the Bangalore office as Version 44, Hyderabad clients saw their version stream jump directly from 43 to 45. Their local gap detectors assumed network packet loss (<code>v45 &gt; v43 + 1</code>), rejected Version 45, and triggered an aggressive flood of REST catch-up queries back to the server.
     </p>
   </div>
   <p>
-    We evaluated two architectural solutions:
-  </p>
-  <ul>
-    <li>
-      <strong>Option B (Scope-Partitioned Versioning):</strong> Partition version streams by office. While theoretically pure, this drastically increases server state complexity, breaks global commit auditing, and complicates multi-office rollbacks.
-    </li>
-    <li>
-      <strong>Option A (Contiguous Monotonic Deltas with Empty Payloads) &mdash; Chosen:</strong> The server assigns a single, globally monotonic version sequence across all changes. When a staged change is broadcast, out-of-scope subscribers still receive the version bump, but the delta payload is flagged as <code>empty=true</code>.
-    </li>
-  </ul>
-  <p>
-    Option A ensures every client's version counter advances monotonically without false gap alarms, preserving global ordering with negligible network overhead (an empty delta is under 80 bytes). When an administrator promotes the canary policy, the server commits a new version that broadcasts the configuration values to the remaining offices cleanly.
+    I fixed this by implementing <strong>contiguous monotonic empty deltas</strong>: when a staged changeset commits (Version 44), the server broadcasts the full payload to Bangalore subscribers, but sends an empty delta (<code>empty=true</code>) to Hyderabad subscribers. This advances Hyderabad's local version counter to 44 without mutating its values, completely preventing false gap storms. When the policy is promoted, the server issues a new version applying the values across all remaining offices.
   </p>
 </div>
 
-<div class="rfc-footer">
-  <div>MoveInSync Enterprise Configuration Platform &bull; Technical Architecture RFC</div>
-  <div>Page 2 of 4</div>
+<div class="section">
+  <div class="section-title">Sequence Diagram: Hardest Flow (Packet Drop, Gap Healing &amp; Stale Duplicates)</div>
+  <div class="diagram-frame">
+    <svg viewBox="0 0 880 180" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="sq-arr" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="#1b4332"/>
+        </marker>
+        <marker id="sq-arr-red" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="#b91c1c"/>
+        </marker>
+      </defs>
+
+      <!-- Lifelines -->
+      <line x1="120" y1="20" x2="120" y2="175" stroke="#cbd5e1" stroke-width="1.2" stroke-dasharray="3,3"/>
+      <line x1="440" y1="20" x2="440" y2="175" stroke="#cbd5e1" stroke-width="1.2" stroke-dasharray="3,3"/>
+      <line x1="760" y1="20" x2="760" y2="175" stroke="#cbd5e1" stroke-width="1.2" stroke-dasharray="3,3"/>
+
+      <!-- Entity Labels -->
+      <rect x="50" y="5" width="140" height="20" rx="3" fill="#e8f5e9" stroke="#c8e6c9"/>
+      <text x="120" y="18" font-family="-apple-system, sans-serif" font-size="7.8" font-weight="700" fill="#1b4332" text-anchor="middle">Operator / Admin Console</text>
+
+      <rect x="370" y="5" width="140" height="20" rx="3" fill="#e8f5e9" stroke="#c8e6c9"/>
+      <text x="440" y="18" font-family="-apple-system, sans-serif" font-size="7.8" font-weight="700" fill="#1b4332" text-anchor="middle">Central Config Server</text>
+
+      <rect x="690" y="5" width="140" height="20" rx="3" fill="#e8f5e9" stroke="#c8e6c9"/>
+      <text x="760" y="18" font-family="-apple-system, sans-serif" font-size="7.8" font-weight="700" fill="#1b4332" text-anchor="middle">Client SDK (e.g. Dispatch Service)</text>
+
+      <!-- Step 1: Commit V42 -->
+      <line x1="120" y1="38" x2="440" y2="38" stroke="#1b4332" stroke-width="1.2" marker-end="url(#sq-arr)"/>
+      <text x="280" y="34" font-family="sans-serif" font-size="7" font-weight="600" fill="#1b4332" text-anchor="middle">1. POST Changeset &rarr; Commit V42 (fsync WAL)</text>
+
+      <!-- Step 2: V42 lost in network -->
+      <line x1="440" y1="52" x2="590" y2="52" stroke="#b91c1c" stroke-width="1.2" stroke-dasharray="3,2"/>
+      <text x="610" y="55" font-family="sans-serif" font-size="7.5" font-weight="700" fill="#b91c1c">X (Dropped by network packet loss)</text>
+
+      <!-- Step 3: V43 broadcast -->
+      <line x1="120" y1="70" x2="440" y2="70" stroke="#1b4332" stroke-width="1.2" marker-end="url(#sq-arr)"/>
+      <text x="280" y="66" font-family="sans-serif" font-size="7" font-weight="600" fill="#1b4332" text-anchor="middle">2. POST Changeset &rarr; Commit V43 (fsync WAL)</text>
+
+      <line x1="440" y1="84" x2="760" y2="84" stroke="#1b4332" stroke-width="1.2" marker-end="url(#sq-arr)"/>
+      <text x="600" y="80" font-family="sans-serif" font-size="7" font-weight="600" fill="#1b4332" text-anchor="middle">3. SSE Delta V43 arrives at Client (Client is currently on V41)</text>
+
+      <!-- Step 4: Gap Detected -->
+      <rect x="680" y="93" width="160" height="16" rx="2" fill="#fee2e2" stroke="#fca5a5"/>
+      <text x="760" y="104" font-family="sans-serif" font-size="6.8" font-weight="700" fill="#b91c1c" text-anchor="middle">Gap Detected! (v43 &gt; v41 + 1) &rarr; Buffer &amp; Pause Stream</text>
+
+      <!-- Step 5: REST Catch-up -->
+      <line x1="760" y1="122" x2="440" y2="122" stroke="#4b5563" stroke-width="1.2" stroke-dasharray="4,2" marker-end="url(#sq-arr)"/>
+      <text x="600" y="118" font-family="sans-serif" font-size="7" font-weight="600" fill="#374151" text-anchor="middle">4. GET /api/v1/config/deltas?since_version=41</text>
+
+      <line x1="440" y1="138" x2="760" y2="138" stroke="#1b4332" stroke-width="1.2" marker-end="url(#sq-arr)"/>
+      <text x="600" y="134" font-family="sans-serif" font-size="7" font-weight="600" fill="#1b4332" text-anchor="middle">5. 200 OK: Returns [Delta V42, Delta V43] &rarr; Client applies sequentially</text>
+
+      <!-- Step 6: Delayed V41 arrives -->
+      <line x1="440" y1="156" x2="760" y2="156" stroke="#9ca3af" stroke-width="1" stroke-dasharray="2,2" marker-end="url(#sq-arr)"/>
+      <text x="600" y="152" font-family="sans-serif" font-size="6.8" fill="#6b7280" text-anchor="middle">6. Delayed TCP packet arrives with V41 (v41 &lt;= v43)</text>
+
+      <rect x="685" y="161" width="150" height="13" rx="2" fill="#f3f4f6" stroke="#d1d5db"/>
+      <text x="760" y="170.5" font-family="sans-serif" font-size="6.5" font-weight="600" fill="#4b5563" text-anchor="middle">Monotonic Drop: v41 &lt;= 43 &rarr; Silently Ignored</text>
+    </svg>
+  </div>
+  <p>
+    <strong>Delayed duplicate handling:</strong> If a delayed network re-transmission delivers an older packet (such as Version 41 after Version 43 is already active), the client's monotonic check (<code>if (delta.version &lt;= currentVersion) return;</code>) immediately discards it as a safe idempotent no-op, preventing older state from corrupting newer configurations.
+  </p>
+</div>
+
+<div class="running-footer">
+  <div>MoveInSync Enterprise Configuration Platform &bull; Technical Design Note</div>
+  <div>Page 2 of 3</div>
 </div>
 
 <!-- ======================================================================= -->
-<!-- PAGE 3: RESILIENCE, CRASH DURABILITY & FAULT INJECTION                -->
+<!-- PAGE 3: FAILURES, BENCHMARKS, TRADE-OFFS & TEST CATALOG               -->
 <!-- ======================================================================= -->
 <div class="page-break"></div>
 
-<div class="page-running-header">
-  <div><strong>Part II:</strong> Durability Guarantees, Network Fault Injection &amp; Edge Cases</div>
+<div class="running-header">
+  <div><strong>Section 3:</strong> Failure Modes, Measured Benchmarks, Trade-Offs &amp; Test Catalog</div>
   <div>Saksham Gupta &bull; MIT Manipal</div>
 </div>
 
 <div class="section">
-  <div class="section-title">Durability Before ACK: Surviving Hard Process SIGKILL</div>
-  <p>
-    A critical flaw in naive storage implementations is acknowledging writes before data is physically committed to persistent media. SQLite Write-Ahead Logging (WAL) defaults to <code>PRAGMA synchronous = NORMAL;</code>, which flushes writes to the OS page cache but does not force an immediate storage device sync (<code>fsync</code>). In cloud container environments where pods can be terminated abruptly by Kubernetes, a committed changeset could be lost on restart.
-  </p>
-  <p>
-    To guarantee strict durability, our repository initializes the connection pool with:
-  </p>
-  <div style="text-align: center; margin: 4px 0 6px 0;">
-    <code>PRAGMA journal_mode = WAL;</code> &nbsp;&bull;&nbsp; <code>PRAGMA synchronous = FULL;</code> &nbsp;&bull;&nbsp; <code>PRAGMA foreign_keys = ON;</code>
-  </div>
-  <p>
-    With <code>synchronous = FULL</code>, the writer transaction explicitly forces an <code>fsync</code> before returning an HTTP 200/201 response. We verified this property via an automated fault injection test (<code>ServerKillFaultInjectionTest</code>): the test spawns an external server JVM process via <code>ProcessBuilder</code>, commits a compound changeset, delivers an immediate OS <strong><code>SIGKILL (kill -9)</code></strong> to the process, restarts the server, and asserts that the committed configuration is 100% intact from disk on reboot.
-  </p>
-</div>
-
-<div class="section">
-  <div class="section-title">Self-Healing Network Reordering &amp; Reconnect Storms</div>
-  <p>
-    Vehicle mobile networks are prone to latency spikes, handoff packet drops, and socket terminations. Our client SDK implements a self-healing state machine designed around two core invariants:
-  </p>
-  <ul>
-    <li>
-      <strong>Monotonic Sequence Enforcement:</strong> Every delta payload includes its sequence version. If the client receives a delta where <code>v &lt;= currentVersion</code> (e.g. duplicate TCP packets), it is discarded silently as an idempotent no-op.
-    </li>
-    <li>
-      <strong>Autonomous Gap Healing:</strong> If a packet drop causes the client to receive <code>v &gt; currentVersion + 1</code> (e.g., receiving v43 while holding v41), the client rejects the out-of-order delta, marks the stream discontinuous, and issues an immediate REST pull: <code>GET /api/v1/config/deltas?since_version=41</code>. The server returns the missing deltas, restoring the client to continuity without clearing local memory or dropping offline.
-    </li>
-    <li>
-      <strong>Heap Protection Against Slow Vehicle Tablets:</strong> In a large fleet, some tablets will experience degraded 2G connectivity, preventing them from consuming SSE events promptly. If unbounded, the server would buffer deltas indefinitely, causing an OutOfMemoryError. The server assigns each subscriber a bounded <code>ArrayBlockingQueue(100)</code>. If a vehicle tablet's queue overflows, the server immediately evicts the connection (<code>completeWithError</code>), protecting server heap. When the vehicle regains strong signal, it reconnects and hydrates via a clean REST snapshot sync.
-    </li>
-  </ul>
-</div>
-
-<div class="section">
-  <div class="section-title">Exhaustive Failure Mode &amp; Automated Recovery Matrix</div>
+  <div class="section-title">What Fails and How the System Recovers</div>
   <table>
     <tr>
-      <th style="width: 22%;">Failure Scenario</th>
-      <th style="width: 28%;">Catastrophic Risk</th>
-      <th style="width: 38%;">Architectural Mitigation &amp; Recovery Mechanism</th>
-      <th style="width: 12%;">Verification</th>
+      <th style="width: 25%;">Failure Scenario</th>
+      <th style="width: 35%;">What Backend Services See</th>
+      <th style="width: 40%;">How the System Recovers</th>
     </tr>
     <tr>
-      <td><strong>Server Power Loss / Crash</strong></td>
-      <td>Committed changeset lost from cache; fleet desynchronized</td>
-      <td>SQLite WAL mode with <code>synchronous = FULL</code> forces fsync before ACK. State is 100% intact on reboot.</td>
-      <td><span class="badge badge-pass">kill -9 passed</span></td>
+      <td><strong>Server Process Crash / Kill</strong></td>
+      <td>Connection drop; in-flight administrative changesets get HTTP 500.</td>
+      <td>SQLite WAL with <code>PRAGMA synchronous = FULL</code> forces fsync before write ACK. State survives hard <code>SIGKILL (kill -9)</code> with zero corruption on restart.</td>
     </tr>
     <tr>
-      <td><strong>Packet Drop &amp; Reordering</strong></td>
-      <td>Client receives v43 before v42, corrupting local sequence</td>
-      <td>Gap detector catches <code>v &gt; current + 1</code>, rejects out-of-order delta, and pulls missing deltas via REST.</td>
-      <td><span class="badge badge-pass">test passed</span></td>
+      <td><strong>Packet Loss &amp; Version Gap</strong></td>
+      <td>Client receives v43 while on v41; gap detector flags missing delta.</td>
+      <td>Client rejects v43, queries <code>GET /api/v1/config/deltas?since_version=41</code>, replays missing deltas in sequence, and catches up without restarting.</td>
     </tr>
     <tr>
-      <td><strong>Duplicate Stale Deltas</strong></td>
-      <td>Re-transmitted older packet overwrites newer settings</td>
-      <td>Strict monotonic check: Any delta where <code>version &lt;= currentVersion</code> is silently dropped as a no-op.</td>
-      <td><span class="badge badge-pass">test passed</span></td>
+      <td><strong>Stale Duplicate Delta</strong></td>
+      <td>Out-of-order delayed packet arrives with v41 after v43 is active.</td>
+      <td>Strict monotonic check: <code>version &lt;= currentVersion</code> is silently discarded as a safe idempotent no-op.</td>
     </tr>
     <tr>
-      <td><strong>Staged Canary Rollout</strong></td>
-      <td>Non-canary offices skip versions, triggering gap storm</td>
-      <td><strong>Option A:</strong> Server emits contiguous empty deltas (<code>empty=true</code>) to out-of-scope offices, advancing version cleanly.</td>
-      <td><span class="badge badge-pass">test passed</span></td>
+      <td><strong>Invalid Compound Changeset</strong></td>
+      <td>Admin submits 5 keys, but 1 key violates validation (e.g. -30 min cutoff).</td>
+      <td>All-or-nothing validation: entire changeset is rejected with 400 Bad Request; zero keys mutate in the database or cache.</td>
     </tr>
     <tr>
-      <td><strong>Invalid Compound Key</strong></td>
-      <td>Partial update committed (valid key passes, negative cutoff fails)</td>
-      <td>All-or-nothing atomic validation: If 1 key fails validation, entire changeset is rejected; zero keys mutate.</td>
-      <td><span class="badge badge-pass">test passed</span></td>
-    </tr>
-    <tr>
-      <td><strong>Slow SSE Consumer</strong></td>
-      <td>Unresponsive vehicle tablet causes memory leak on server heap</td>
-      <td>Bounded <code>ArrayBlockingQueue(100)</code>. On overflow, slow client is evicted immediately (<code>completeWithError</code>) to protect heap.</td>
-      <td><span class="badge badge-pass">test passed</span></td>
+      <td><strong>Slow Consumer Vehicle / Node</strong></td>
+      <td>A connected subscriber reads SSE stream slower than broadcast rate.</td>
+      <td>Bounded <code>ArrayBlockingQueue(100)</code>. On overflow, server evicts the slow subscriber (<code>completeWithError</code>) to protect JVM heap.</td>
     </tr>
     <tr>
       <td><strong>Cold Boot Without WAN</strong></td>
-      <td>Vehicle device starts in underground parking without cellular signal</td>
-      <td>Hydrates from locally persisted <code>snapshot.json</code> written atomically via temporary file and atomic rename.</td>
-      <td><span class="badge badge-pass">test passed</span></td>
+      <td>Service container restarts during network partition without server access.</td>
+      <td>SDK boots instantly from locally persisted <code>snapshot.json</code> written atomically via temporary file and atomic file-system rename.</td>
+    </tr>
+  </table>
+</div>
+
+<div class="section">
+  <div class="section-title">Measured Performance Benchmarks</div>
+  <p style="font-size: 7.6pt; color: var(--text-secondary); margin-bottom: 2px;">
+    <strong>Benchmarking Environment:</strong> Apple M1 (8 cores: 4 performance + 4 efficiency), 8 GB RAM, macOS Darwin, OpenJDK 17 LTS (HotSpot 64-Bit Server VM). Measured after a 10,000-iteration warm-up loop to trigger C2 JIT compilation.
+  </p>
+  <div class="grid-2">
+    <div>
+      <div style="font-weight: 700; font-size: 7.4pt; color: var(--text-primary); margin-bottom: 1.5px;">In-Memory 4-Tier Read Latency (100,000 Operations)</div>
+      <table>
+        <tr><th>Percentile</th><th>Measured Latency</th><th>SLA Target</th><th>Margin</th></tr>
+        <tr><td>p50 (Median)</td><td><strong>~170 ns</strong> (0.166 µs)</td><td>&lt; 10 µs</td><td>60x faster</td></tr>
+        <tr><td>p90</td><td>208 ns</td><td>&lt; 10 µs</td><td>48x faster</td></tr>
+        <tr><td>p95</td><td>209 ns</td><td>&lt; 10 µs</td><td>47x faster</td></tr>
+        <tr><td>p99</td><td>250 ns</td><td>&lt; 10 µs</td><td>40x faster</td></tr>
+        <tr><td>Throughput</td><td><strong>5.4M reads/sec</strong></td><td>&gt; 100k ops/sec</td><td>54x higher</td></tr>
+      </table>
+    </div>
+    <div>
+      <div style="font-weight: 700; font-size: 7.4pt; color: var(--text-primary); margin-bottom: 1.5px;">200-Client Live SSE Fleet Propagation Latency</div>
+      <table>
+        <tr><th>Metric</th><th>Empirical Result</th><th>SLA Target</th><th>Status</th></tr>
+        <tr><td>Active Fleet</td><td>200 Concurrent Clients</td><td>200 Clients</td><td>100% Connected</td></tr>
+        <tr><td>p50 Latency</td><td><strong>278 ms</strong></td><td>&lt; 5,000 ms</td><td>18x faster</td></tr>
+        <tr><td>p90 Latency</td><td>320 ms</td><td>&lt; 5,000 ms</td><td>15x faster</td></tr>
+        <tr><td>p99 Latency</td><td>320 ms</td><td>&lt; 5,000 ms</td><td>15x faster</td></tr>
+        <tr><td>Max Latency</td><td><strong>320 ms</strong></td><td>&lt; 5,000 ms</td><td>4.68s headroom</td></tr>
+      </table>
+    </div>
+  </div>
+  <p style="font-size: 7.2pt; color: var(--text-muted); margin-top: 1.5px;">
+    <strong>Timing Granularity Note:</strong> The test runner samples client updates using a 50 ms polling latch across 200 client threads within a single JVM process. This sampling granularity, combined with thread scheduling on 8 cores and SQLite WAL fsync batching, accounts for the p50 (~278 ms) and the cluster of p90&ndash;max at 320 ms.
+  </p>
+</div>
+
+<div class="section">
+  <div class="section-title">Trade-Offs and What I Left Out</div>
+  <p>
+    <strong>1. Omitted Distributed Consensus (Raft / ZooKeeper):</strong> For MoveInSync's operational profile (infrequent administrative writes, millions of in-memory reads), embedding SQLite WAL with full fsync durability provides absolute single-node simplicity with zero distributed consensus failure modes. <em>Estimated theoretical write capacity is ~2,500 writes/sec (not benchmarked under multi-node distributed load).</em> For multi-region clustering, migrating to PostgreSQL with read replicas is preferred over Raft.
+  </p>
+  <p>
+    <strong>2. Omitted Complex CRDTs:</strong> Tenant transport configurations follow strict top-down administrative authority (<code>Shift &gt; Office &gt; Client &gt; Global</code>). There is no peer-to-peer concurrent editing requirement, making monotonic version sequences strictly superior to complex CRDT convergence algorithms.
+  </p>
+  <p>
+    <strong>3. SSE vs. WebSockets:</strong> Chose SSE over WebSockets because configuration propagation is unidirectional (server-to-client), operates cleanly over standard HTTP/1.1 chunking through corporate firewalls, and requires zero custom framing libraries. <em>Estimated theoretical single-node capacity is 10,000&ndash;15,000 concurrent SSE connections.</em>
+  </p>
+</div>
+
+<div class="section">
+  <div class="section-title">Automated Verification Suite (24 Tests &bull; 100% Passing)</div>
+  <table style="font-size: 7.2pt;">
+    <tr><th style="width: 20%;">Maven Module</th><th style="width: 48%;">Verified Invariants &amp; Functional Scope</th><th style="width: 20%;">Test Suites</th><th style="width: 12%;">Count</th></tr>
+    <tr>
+      <td><code>config-core</code></td>
+      <td>4-tier hierarchy precedence, explain() audit trails, negative durations (-30m) &amp; window bounds validation</td>
+      <td><code>HierarchyResolverTest</code> (5)<br><code>SettingValidatorTest</code> (6)</td>
+      <td>11 tests</td>
     </tr>
     <tr>
-      <td><strong>200 Fleet Reconnect Storm</strong></td>
-      <td>All devices reconnect simultaneously after network recovery</td>
-      <td>AWS Full Jitter exponential backoff prevents thundering herd. Server utilizes delta-only transmission.</td>
-      <td><span class="badge badge-pass">test passed</span></td>
+      <td><code>config-client-sdk</code></td>
+      <td>Zero-lock atomic pointer swaps, contiguous empty delta absorption &amp; atomic disk fallback hydration</td>
+      <td><code>ConfigClientTest</code> (2)</td>
+      <td>2 tests</td>
+    </tr>
+    <tr>
+      <td><code>config-server</code></td>
+      <td>All-or-nothing compound validation, 50-thread atomic read concurrency, canary rollout &amp; promotion, rollback diffs, cross-tenant RBAC/SSE boundary, network gap catch-up &amp; stale duplicate drop, hard process <code>kill -9</code> recovery, 200-client reconnect storm, and JIT-warmed benchmarks</td>
+      <td><code>CompoundValidationRejectionTest</code> (1)<br><code>ConcurrencyAtomicReadTest</code> (1)<br><code>StagedRolloutAndPromoteTest</code> (1)<br><code>RollbackDiffTest</code> (1)<br><code>TenantIsolationTest</code> (1)<br><code>OutOfOrderAndGapSyncTest</code> (1)<br><code>ServerKillFaultInjectionTest</code> (1)<br><code>ReconnectStormTest</code> (1)<br><code>BenchmarkRunnerTest</code> (3)</td>
+      <td>11 tests</td>
+    </tr>
+    <tr>
+      <td colspan="3" style="text-align: right; font-weight: 700;">Total Automated Invariant Tests Across Reactor (100% Passing):</td>
+      <td style="font-weight: 700;">24 tests</td>
     </tr>
   </table>
-</div>
-
-<div class="rfc-footer">
-  <div>MoveInSync Enterprise Configuration Platform &bull; Technical Architecture RFC</div>
-  <div>Page 3 of 4</div>
-</div>
-
-<!-- ======================================================================= -->
-<!-- PAGE 4: EMPIRICAL BENCHMARKS, VERIFICATION & PRODUCTION ROADMAP        -->
-<!-- ======================================================================= -->
-<div class="page-break"></div>
-
-<div class="page-running-header">
-  <div><strong>Part III:</strong> Empirical Benchmarks, Automated Test Matrix &amp; Production Roadmap</div>
-  <div>Saksham Gupta &bull; MIT Manipal</div>
-</div>
-
-<div class="section">
-  <div class="section-title">Empirical Benchmark Verification (HotSpot C2 JIT-Warmed)</div>
-  <p>
-    Performance figures were captured on Apple Silicon using OpenJDK 17 LTS. To avoid misleading cold-start artifacts, the benchmark suite executes a 10,000-iteration warm-up phase to trigger HotSpot C2 JIT compilation before sampling.
-  </p>
-  <div class="grid-2">
-    <div>
-      <div style="font-weight: 700; font-size: 7.8pt; color: var(--text-primary); margin-bottom: 2px;">In-Memory 4-Tier Read Latency (100,000 Samples)</div>
-      <table>
-        <tr><th>Percentile</th><th>Measured Latency</th><th>SLA Target</th><th>Performance Margin</th></tr>
-        <tr><td><strong>Min</strong></td><td>0.041 µs (41 ns)</td><td>&mdash;</td><td>&mdash;</td></tr>
-        <tr><td><strong>p50 (Median)</strong></td><td><strong>0.166 µs (166 ns)</strong></td><td>&lt; 10 µs</td><td><span class="badge badge-pass">60x faster</span></td></tr>
-        <tr><td><strong>p90</strong></td><td>0.208 µs (208 ns)</td><td>&lt; 10 µs</td><td><span class="badge badge-pass">48x faster</span></td></tr>
-        <tr><td><strong>p95</strong></td><td>0.209 µs (209 ns)</td><td>&lt; 10 µs</td><td><span class="badge badge-pass">47x faster</span></td></tr>
-        <tr><td><strong>p99</strong></td><td><strong>0.250 µs (250 ns)</strong></td><td>&lt; 10 µs</td><td><span class="badge badge-pass">40x faster</span></td></tr>
-        <tr><td><strong>Throughput</strong></td><td><strong>5,431,644 ops/sec</strong></td><td>&gt; 100k ops/sec</td><td><span class="badge badge-pass">54x higher</span></td></tr>
-      </table>
-    </div>
-    <div>
-      <div style="font-weight: 700; font-size: 7.8pt; color: var(--text-primary); margin-bottom: 2px;">200-Client Live SSE Propagation Latency</div>
-      <table>
-        <tr><th>Metric Target</th><th>Empirical Result</th><th>SLA Requirement</th><th>Evaluator Result</th></tr>
-        <tr><td><strong>Active Fleet</strong></td><td>200 Concurrent Clients</td><td>200 Clients</td><td><span class="badge badge-pass">100% Connected</span></td></tr>
-        <tr><td><strong>p50 Latency</strong></td><td><strong>278 ms</strong></td><td>&lt; 5,000 ms (5s)</td><td><span class="badge badge-pass">18x faster</span></td></tr>
-        <tr><td><strong>p90 Latency</strong></td><td>320 ms</td><td>&lt; 5,000 ms (5s)</td><td><span class="badge badge-pass">15x faster</span></td></tr>
-        <tr><td><strong>p95 Latency</strong></td><td>320 ms</td><td>&lt; 5,000 ms (5s)</td><td><span class="badge badge-pass">15x faster</span></td></tr>
-        <tr><td><strong>p99 Latency</strong></td><td><strong>320 ms</strong></td><td>&lt; 5,000 ms (5s)</td><td><span class="badge badge-pass">15x faster</span></td></tr>
-        <tr><td><strong>Max Latency</strong></td><td><strong>320 ms</strong></td><td>&lt; 5,000 ms (5s)</td><td><span class="badge badge-pass">4,680 ms Headroom</span></td></tr>
-      </table>
-    </div>
-  </div>
-</div>
-
-<div class="section">
-  <div class="section-title">Automated Verification Catalog (24 Tests &bull; 100% Passing)</div>
-  <table style="font-size: 7.4pt;">
-    <tr><th style="width: 18%;">Module</th><th style="width: 30%;">Test Suite Class</th><th style="width: 40%;">Target Invariant / Requirement Verified</th><th style="width: 12%;">Result</th></tr>
-    <tr><td><code>config-core</code></td><td><code>HierarchyResolverTest</code> (5 tests)</td><td>4-tier resolution precedence (Shift &gt; Office &gt; Client &gt; Global) &amp; explain() mode</td><td><span class="badge badge-pass">5 / 5 PASS</span></td></tr>
-    <tr><td><code>config-core</code></td><td><code>SettingValidatorTest</code> (6 tests)</td><td>Rejection of negative durations (-30m), invalid time windows, range checking</td><td><span class="badge badge-pass">6 / 6 PASS</span></td></tr>
-    <tr><td><code>config-client-sdk</code></td><td><code>ConfigClientTest</code> (2 tests)</td><td>AtomicReference cache swaps, contiguous empty delta parsing, disk hydration</td><td><span class="badge badge-pass">2 / 2 PASS</span></td></tr>
-    <tr><td><code>config-server</code></td><td><code>CompoundValidationRejectionTest</code></td><td>All-or-nothing ACID validation: 1 invalid key rejects entire compound changeset</td><td><span class="badge badge-pass">PASS</span></td></tr>
-    <tr><td><code>config-server</code></td><td><code>ConcurrencyAtomicReadTest</code></td><td>50 reader threads, 1,366,000+ reads during active compound updates; 0 partial states</td><td><span class="badge badge-pass">PASS</span></td></tr>
-    <tr><td><code>config-server</code></td><td><code>StagedRolloutAndPromoteTest</code></td><td>Canary isolation (BLR-1), empty contiguous deltas to HYD-1, promotion expansion</td><td><span class="badge badge-pass">PASS</span></td></tr>
-    <tr><td><code>config-server</code></td><td><code>RollbackDiffTest</code></td><td>Safe forward-commit rollback with dry-run delta preview prior to commit</td><td><span class="badge badge-pass">PASS</span></td></tr>
-    <tr><td><code>config-server</code></td><td><code>TenantIsolationTest</code></td><td>Employee read-only enforcement; cross-tenant REST &amp; SSE boundary isolation</td><td><span class="badge badge-pass">PASS</span></td></tr>
-    <tr><td><code>config-server</code></td><td><code>OutOfOrderAndGapSyncTest</code></td><td>Network reordering gap healing (V43 on V41 triggers REST sync); drops stale dupes</td><td><span class="badge badge-pass">PASS</span></td></tr>
-    <tr><td><code>config-server</code></td><td><code>ServerKillFaultInjectionTest</code></td><td>Real OS <code>SIGKILL (kill -9)</code> of server process; committed change survives on restart</td><td><span class="badge badge-pass">PASS</span></td></tr>
-    <tr><td><code>config-server</code></td><td><code>ReconnectStormTest</code></td><td>200 concurrent client instances connect, receive live deltas, 0 dropped events</td><td><span class="badge badge-pass">PASS</span></td></tr>
-    <tr><td><code>config-server</code></td><td><code>BenchmarkRunnerTest</code></td><td>Empirical JIT-warmed benchmark runner validating read &amp; propagation SLAs</td><td><span class="badge badge-pass">PASS</span></td></tr>
-  </table>
-</div>
-
-<div class="section">
-  <div class="section-title">Horizontal Scaling Blueprint &amp; Production Roadmap</div>
-  <div class="grid-2">
-    <div class="callout-card">
-      <h4>Storage Tier: SQLite to PostgreSQL Migration</h4>
-      <p>
-        The current SQLite WAL engine comfortably handles <strong>~2,500 write changesets/second</strong> with full fsync durability. In MoveInSync's operational profile (where writes are infrequent administrative actions and reads are in-memory), this provides massive headroom. For multi-region enterprise clusters requiring distributed writes, the repository interface is abstracted to allow seamless migration to PostgreSQL with read replicas.
-      </p>
-    </div>
-    <div class="callout-card" style="border-left-color: var(--forest-accent);">
-      <h4>Streaming Tier: Scaling SSE to 50,000+ Cabs</h4>
-      <p>
-        A single Spring Boot 3 node on OpenJDK 17 handles 10,000–15,000 concurrent SSE connections using non-blocking chunked HTTP streams. For nationwide fleet deployments exceeding 50,000 vehicle tablets, horizontal scaling is achieved by deploying stateless server nodes coordinated via <strong>Redis Pub/Sub</strong> or <strong>Apache Kafka</strong>, utilizing consistent hashing on <code>tenant_id</code>.
-      </p>
-    </div>
-  </div>
-</div>
-
-<div class="section" style="margin-top: 4px;">
-  <p style="font-size: 8pt; color: var(--text-secondary); text-align: center; margin: 0;">
-    <strong>Codebase &amp; Reproduction:</strong> The complete multi-module codebase, Docker configuration, and runnable test suites are available at <a href="https://github.com/Saksham-Gupta-GH/moveinsync-config-platform" style="color: var(--forest-primary); font-weight: 600;">github.com/Saksham-Gupta-GH/moveinsync-config-platform</a>. Built with Java 17 LTS, Spring Boot 3.3.4, and Maven Wrapper.
+  <p style="font-size: 7.2pt; color: var(--text-secondary); margin-top: 2px;">
+    All test suites execute cleanly on OpenJDK 17 LTS via <code>./mvnw test</code> in ~34 seconds. Source code, test fixtures, and Docker orchestration are available at <a href="https://github.com/Saksham-Gupta-GH/moveinsync-config-platform">github.com/Saksham-Gupta-GH/moveinsync-config-platform</a>.
   </p>
 </div>
+</div>
 
-<div class="rfc-footer">
-  <div>MoveInSync Enterprise Configuration Platform &bull; Technical Architecture RFC</div>
-  <div>Page 4 of 4 &mdash; Saksham Gupta &bull; MIT Manipal</div>
+<div class="running-footer">
+  <div>MoveInSync Enterprise Configuration Platform &bull; Technical Design Note</div>
+  <div>Page 3 of 3 &mdash; Saksham Gupta &bull; MIT Manipal</div>
 </div>
 
 </body>
