@@ -48,6 +48,7 @@ public class MoveInSyncConfigClient implements AutoCloseable {
     private final ExecutorService sseExecutor;
     private final boolean ownsExecutors;
     private final AtomicBoolean running = new AtomicBoolean(false);
+    private final AtomicBoolean sseConnected = new AtomicBoolean(false);
 
     public MoveInSyncConfigClient(String serverBaseUrl, String clientId, String officeId, String apiKey, Path storageDir) {
         this(serverBaseUrl, clientId, officeId, apiKey, storageDir, null, null, null);
@@ -124,6 +125,10 @@ public class MoveInSyncConfigClient implements AutoCloseable {
 
     public Explanation explain(String key, String shiftId) {
         return snapshotRef.get().explain(key, clientId, officeId, shiftId);
+    }
+
+    public boolean isSseConnected() {
+        return sseConnected.get();
     }
 
     public long getCurrentVersion() {
@@ -243,6 +248,7 @@ public class MoveInSyncConfigClient implements AutoCloseable {
 
                 HttpResponse<InputStream> response = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
                 if (response.statusCode() == 200) {
+                    sseConnected.set(true);
                     attempt = 0; // Reset backoff on successful connection
                     try (BufferedReader reader = new BufferedReader(new InputStreamReader(response.body()))) {
                         String line;
@@ -276,6 +282,7 @@ public class MoveInSyncConfigClient implements AutoCloseable {
     @Override
     public void close() {
         if (!running.getAndSet(false)) return;
+        sseConnected.set(false);
         if (ownsExecutors) {
             heartbeatExecutor.shutdownNow();
             sseExecutor.shutdownNow();

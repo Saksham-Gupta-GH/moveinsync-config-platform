@@ -140,8 +140,10 @@ class BenchmarkRunnerTest {
             connectLatch.await(10, TimeUnit.SECONDS);
 
             // Wait until all 200 SSE streams are actively connected to server
-            long settleDeadline = System.currentTimeMillis() + 5000;
-            while (sseBroadcaster.getConnectedSubscribers() < clientCount && System.currentTimeMillis() < settleDeadline) {
+            long settleDeadline = System.currentTimeMillis() + 8000;
+            while (System.currentTimeMillis() < settleDeadline) {
+                long connected = clients.stream().filter(MoveInSyncConfigClient::isSseConnected).count();
+                if (connected >= clientCount) break;
                 Thread.sleep(50);
             }
 

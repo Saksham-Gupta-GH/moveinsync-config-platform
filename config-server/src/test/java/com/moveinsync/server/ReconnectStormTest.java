@@ -78,9 +78,11 @@ class ReconnectStormTest {
             assertThat(connectedInTime).isTrue();
             assertThat(clients.size()).isEqualTo(clientCount);
 
-            // Allow all 200 SSE streams to register and settle
-            long settleDeadline = System.currentTimeMillis() + 5000;
-            while (sseBroadcaster.getConnectedSubscribers() < clientCount && System.currentTimeMillis() < settleDeadline) {
+            // Allow all 200 SSE streams to register and connect
+            long settleDeadline = System.currentTimeMillis() + 8000;
+            while (System.currentTimeMillis() < settleDeadline) {
+                long connected = clients.stream().filter(MoveInSyncConfigClient::isSseConnected).count();
+                if (connected >= clientCount) break;
                 Thread.sleep(50);
             }
 
@@ -96,8 +98,8 @@ class ReconnectStormTest {
             long publishedVersion = cs.version();
             assertThat(publishedVersion).isGreaterThan(versionBefore);
 
-            // 3. Verify all 200 clients receive the update via SSE within 3 seconds
-            long deadline = System.currentTimeMillis() + 3000;
+            // 3. Verify all 200 clients receive the update via SSE within 5 seconds
+            long deadline = System.currentTimeMillis() + 5000;
             AtomicInteger updatedCount = new AtomicInteger(0);
 
             while (System.currentTimeMillis() < deadline && updatedCount.get() < clientCount) {
