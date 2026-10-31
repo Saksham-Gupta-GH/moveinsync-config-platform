@@ -23,6 +23,12 @@
     padding: 0;
   }
 
+  code {
+    font-family: inherit;
+    font-size: inherit;
+    background: none;
+  }
+
   /* Academic Header block */
   .institution-header {
     text-align: center;
@@ -107,7 +113,7 @@
     line-height: 1.38;
   }
 
-  /* Code Block */
+  /* Standalone Code Snippet Box */
   .code-snippet {
     font-family: "Courier New", Courier, monospace;
     font-size: 8.2pt;
@@ -210,7 +216,7 @@
 
 <h2>1. Operational Problem Statement &amp; Context</h2>
 <p>
-  MoveInSync manages enterprise employee commute transport across 100+ corporate clients (e.g., Google, Microsoft, and Amazon campuses), coordinating tens of thousands of shared cab trips daily. The backend infrastructure comprises 40+ microservices spanning trip booking, route optimization, vehicle dispatch, billing, and female employee night-safety compliance. Every dispatch decision evaluates multi-level policies—including <code>booking_cutoff_minutes</code>, <code>max_route_deviation</code>, <code>night_escort_required</code>, and allowed vehicle tiers.
+  MoveInSync manages enterprise employee commute transport across 100+ corporate clients (e.g., Google, Microsoft, and Amazon campuses), coordinating tens of thousands of shared cab trips daily. The backend infrastructure comprises 40+ microservices spanning trip booking, route optimization, vehicle dispatch, billing, and female employee night-safety compliance. Every dispatch decision evaluates multi-level policies—including booking_cutoff_minutes, max_route_deviation, night_escort_required, and allowed vehicle tiers.
 </p>
 <p>
   Executing synchronous remote HTTP calls to a centralized database during high-frequency dispatch evaluations introduces intolerable RPC latency and creates a catastrophic single point of failure. The platform mandates two opposing engineering guarantees: <strong>sub-microsecond local reads</strong> (measured ~170 ns at p50) directly from process memory with zero thread lock contention, and <strong>sub-second fleet propagation</strong> (&lt; 1,000 ms SLA; measured ~320 ms) when administrators modify policies, perform emergency overrides, or execute staged regional canary rollouts.
@@ -222,9 +228,9 @@
 </p>
 <ul>
   <li><strong>REST Control Plane &amp; Compound Validator:</strong> Spring Boot 3 control service providing versioned administrative endpoints with RBAC (Admin, Operator, Read-Only). Validates multi-key changesets atomically before committing, ensuring partial invalid payloads (e.g. negative cutoffs) are rejected with HTTP 400 Bad Request.</li>
-  <li><strong>Durable Storage Engine (SQLite WAL):</strong> Single-writer architecture guarded by a reentrant mutex and backed by SQLite configured with Write-Ahead Logging (WAL) and <code>PRAGMA synchronous = FULL</code>. Changesets increment a monotonic global version and fsync to disk before returning an HTTP 201 ACK, surviving process crashes without data corruption.</li>
+  <li><strong>Durable Storage Engine (SQLite WAL):</strong> Single-writer architecture guarded by a reentrant mutex and backed by SQLite configured with Write-Ahead Logging (WAL) and PRAGMA synchronous = FULL. Changesets increment a monotonic global version and fsync to disk before returning an HTTP 201 ACK, surviving process crashes without data corruption.</li>
   <li><strong>Streaming SSE Broadcaster:</strong> Maintains persistent HTTP/1.1 chunked Server-Sent Events streams to active client nodes. Implements backpressure via bounded per-client queues (100 events max) to protect heap stability against slow consumer nodes.</li>
-  <li><strong>Embedded Client SDK:</strong> Java library embedded directly into commute microservices. Caches the full configuration graph in an immutable <code>ConfigSnapshot</code> wrapped in an <code>AtomicReference</code>, tracks sequence continuity, and persists atomic disk snapshots (<code>snapshot.json</code>) to guarantee instant cold boot during WAN partitions.</li>
+  <li><strong>Embedded Client SDK:</strong> Java library embedded directly into commute microservices. Caches the full configuration graph in an immutable ConfigSnapshot wrapped in an AtomicReference, tracks sequence continuity, and persists atomic disk snapshots (snapshot.json) to guarantee instant cold boot during WAN partitions.</li>
 </ul>
 
 <div class="diagram-container">
@@ -305,10 +311,10 @@
 
 <h2>3. Data Flow &amp; Separation of Planes</h2>
 <p>
-  <strong>Write Pipeline:</strong> Administrative requests submit changesets via <code>POST /api/v1/config/changeset</code>. The control plane validates business constraints, acquires the reentrant write lock, increments the monotonic version, appends to the SQLite Write-Ahead Log, and invokes <code>PRAGMA synchronous = FULL</code>. Only after the WAL entry is fsynced to disk does the server return HTTP 201 Created and emit a versioned delta to the SSE event loop.
+  <strong>Write Pipeline:</strong> Administrative requests submit changesets via POST /api/v1/config/changeset. The control plane validates business constraints, acquires the reentrant write lock, increments the monotonic version, appends to the SQLite Write-Ahead Log, and invokes PRAGMA synchronous = FULL. Only after the WAL entry is fsynced to disk does the server return HTTP 201 Created and emit a versioned delta to the SSE event loop.
 </p>
 <p>
-  <strong>Read &amp; Ingestion Pipeline:</strong> Subscriber microservices receive the delta event over the persistent chunked SSE stream. The SDK verifies monotonic continuity, clones the existing configuration graph, applies the overrides, and points the <code>AtomicReference</code> to the new immutable snapshot. Client worker threads resolve keys against this local snapshot in memory with zero network latency, zero lock synchronization, and zero contention.
+  <strong>Read &amp; Ingestion Pipeline:</strong> Subscriber microservices receive the delta event over the persistent chunked SSE stream. The SDK verifies monotonic continuity, clones the existing configuration graph, applies the overrides, and points the AtomicReference to the new immutable snapshot. Client worker threads resolve keys against this local snapshot in memory with zero network latency, zero lock synchronization, and zero contention.
 </p>
 
 <div class="page-num">Page 1 of 3</div>
@@ -320,10 +326,10 @@
 
 <h2>4. Concurrency Model &amp; Lock-Free Read Path</h2>
 <p>
-  Commute microservices frequently evaluate compound keys during dispatch decisions. For instance, before confirming a cab booking, the routing engine simultaneously queries <code>booking_cutoff_minutes</code> and <code>cancellation_window</code>. In a naive implementation using a mutable synchronized map, an update arriving mid-evaluation risks exposing a mixed-version state where one key reflects version 42 and the other reflects version 43. Introducing reader-writer locks resolves consistency but degrades throughput via lock acquisition overhead and contention under heavy traffic.
+  Commute microservices frequently evaluate compound keys during dispatch decisions. For instance, before confirming a cab booking, the routing engine simultaneously queries booking_cutoff_minutes and cancellation_window. In a naive implementation using a mutable synchronized map, an update arriving mid-evaluation risks exposing a mixed-version state where one key reflects version 42 and the other reflects version 43. Introducing reader-writer locks resolves consistency but degrades throughput via lock acquisition overhead and contention under heavy traffic.
 </p>
 <p>
-  To solve this, the SDK maintains state inside an immutable <code>ConfigSnapshot</code> wrapped in a Java <code>AtomicReference</code>. Worker threads capture the snapshot pointer once per evaluation:
+  To solve this, the SDK maintains state inside an immutable ConfigSnapshot wrapped in a Java AtomicReference. Worker threads capture the snapshot pointer once per evaluation:
 </p>
 
 <div class="code-snippet">
@@ -333,23 +339,23 @@ int window = client.get(snapshot, "cancellation_window", Integer.class);
 </div>
 
 <p>
-  All subsequent key lookups execute strictly against that immutable snapshot instance. Reads bypass synchronization barriers, taking ~170 ns at p50 (~5.4 million ops/sec per thread). When incoming SSE deltas arrive, the background subscriber thread builds a cloned, updated snapshot and swaps the pointer via a single atomic <code>set()</code> call (&lt; 10 ns). In stress testing with 50 concurrent reader threads performing 2,100,000 evaluations during continuous writes, zero torn reads or thread deadlocks occurred.
+  All subsequent key lookups execute strictly against that immutable snapshot instance. Reads bypass synchronization barriers, taking ~170 ns at p50 (~5.4 million ops/sec per thread). When incoming SSE deltas arrive, the background subscriber thread builds a cloned, updated snapshot and swaps the pointer via a single atomic set() call (&lt; 10 ns). In stress testing with 50 concurrent reader threads performing 2,100,000 evaluations during continuous writes, zero torn reads or thread deadlocks occurred.
 </p>
 
 <h2>5. Hierarchical Precedence &amp; Explain Audit Trail</h2>
 <p>
-  Configurations resolve through a deterministic 4-tier hierarchy: <strong>Shift &gt; Office &gt; Client &gt; Global &gt; Default</strong>. The resolver evaluates scoped paths in <code>O(1)</code> time against pre-indexed snapshot scopes. For compliance and operations auditing, the SDK exposes an <code>explain(key, context)</code> interface that returns the full resolution lineage—showing exactly which scope provided the winning value, which higher-level values were overridden, and the authoritative timestamp.
+  Configurations resolve through a deterministic 4-tier hierarchy: <strong>Shift &gt; Office &gt; Client &gt; Global &gt; Default</strong>. The resolver evaluates scoped paths in O(1) time against pre-indexed snapshot scopes. For compliance and operations auditing, the SDK exposes an explain(key, context) interface that returns the full resolution lineage—showing exactly which scope provided the winning value, which higher-level values were overridden, and the authoritative timestamp.
 </p>
 <p>
-  For example, querying <code>explain("booking_cutoff_minutes", ctx)</code> returns a structured trace: <code>{"resolved": 45, "scope": "OFFICE:BLR_CAMPUS", "overridden": [{"scope": "CLIENT:MSFT", "val": 30}, {"scope": "GLOBAL", "val": 60}], "version": 44}</code>. This audit trail is critical for transport operations teams investigating dispatch anomalies or employee escalation tickets.
+  For example, querying explain("booking_cutoff_minutes", ctx) returns a structured trace: {"resolved": 45, "scope": "OFFICE:BLR_CAMPUS", "overridden": [{"scope": "CLIENT:MSFT", "val": 30}, {"scope": "GLOBAL", "val": 60}], "version": 44}. This audit trail is critical for transport operations teams investigating dispatch anomalies or employee escalation tickets.
 </p>
 
 <h2>6. Staged Canary Rollouts &amp; False-Gap Mitigation</h2>
 <p>
-  In production, MoveInSync operators roll out operational policy changes incrementally—for example, piloting a new 45-minute booking cutoff in the Bangalore campus before enabling it in Hyderabad. In an early implementation, assigning version 44 to the Bangalore-only update caused Hyderabad SDK nodes listening to the global SSE stream to observe an apparent sequence gap from version 43 to 45. The gap detector reacted by triggering an immediate wave of HTTP REST queries (<code>GET /deltas?since_version=43</code>) across hundreds of nodes, generating a self-inflicted thundering herd.
+  In production, MoveInSync operators roll out operational policy changes incrementally—for example, piloting a new 45-minute booking cutoff in the Bangalore campus before enabling it in Hyderabad. In an early implementation, assigning version 44 to the Bangalore-only update caused Hyderabad SDK nodes listening to the global SSE stream to observe an apparent sequence gap from version 43 to 45. The gap detector reacted by triggering an immediate wave of HTTP REST queries (GET /deltas?since_version=43) across hundreds of nodes, generating a self-inflicted thundering herd.
 </p>
 <p>
-  This was resolved by implementing <strong>empty delta propagation</strong>. When a staged change commits at version 44, the server emits the targeted changeset to Bangalore subscribers, while emitting an empty delta payload (<code>empty=true</code>) to non-targeted subscribers. Hyderabad nodes ingest the empty delta and advance their version watermark to 44 without altering cached values. This preserves strict fleet-wide version alignment and eliminates false gap storms while keeping rollout isolation fully intact.
+  This was resolved by implementing <strong>empty delta propagation</strong>. When a staged change commits at version 44, the server emits the targeted changeset to Bangalore subscribers, while emitting an empty delta payload (empty=true) to non-targeted subscribers. Hyderabad nodes ingest the empty delta and advance their version watermark to 44 without altering cached values. This preserves strict fleet-wide version alignment and eliminates false gap storms while keeping rollout isolation fully intact.
 </p>
 
 <h2>7. End-to-End Propagation &amp; Resynchronization Flow</h2>
@@ -410,7 +416,7 @@ int window = client.get(snapshot, "cancellation_window", Integer.class);
 </div>
 
 <p style="font-size: 8.8pt; color: #333333; margin-top: 2px;">
-  <strong>Reconnection Resilience &amp; Jitter Protocol:</strong> When network drops occur, the SDK applies truncated exponential backoff with full decorrelated jitter: <code>t_sleep = min(2000 ms, random(50 ms, t_prev &times; 3))</code>. This prevents synchronized reconnect storms across the 200 microservice nodes from overwhelming the central server upon recovery. Missing deltas are pulled via REST catch-up and applied in strict sequence order before live SSE streaming resumes.
+  <strong>Reconnection Resilience &amp; Jitter Protocol:</strong> When network drops occur, the SDK applies truncated exponential backoff with full decorrelated jitter: t_sleep = min(2000 ms, random(50 ms, t_prev &times; 3)). This prevents synchronized reconnect storms across the 200 microservice nodes from overwhelming the central server upon recovery. Missing deltas are pulled via REST catch-up and applied in strict sequence order before live SSE streaming resumes.
 </p>
 
 <div class="page-num">Page 2 of 3</div>
@@ -439,12 +445,12 @@ int window = client.get(snapshot, "cancellation_window", Integer.class);
     <tr>
       <td><strong>Network Packet Loss &amp; Version Gap</strong></td>
       <td>Client on v41 receives v43 over SSE; gap detector flags missing intermediate delta.</td>
-      <td>SDK buffers v43, queries <code>GET /deltas?since_version=41</code>, replays missing deltas, and updates snapshot.</td>
+      <td>SDK buffers v43, queries GET /deltas?since_version=41, replays missing deltas, and updates snapshot.</td>
     </tr>
     <tr>
       <td><strong>Stale Out-of-Order Delta</strong></td>
       <td>Delayed network routing delivers v41 after client is already active on v43.</td>
-      <td>Monotonic check (<code>version &lt;= currentVersion</code>) silently discards the packet as an idempotent no-op.</td>
+      <td>Monotonic check (version &le; currentVersion) silently discards the packet as an idempotent no-op.</td>
     </tr>
     <tr>
       <td><strong>Invalid Compound Changeset</strong></td>
@@ -459,7 +465,7 @@ int window = client.get(snapshot, "cancellation_window", Integer.class);
     <tr>
       <td><strong>Cold Boot in Isolated Partition</strong></td>
       <td>Microservice container starts during WAN partition without central server access.</td>
-      <td>SDK hydrates immediately from local <code>snapshot.json</code> written atomically via temp-file swap.</td>
+      <td>SDK hydrates immediately from local snapshot.json written atomically via temp-file swap.</td>
     </tr>
   </tbody>
 </table>
@@ -522,12 +528,12 @@ int window = client.get(snapshot, "cancellation_window", Integer.class);
 
 <h2>11. Verification Suite &amp; Test Matrix</h2>
 <p style="font-size: 8.8pt; margin-bottom: 2px;">
-  The project includes <strong>26 automated tests</strong> across three Maven modules, running in 34 seconds via <code>./mvnw test</code> with 100% pass rate:
+  The project includes <strong>26 automated tests</strong> across three Maven modules, running in 34 seconds via ./mvnw test with 100% pass rate:
 </p>
 <ul>
-  <li><strong>config-core (11 tests):</strong> 4-tier hierarchy precedence, audit trail <code>explain()</code> metadata, negative duration rejection (-30 min cutoff), and time window overlap constraints.</li>
+  <li><strong>config-core (11 tests):</strong> 4-tier hierarchy precedence, audit trail explain() metadata, negative duration rejection (-30 min cutoff), and time window overlap constraints.</li>
   <li><strong>config-client-sdk (2 tests):</strong> Zero-lock snapshot reads, canary empty delta ingestion, and offline disk snapshot hydration.</li>
-  <li><strong>config-server (13 tests):</strong> Compound all-or-nothing validation, 50-thread concurrent atomic reads, canary rollouts, forward rollbacks, multi-tenant REST/SSE isolation, 401 unauthorized rejection, SSE gap catch-up, stale packet drop, <code>kill -9</code> crash durability, and 200-client reconnect benchmark.</li>
+  <li><strong>config-server (13 tests):</strong> Compound all-or-nothing validation, 50-thread concurrent atomic reads, canary rollouts, forward rollbacks, multi-tenant REST/SSE isolation, 401 unauthorized rejection, SSE gap catch-up, stale packet drop, kill -9 crash durability, and 200-client reconnect benchmark.</li>
 </ul>
 
 <div class="page-num">Page 3 of 3</div>
