@@ -267,7 +267,7 @@ docker compose up --build
 
 The previously submitted PDF has been removed from this repository and distribution ZIP; the already-submitted external copy cannot be changed. Follow-up commits add Bearer-header support and the typed SDK call shown in its concurrency example:
 
-**Corrections to the submitted PDF:** Figure 4 is an illustrative reconstruction, not genuine execution evidence. Use `docs/test-run.log` instead. The single-writer commit-latency row, ~2,500 writes/sec, under-2.4-MB snapshot footprint, and under-10-ns pointer-swap claims have no supporting measurements in this project and are withdrawn. They have been removed from the editable HTML. The current 27-test suite supersedes the PDF's 26-test count. The evaluator's replacement design note is not yet included because its file has not been provided in this workspace.
+**Corrections to the submitted PDF:** Figure 4 is an illustrative reconstruction, not genuine execution evidence. Use `docs/test-run.log` instead. The single-writer commit-latency row, ~2,500 writes/sec, under-2.4-MB snapshot footprint, and under-10-ns pointer-swap claims have no supporting measurements in this project and are withdrawn. They have been removed from the editable HTML. The current 27-test suite supersedes the PDF's 26-test count. The current SDK checks versions every **1 second**; **5 seconds** is the healthy-connectivity propagation target, not the polling interval. This supersedes the submitted PDF's "5s Poller" label. The evaluator's replacement design note is not yet included because its file has not been provided in this workspace.
 
 ```java
 ConfigSnapshot snapshot = client.getSnapshot();
