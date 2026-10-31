@@ -46,7 +46,7 @@ This system is a distributed, tenant-aware configuration engine built for 24/7 e
 |   | Incoming Delta Stream | -------------------> |    AtomicReference<ConfigSnapshot>        |   |
 |   +-----------------------+                      +-------------------------------------------+   |
 |              |                                                         |                         |
-|   +-----------------------+                         Zero-Lock Pointer Read (~166 ns)             |
+|   +-----------------------+                         Local Read (250 ns measured p50)             |
 |   | Gap Detector Engine   |                                            |                         |
 |   | (v > current + 1)     |                                            v                         |
 |   +-----------------------+                      +-------------------------------------------+   |
@@ -84,31 +84,36 @@ Configuration servers must survive abrupt process death or power loss without lo
 
 ## 3. Measured Benchmarks
 
-Benchmarks were executed on an **Apple M1 (8 cores: 4 Performance + 4 Efficiency, 8 GB RAM)** running OpenJDK 17 LTS with HotSpot C2 JIT warm-up.
+The numbers below come from [docs/test-run.log](docs/test-run.log), captured on this machine on 31 October 2026. Hardware verified with `sysctl`: **Apple M1, 8 physical cores, 8 GiB RAM (8,589,934,592 bytes)**. Software: macOS 14.4.1, Homebrew OpenJDK 17.0.15. Hardware was checked after the run; it is not embedded in the original log. The benchmark performs a warm-up loop but does not verify a particular JIT compilation tier.
 
 ### Benchmark 1: In-Memory 4-Tier Resolution Read Latency
 Evaluates full 4-tier resolution (`SHIFT -> OFFICE -> CLIENT -> GLOBAL -> Default`) using `System.nanoTime()` on a single thread after 50,000 JIT warm-up iterations (100,000 measured samples).
 
-| Metric | Measured Latency | Target SLA | Performance Margin |
-|---|---|---|---|
-| **Min Latency** | **0.041 µs (41 ns)** | — | — |
-| **p50 (Median)** | **0.166 µs (166 ns)** | < 10 µs | **60x faster** |
-| **p90 Latency** | **0.208 µs (208 ns)** | < 10 µs | **48x faster** |
-| **p95 Latency** | **0.209 µs (209 ns)** | < 10 µs | **47x faster** |
-| **p99 Latency** | **0.250 µs (250 ns)** | < 10 µs | **40x faster** |
-| **p99.9 Latency**| **0.416 µs (416 ns)** | < 50 µs | **120x faster** |
-| **Throughput** | **~5.4M ops/sec** | > 100,000 ops/sec | **54x higher** |
+| Metric | Recorded result |
+|---|---|
+| Min | 0.042 µs (42 ns) |
+| p50 | 0.250 µs (250 ns) |
+| p90 | 0.292 µs (292 ns) |
+| p95 | 0.292 µs (292 ns) |
+| p99 | 0.375 µs (375 ns) |
+| p99.9 | 1.792 µs |
+| Average | 0.280 µs |
+| Maximum | 46.333 µs |
+| Estimated throughput | 3,569,467 ops/sec per thread (~3.6M) |
+
+Throughput is an estimate from the measured mean latency, not an independent sustained-load measurement. The log renders the microsecond symbol as `?s`; units are confirmed by the benchmark source.
 
 ### Benchmark 2: 200-Client Live SSE Propagation Latency
-Measures end-to-end time from server SQLite commit & fsync to in-memory visibility across **200 concurrent client instances** running within the test environment.
+Measures time from immediately before publishing (including commit and fsync) to observed visibility across **200 concurrent client instances** running within the test JVM.
 
 | Metric | Measured Latency | Target SLA | Explanation |
 |---|---|---|---|
 | **Fleet Size** | **200 Active Clients** | 200 Clients | Full concurrent fleet |
-| **p50 Latency** | **278 ms** | < 5,000 ms (5s) | Includes disk fsync + initial thread dispatch |
-| **p90 Latency** | **320 ms** | < 5,000 ms (5s) | All 200 clients share single JVM thread pool |
-| **p99 Latency** | **320 ms** | < 5,000 ms (5s) | Consistent event delivery across all queues |
-| **Max Latency** | **320 ms** | < 5,000 ms (5s) | **4,680 ms SLA headroom** under the 5s limit |
+| **p50 Latency** | **236 ms** | < 5,000 ms (5s) | Includes publish and observation overhead |
+| **p90 Latency** | **243 ms** | < 5,000 ms (5s) | Same-JVM simulation |
+| **p95 Latency** | **243 ms** | < 5,000 ms (5s) | Same-JVM simulation |
+| **p99 Latency** | **244 ms** | < 5,000 ms (5s) | Same-JVM simulation |
+| **Max Latency** | **244 ms** | < 5,000 ms (5s) | **4,756 ms measured headroom** |
 
 ---
 
@@ -260,9 +265,9 @@ docker compose up --build
 
 ## 9. Submitted Dossier and Implementation Follow-up
 
-The submitted PDF is retained as the submission-time design report. Follow-up commits add Bearer-header support and the typed SDK call shown in its concurrency example:
+The previously submitted PDF has been removed from this repository and distribution ZIP; the already-submitted external copy cannot be changed. Follow-up commits add Bearer-header support and the typed SDK call shown in its concurrency example:
 
-**Corrections to the submitted PDF:** Figure 4 is an illustrative reconstruction, not genuine execution evidence. Use `docs/test-run.log` instead. The single-writer commit-latency row, ~2,500 writes/sec, under-2.4-MB snapshot footprint, and under-10-ns pointer-swap claims have no supporting measurements in this project and are withdrawn. They have been removed from the editable HTML. The current 27-test suite supersedes the PDF's 26-test count. Only one archived PDF and one editable HTML are retained, under `docs/`.
+**Corrections to the submitted PDF:** Figure 4 is an illustrative reconstruction, not genuine execution evidence. Use `docs/test-run.log` instead. The single-writer commit-latency row, ~2,500 writes/sec, under-2.4-MB snapshot footprint, and under-10-ns pointer-swap claims have no supporting measurements in this project and are withdrawn. They have been removed from the editable HTML. The current 27-test suite supersedes the PDF's 26-test count. The evaluator's replacement design note is not yet included because its file has not been provided in this workspace.
 
 ```java
 ConfigSnapshot snapshot = client.getSnapshot();
@@ -273,6 +278,6 @@ Four configurable scopes (SHIFT, OFFICE, CLIENT, GLOBAL) plus the definition def
 
 Consistency model: writes are serialized and durably committed before acknowledgment. Clients converge through ordered SSE updates and REST catch-up. A caller captures one snapshot for a consistent multi-key evaluation; separate reads that capture different snapshots may observe different versions. During partitions, clients favor availability and serve the last snapshot without a finite staleness bound.
 
-The reported ~170 ns reads and ~320 ms propagation are historical local measurements, not universal latency guarantees. The assessment target is 5 seconds under healthy connectivity. The heartbeat checks versions every second; network and replay time must also fit that budget. The reconnect formula uses decorrelated jitter with a 50 ms base and 2,000 ms cap, as illustrated in the PDF; this is distinct from full exponential jitter.
+The saved run reports 250 ns p50 reads and 236 ms p50 / 244 ms maximum propagation; these are local measurements, not universal latency guarantees. The assessment target is 5 seconds under healthy connectivity. The heartbeat checks versions every second; network and replay time must also fit that budget. The reconnect formula uses decorrelated jitter with a 50 ms base and 2,000 ms cap, as illustrated in the PDF; this is distinct from full exponential jitter.
 
 Remaining deployment limits include demo credentials, a single writer/server, and rollback implemented as forward per-scope changes rather than a single atomic multi-scope transaction. The current rollback resets newly introduced overrides to definition defaults rather than deleting them, so it does not restore inherited values in every hierarchy case. Crash tests demonstrate recovery for their tested scenario, not immunity to every storage failure. The PDF's production-readiness wording should be read in the context of this assessment prototype.

@@ -199,6 +199,7 @@
 </style>
 </head>
 <body>
+<p><strong>Historical design draft, not the current evaluator note.</strong> Benchmark numbers below are superseded by the saved Maven run: 250 ns p50 local reads, estimated 3,569,467 operations/second, and 236/243/244/244 ms p50/p90/p99/maximum propagation. See README.md and test-run.log for current evidence. The old PDF is no longer distributed.</p>
 
 <!-- ======================================================================= -->
 <!-- PAGE 1: CONTEXT, REQUIREMENTS & ARCHITECTURAL PRINCIPLES                -->
@@ -613,7 +614,7 @@ int window = client.get(snapshot, "cancellation_window", Integer.class);
   <li><strong>config-client-sdk (2 tests):</strong> Zero-lock snapshot reads, canary empty delta ingestion, and offline disk snapshot hydration.</li>
   <li><strong>config-server (14 tests):</strong> Compound validation, 50-thread concurrent atomic reads, canary rollout, rollback, tenant isolation, Bearer authentication, gap recovery, hard-process-kill durability, 200-client propagation benchmarking, and 500-client recovery after stream interruption.</li>
 </ul>
-<p>Correction: the submitted PDF's Figure 4 was an illustrative reconstruction, not an authentic terminal capture. It is withdrawn as evidence. See the actual Maven log linked above. The submitted PDF remains archived unchanged.</p>
+<p>Correction: the submitted PDF's Figure 4 was an illustrative reconstruction, not an authentic terminal capture. It is withdrawn as evidence. See the actual Maven log linked above. The old PDF has been removed from this repository; the externally submitted copy cannot be changed.</p>
 
 <h2>13. Conclusion &amp; Production Readiness Assessment</h2>
 <p>
