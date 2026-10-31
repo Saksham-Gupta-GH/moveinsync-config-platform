@@ -359,10 +359,10 @@
   2. <em>Monotonic Sequence Verification:</em> The SDK checks the incoming version watermark against the local active snapshot version. If the packet matches the expected sequence (v == current + 1), it proceeds directly to snapshot synthesis. If an unexpected sequence gap is detected (v &gt; current + 1), the SDK pauses streaming and triggers an immediate REST catch-up replay.
 </p>
 <p>
-  3. <em>Copy-on-Write Snapshot Synthesis:</em> The thread clones the existing configuration map, applies the key-value delta overrides, and constructs a new immutable ConfigSnapshot instance. Storing 1,000 active configuration keys consumes under 2.4 MB of JVM heap per microservice node.
+  3. <em>Copy-on-Write Snapshot Synthesis:</em> The thread clones the existing configuration map, applies the key-value delta overrides, and constructs a new ConfigSnapshot instance. Snapshot heap usage has not been measured.
 </p>
 <p>
-  4. <em>Atomic Memory Barrier Promotion:</em> The SDK executes an AtomicReference.set() pointer swap (&lt; 10 ns). This establishes a Java memory model happens-before edge, guaranteeing that all subsequent microservice worker threads resolve keys against the new immutable snapshot with zero locks, zero synchronization barriers, and sub-microsecond latency (~170 ns p50).
+  4. <em>Atomic Memory Barrier Promotion:</em> The SDK publishes the snapshot using AtomicReference.set(), establishing visibility to subsequent snapshot reads. The pointer-swap operation has not been benchmarked separately.
 </p>
 
 <div class="page-num">Page 2 of 5</div>
@@ -393,7 +393,7 @@ int window = client.get(snapshot, "cancellation_window", Integer.class);
   Because the ConfigSnapshot instance is strictly immutable, subsequent key queries execute with zero locking barriers, zero volatile reads per key, and zero risk of state mutation. Reads complete in approximately 170 nanoseconds at p50 (~5.4 million operations per second per core), operating at the raw speed of L1/L2 CPU cache memory access.
 </p>
 <p>
-  When an incoming SSE delta arrives, the SDK's single background listener thread instantiates a new immutable ConfigSnapshot containing the cloned graph with updated keys. It then executes a single atomic pointer swap via this.currentSnapshot.set(newSnapshot). This atomic swap completes in under 10 nanoseconds, establishing a Java memory model happens-before relationship ensuring subsequent getSnapshot() calls observe the latest version. In empirical stress tests involving 50 concurrent reader threads executing 2,100,000 evaluations during continuous writes, zero torn reads and zero deadlocks occurred.
+  Incoming deltas are applied through serialized ingestion and published via snapshotRef.set(updated). Pointer-swap latency is not measured. The concurrency test uses 50 readers, requires observation of both newly committed versions, and checks that no mixed state occurs. Actual read counts are recorded in test-run.log.
 </p>
 
 <h2>6. Hierarchical Scope Precedence &amp; Compliance Audit Trail</h2>
@@ -408,7 +408,7 @@ int window = client.get(snapshot, "cancellation_window", Integer.class);
 </p>
 
 <div class="diagram-container" style="text-align: center; margin: 5pt 0 3pt 0;">
-  <img src="/Users/sakshamgupta/Documents/resume/MoveInSync/hierarchy_scope_model.png" style="height: 98px; width: auto; max-width: 480px; display: block; margin: 0 auto; border: 1px solid #000000;">
+  <img src="hierarchy_scope_model.png" style="height: 98px; width: auto; max-width: 480px; display: block; margin: 0 auto; border: 1px solid #000000;">
   <div class="diagram-caption" style="margin-top: 3pt;">Figure 2: MoveInSync 4-Tier Scope Resolution &amp; Override Hierarchy Model</div>
 </div>
 
@@ -589,14 +589,6 @@ int window = client.get(snapshot, "cancellation_window", Integer.class);
       <td>345 ms</td>
       <td>200 clients in 1 JVM</td>
     </tr>
-    <tr>
-      <td><strong>Single-Writer Commit (WAL fsync)</strong></td>
-      <td>0.38 ms</td>
-      <td>0.52 ms</td>
-      <td>0.85 ms</td>
-      <td>1.20 ms</td>
-      <td>~2,500 writes/sec max</td>
-    </tr>
   </tbody>
 </table>
 
@@ -606,29 +598,26 @@ int window = client.get(snapshot, "cancellation_window", Integer.class);
 
 <h2>11. Architectural Trade-Offs &amp; Design Boundaries</h2>
 <ul>
-  <li><strong>SQLite WAL vs. Distributed Raft Consensus:</strong> For MoveInSync's operational profile (99.99% local reads, low write volume &lt; 10/min), an embedded SQLite WAL engine with synchronous fsync avoids split-brain, quorum loss, and consensus churn while providing ~2,500 writes/sec commit capacity. Multi-region enterprise scaling would utilize managed PostgreSQL read replicas rather than distributed consensus complexity.</li>
+  <li><strong>SQLite WAL:</strong> A single writer provides simple durable ordering for this prototype. Commit latency and maximum write throughput have not been measured. Multi-region deployment requires a separate availability and consistency design.</li>
   <li><strong>Monotonic Versioning vs. CRDTs:</strong> Corporate commute transport policies follow strict top-down administrative governance (Shift &gt; Office &gt; Client &gt; Global &gt; Default). Monotonic versioning provides deterministic conflict-free resolution without the metadata bloat and tombstone overhead of CRDTs.</li>
-  <li><strong>SSE Push vs. Periodic REST Polling:</strong> Short polling across 40 services generating 2,400 queries/min wastes database compute and averages a 2.5s update lag. SSE push eliminates idle database queries completely and guarantees sub-second updates (~320 ms).</li>
+  <li><strong>SSE Push with Recovery Polling:</strong> SSE delivers updates while a one-second version check repairs missed pushes. Historical local latency is not a universal guarantee; network partitions can exceed the five-second target.</li>
   <li><strong>Server-Sent Events vs. Full-Duplex WebSockets:</strong> Configuration delivery is strictly unidirectional (control plane to microservices). Server-Sent Events operate over standard HTTP/1.1 chunking, easily traversing enterprise API gateways, proxies, and corporate firewalls without custom binary framing.</li>
 </ul>
 
 <h2>12. Verification Suite &amp; Automated Test Matrix</h2>
 <p>
-  The project implementation includes <strong>26 automated tests</strong> across three Maven modules, running in 34 seconds via ./mvnw test with a 100% pass rate:
+  The project implementation includes <strong>27 automated tests</strong> across three Maven modules. Actual results and timings are retained in <a href="test-run.log">test-run.log</a>:
 </p>
 <ul>
   <li><strong>config-core (11 tests):</strong> 4-tier hierarchy precedence, audit trail explain() metadata, negative duration rejection (-30 min cutoff), time window overlap constraints, and type validation.</li>
   <li><strong>config-client-sdk (2 tests):</strong> Zero-lock snapshot reads, canary empty delta ingestion, and offline disk snapshot hydration.</li>
-  <li><strong>config-server (13 tests):</strong> Compound all-or-nothing validation, 50-thread concurrent atomic reads (2.1M operations), canary staged rollouts, forward rollbacks, multi-tenant REST/SSE isolation, 401 unauthorized rejection, SSE gap catch-up, stale packet drop, hard kill -9 crash durability, and 200-client reconnect benchmark.</li>
+  <li><strong>config-server (14 tests):</strong> Compound validation, 50-thread concurrent atomic reads, canary rollout, rollback, tenant isolation, Bearer authentication, gap recovery, hard-process-kill durability, 200-client propagation benchmarking, and 500-client recovery after stream interruption.</li>
 </ul>
-<div class="diagram-container" style="text-align: center; margin: 4pt 0 2pt 0;">
-  <img src="/Users/sakshamgupta/Documents/resume/MoveInSync/test_suite_verification.png" style="height: 98px; width: auto; max-width: 480px; display: block; margin: 0 auto; border: 1px solid #000000;">
-  <div class="diagram-caption" style="margin-top: 2.5pt;">Figure 4: Automated Test Suite Execution Terminal Output (26/26 Tests Passed)</div>
-</div>
+<p>Correction: the submitted PDF's Figure 4 was an illustrative reconstruction, not an authentic terminal capture. It is withdrawn as evidence. See the actual Maven log linked above. The submitted PDF remains archived unchanged.</p>
 
 <h2>13. Conclusion &amp; Production Readiness Assessment</h2>
 <p>
-  The platform satisfies all Case Study 2 requirements by decoupling the ACID write path (SQLite WAL and SSE push) from the lock-free read path (immutable AtomicReference snapshots), delivering ~170 ns reads at p50 and ~320 ms fleet propagation. The codebase is containerized, includes a Maven wrapper, and passes all 26 automated tests for production deployment.
+  The prototype separates durable writes from local snapshot reads. The suite contains 27 tests; this is not a production-readiness certification. Rollback uses forward per-scope changes and resets newly added overrides to definition defaults rather than restoring inheritance in all cases. See the README for deployment limits and corrections to the archived PDF.
 </p>
 
 <div class="page-num">Page 5 of 5</div>

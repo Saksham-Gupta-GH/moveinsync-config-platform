@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    name: Build & Run 26-Test Reactor Suite
+    name: Build & Run Reactor Test Suite
     runs-on: ubuntu-latest
 
     steps:
@@ -27,4 +27,11 @@ jobs:
 
       - name: Compile and Run All Automated Tests
         run: ./mvnw test --batch-mode
+
+      - name: Preserve actual test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-test-reports
+          path: '**/target/surefire-reports/*'
 
