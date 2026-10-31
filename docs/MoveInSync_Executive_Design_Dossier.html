@@ -6,7 +6,7 @@
 <style>
   @page {
     size: A4;
-    margin: 12mm 18mm 12mm 18mm;
+    margin: 11mm 18mm 11mm 18mm;
   }
   * {
     box-sizing: border-box;
@@ -18,7 +18,7 @@
     color: #000000;
     background: #ffffff;
     font-size: 9.8pt;
-    line-height: 1.42;
+    line-height: 1.39;
     margin: 0;
     padding: 0;
   }
@@ -42,7 +42,7 @@
     font-family: "Times New Roman", Times, serif;
     font-size: 9pt;
     font-style: italic;
-    color: #333333;
+    color: #000000;
     line-height: 1.2;
   }
 
@@ -63,18 +63,18 @@
     font-family: "Times New Roman", Times, serif;
     font-size: 10pt;
     font-weight: normal;
-    color: #222222;
+    color: #000000;
     margin: 0 0 4px 0;
     line-height: 1.25;
   }
   .meta-line {
     font-size: 9.2pt;
-    color: #222222;
+    color: #000000;
     margin: 0 0 2px 0;
     line-height: 1.25;
   }
   a {
-    color: #0000ee;
+    color: #000000;
     text-decoration: underline;
   }
 
@@ -85,7 +85,7 @@
     font-weight: bold;
     text-decoration: underline;
     color: #000000;
-    margin: 8.5pt 0 3.5pt 0;
+    margin: 7pt 0 3pt 0;
     padding: 0;
     line-height: 1.2;
     page-break-after: avoid;
@@ -93,17 +93,17 @@
   }
 
   p {
-    margin: 0 0 6pt 0;
+    margin: 0 0 5pt 0;
     text-align: justify;
     text-justify: inter-word;
-    line-height: 1.42;
+    line-height: 1.39;
   }
 
   /* Standalone Code Snippet Box */
   .code-box {
     font-family: "Courier New", Courier, monospace;
     font-size: 8.2pt;
-    background: #fafafa;
+    background: #ffffff;
     border: 1px solid #000000;
     padding: 4pt 7.5pt;
     margin: 4pt 0 6pt 0;
@@ -188,7 +188,7 @@
   .page-num {
     text-align: center;
     font-size: 8.5pt;
-    color: #444444;
+    color: #000000;
     margin-top: 4pt;
     font-family: "Times New Roman", Times, serif;
   }
@@ -260,7 +260,7 @@
         <path d="M 0 1 L 10 5 L 0 9 z" fill="#000000"/>
       </marker>
       <marker id="arr-gray" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-        <path d="M 0 1 L 10 5 L 0 9 z" fill="#555555"/>
+        <path d="M 0 1 L 10 5 L 0 9 z" fill="#000000"/>
       </marker>
     </defs>
 
@@ -269,34 +269,34 @@
     <text x="145" y="23" font-family="'Times New Roman', serif" font-size="10.5" font-weight="bold" fill="#000000" text-anchor="middle">Central Configuration Server</text>
     <line x1="5" y1="31" x2="285" y2="31" stroke="#000000" stroke-width="1"/>
 
-    <rect x="18" y="39" width="254" height="30" rx="2" fill="#ffffff" stroke="#777777"/>
+    <rect x="18" y="39" width="254" height="30" rx="2" fill="#ffffff" stroke="#000000"/>
     <text x="145" y="53" font-family="'Times New Roman', serif" font-size="8.8" font-weight="bold" fill="#000000" text-anchor="middle">REST Control Plane (RBAC)</text>
-    <text x="145" y="64" font-family="'Times New Roman', serif" font-size="7.8" fill="#444444" text-anchor="middle">Admin, Operator, Read-Only Employee roles</text>
+    <text x="145" y="64" font-family="'Times New Roman', serif" font-size="7.8" fill="#000000" text-anchor="middle">Admin, Operator, Read-Only Employee roles</text>
 
-    <rect x="18" y="75" width="254" height="30" rx="2" fill="#ffffff" stroke="#777777"/>
+    <rect x="18" y="75" width="254" height="30" rx="2" fill="#ffffff" stroke="#000000"/>
     <text x="145" y="89" font-family="'Times New Roman', serif" font-size="8.8" font-weight="bold" fill="#000000" text-anchor="middle">Atomic Multi-Key Validator</text>
-    <text x="145" y="100" font-family="'Times New Roman', serif" font-size="7.8" fill="#444444" text-anchor="middle">All-or-nothing compound changeset verification</text>
+    <text x="145" y="100" font-family="'Times New Roman', serif" font-size="7.8" fill="#000000" text-anchor="middle">All-or-nothing compound changeset verification</text>
 
-    <rect x="18" y="111" width="254" height="30" rx="2" fill="#ffffff" stroke="#777777"/>
+    <rect x="18" y="111" width="254" height="30" rx="2" fill="#ffffff" stroke="#000000"/>
     <text x="145" y="125" font-family="'Times New Roman', serif" font-size="8.8" font-weight="bold" fill="#000000" text-anchor="middle">Single Writer Lock + SQLite WAL</text>
-    <text x="145" y="136" font-family="'Times New Roman', serif" font-size="7.8" fill="#444444" text-anchor="middle">PRAGMA synchronous = FULL (fsync before ACK)</text>
+    <text x="145" y="136" font-family="'Times New Roman', serif" font-size="7.8" fill="#000000" text-anchor="middle">PRAGMA synchronous = FULL (fsync before ACK)</text>
 
     <rect x="18" y="147" width="254" height="42" rx="2" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
     <text x="145" y="164" font-family="'Times New Roman', serif" font-size="8.8" font-weight="bold" fill="#000000" text-anchor="middle">SSE Streaming Broadcaster</text>
-    <text x="145" y="178" font-family="'Times New Roman', serif" font-size="7.8" fill="#444444" text-anchor="middle">Bounded per-client queues (100 events max buffer)</text>
+    <text x="145" y="178" font-family="'Times New Roman', serif" font-size="7.8" fill="#000000" text-anchor="middle">Bounded per-client queues (100 events max buffer)</text>
 
     <!-- MIDDLE ARROWS -->
     <!-- SSE Push -->
     <path d="M 285 168 L 435 168" stroke="#000000" stroke-width="1.4" marker-end="url(#arr)" fill="none"/>
-    <rect x="295" y="148" width="130" height="18" rx="2" fill="#ffffff" stroke="#cccccc"/>
+    <rect x="295" y="148" width="130" height="18" rx="2" fill="#ffffff" stroke="#000000"/>
     <text x="360" y="160" font-family="'Times New Roman', serif" font-size="7.8" font-weight="bold" fill="#000000" text-anchor="middle">SSE Stream (Chunked HTTP)</text>
-    <text x="360" y="180" font-family="'Times New Roman', serif" font-size="7.2" fill="#555555" text-anchor="middle">Monotonic deltas (v1, v2...)</text>
+    <text x="360" y="180" font-family="'Times New Roman', serif" font-size="7.2" fill="#000000" text-anchor="middle">Monotonic deltas (v1, v2...)</text>
 
     <!-- REST Fallback -->
-    <path d="M 435 53 L 285 53" stroke="#555555" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arr-gray)" fill="none"/>
-    <rect x="295" y="33" width="130" height="18" rx="2" fill="#ffffff" stroke="#cccccc"/>
-    <text x="360" y="45" font-family="'Times New Roman', serif" font-size="7.8" font-weight="bold" fill="#444444" text-anchor="middle">REST Catch-Up</text>
-    <text x="360" y="65" font-family="'Times New Roman', serif" font-size="7.2" fill="#555555" text-anchor="middle">GET /deltas?since_version=</text>
+    <path d="M 435 53 L 285 53" stroke="#000000" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arr-gray)" fill="none"/>
+    <rect x="295" y="33" width="130" height="18" rx="2" fill="#ffffff" stroke="#000000"/>
+    <text x="360" y="45" font-family="'Times New Roman', serif" font-size="7.8" font-weight="bold" fill="#000000" text-anchor="middle">REST Catch-Up</text>
+    <text x="360" y="65" font-family="'Times New Roman', serif" font-size="7.2" fill="#000000" text-anchor="middle">GET /deltas?since_version=</text>
 
     <!-- CLIENT CONTAINER -->
     <rect x="435" y="5" width="360" height="200" rx="2" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
@@ -305,27 +305,27 @@
 
     <rect x="448" y="39" width="162" height="66" rx="2" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
     <text x="529" y="56" font-family="'Times New Roman', serif" font-size="8.5" font-weight="bold" fill="#000000" text-anchor="middle">AtomicReference Cache</text>
-    <text x="529" y="69" font-family="'Times New Roman', serif" font-size="7.5" fill="#333333" text-anchor="middle">Immutable ConfigSnapshot</text>
-    <text x="529" y="81" font-family="'Times New Roman', serif" font-size="7.5" fill="#333333" text-anchor="middle">Zero-lock pointer swap</text>
+    <text x="529" y="69" font-family="'Times New Roman', serif" font-size="7.5" fill="#000000" text-anchor="middle">Immutable ConfigSnapshot</text>
+    <text x="529" y="81" font-family="'Times New Roman', serif" font-size="7.5" fill="#000000" text-anchor="middle">Zero-lock pointer swap</text>
     <text x="529" y="95" font-family="'Times New Roman', serif" font-size="7.5" font-weight="bold" fill="#000000" text-anchor="middle">~170 ns reads at p50</text>
 
-    <rect x="620" y="39" width="162" height="66" rx="2" fill="#ffffff" stroke="#777777"/>
+    <rect x="620" y="39" width="162" height="66" rx="2" fill="#ffffff" stroke="#000000"/>
     <text x="701" y="56" font-family="'Times New Roman', serif" font-size="8.5" font-weight="bold" fill="#000000" text-anchor="middle">4-Tier Hierarchy Resolver</text>
-    <text x="701" y="70" font-family="'Times New Roman', serif" font-size="7.2" fill="#444444" text-anchor="middle">Shift &gt; Office &gt; Client</text>
-    <text x="701" y="82" font-family="'Times New Roman', serif" font-size="7.2" fill="#444444" text-anchor="middle">&gt; Global &gt; Default</text>
-    <text x="701" y="95" font-family="'Times New Roman', serif" font-size="7.2" font-style="italic" fill="#555555" text-anchor="middle">Audit explain() mode</text>
+    <text x="701" y="70" font-family="'Times New Roman', serif" font-size="7.2" fill="#000000" text-anchor="middle">Shift &gt; Office &gt; Client</text>
+    <text x="701" y="82" font-family="'Times New Roman', serif" font-size="7.2" fill="#000000" text-anchor="middle">&gt; Global &gt; Default</text>
+    <text x="701" y="95" font-family="'Times New Roman', serif" font-size="7.2" font-style="italic" fill="#000000" text-anchor="middle">Audit explain() mode</text>
 
-    <rect x="448" y="111" width="162" height="68" rx="2" fill="#ffffff" stroke="#777777"/>
+    <rect x="448" y="111" width="162" height="68" rx="2" fill="#ffffff" stroke="#000000"/>
     <text x="529" y="128" font-family="'Times New Roman', serif" font-size="8.5" font-weight="bold" fill="#000000" text-anchor="middle">Gap Detector &amp; Poller</text>
-    <text x="529" y="141" font-family="'Times New Roman', serif" font-size="7.2" fill="#444444" text-anchor="middle">Detects v &gt; current + 1</text>
-    <text x="529" y="153" font-family="'Times New Roman', serif" font-size="7.2" fill="#444444" text-anchor="middle">Pauses stream, pulls REST</text>
-    <text x="529" y="166" font-family="'Times New Roman', serif" font-size="7.2" fill="#444444" text-anchor="middle">AWS full-jitter backoff</text>
+    <text x="529" y="141" font-family="'Times New Roman', serif" font-size="7.2" fill="#000000" text-anchor="middle">Detects v &gt; current + 1</text>
+    <text x="529" y="153" font-family="'Times New Roman', serif" font-size="7.2" fill="#000000" text-anchor="middle">Pauses stream, pulls REST</text>
+    <text x="529" y="166" font-family="'Times New Roman', serif" font-size="7.2" fill="#000000" text-anchor="middle">AWS full-jitter backoff</text>
 
-    <rect x="620" y="111" width="162" height="68" rx="2" fill="#ffffff" stroke="#777777"/>
+    <rect x="620" y="111" width="162" height="68" rx="2" fill="#ffffff" stroke="#000000"/>
     <text x="701" y="128" font-family="'Times New Roman', serif" font-size="8.5" font-weight="bold" fill="#000000" text-anchor="middle">Atomic Disk Fallback</text>
-    <text x="701" y="141" font-family="'Times New Roman', serif" font-size="7.2" fill="#444444" text-anchor="middle">Persists snapshot.json</text>
-    <text x="701" y="153" font-family="'Times New Roman', serif" font-size="7.2" fill="#444444" text-anchor="middle">Temp file + atomic rename</text>
-    <text x="701" y="166" font-family="'Times New Roman', serif" font-size="7.2" fill="#444444" text-anchor="middle">Cold boots with zero WAN</text>
+    <text x="701" y="141" font-family="'Times New Roman', serif" font-size="7.2" fill="#000000" text-anchor="middle">Persists snapshot.json</text>
+    <text x="701" y="153" font-family="'Times New Roman', serif" font-size="7.2" fill="#000000" text-anchor="middle">Temp file + atomic rename</text>
+    <text x="701" y="166" font-family="'Times New Roman', serif" font-size="7.2" fill="#000000" text-anchor="middle">Cold boots with zero WAN</text>
   </svg>
 </div>
 <div class="diagram-caption">Figure 1: Architectural Component and Interaction Topology between Server and SDK Nodes</div>
@@ -407,18 +407,9 @@ int window = client.get(snapshot, "cancellation_window", Integer.class);
   In corporate employee transportation, algorithmic decisions are subject to strict regulatory oversight and corporate safety audits. Transport operations teams frequently need to answer: <em>Why was this specific cutoff applied to this cab booking?</em> To provide total operational transparency, the SDK exposes an explain(key, context) method that returns the complete resolution lineage:
 </p>
 
-<div class="code-box">
-{
-  "key": "booking_cutoff_minutes",
-  "resolved_value": 45,
-  "winning_scope": "OFFICE:BLR_CAMPUS",
-  "overridden_hierarchy": [
-    { "scope": "CLIENT:MSFT", "configured_value": 30 },
-    { "scope": "GLOBAL", "configured_value": 60 }
-  ],
-  "authoritative_version": 44,
-  "evaluated_at": "2026-10-31T05:30:00Z"
-}
+<div class="diagram-container" style="text-align: center; margin: 5pt 0 3pt 0;">
+  <img src="/Users/sakshamgupta/Documents/resume/MoveInSync/hierarchy_scope_model.png" style="height: 98px; width: auto; max-width: 480px; display: block; margin: 0 auto; border: 1px solid #000000;">
+  <div class="diagram-caption" style="margin-top: 3pt;">Figure 2: MoveInSync 4-Tier Scope Resolution &amp; Override Hierarchy Model</div>
 </div>
 
 <p>
@@ -457,9 +448,9 @@ int window = client.get(snapshot, "cancellation_window", Integer.class);
     </defs>
 
     <!-- Vertical Lifelines -->
-    <line x1="100" y1="18" x2="100" y2="160" stroke="#cccccc" stroke-width="1.2" stroke-dasharray="3,3"/>
-    <line x1="400" y1="18" x2="400" y2="160" stroke="#cccccc" stroke-width="1.2" stroke-dasharray="3,3"/>
-    <line x1="700" y1="18" x2="700" y2="160" stroke="#cccccc" stroke-width="1.2" stroke-dasharray="3,3"/>
+    <line x1="100" y1="18" x2="100" y2="160" stroke="#000000" stroke-width="1.2" stroke-dasharray="3,3"/>
+    <line x1="400" y1="18" x2="400" y2="160" stroke="#000000" stroke-width="1.2" stroke-dasharray="3,3"/>
+    <line x1="700" y1="18" x2="700" y2="160" stroke="#000000" stroke-width="1.2" stroke-dasharray="3,3"/>
 
     <!-- Labels -->
     <rect x="30" y="3" width="140" height="16" rx="2" fill="#ffffff" stroke="#333333"/>
@@ -488,18 +479,18 @@ int window = client.get(snapshot, "cancellation_window", Integer.class);
     <text x="700" y="91" font-family="'Times New Roman', serif" font-size="7.5" font-weight="bold" fill="#cc0000" text-anchor="middle">Gap detected: v43 &gt; v41 + 1</text>
 
     <line x1="700" y1="107" x2="400" y2="107" stroke="#444444" stroke-width="1.2" stroke-dasharray="4,2" marker-end="url(#seq-arr)"/>
-    <text x="550" y="103" font-family="'Times New Roman', serif" font-size="7.5" fill="#333333" text-anchor="middle">4. GET /api/v1/config/deltas?since_version=41</text>
+    <text x="550" y="103" font-family="'Times New Roman', serif" font-size="7.5" fill="#000000" text-anchor="middle">4. GET /api/v1/config/deltas?since_version=41</text>
 
     <line x1="400" y1="122" x2="700" y2="122" stroke="#000000" stroke-width="1.2" marker-end="url(#seq-arr)"/>
     <text x="550" y="118" font-family="'Times New Roman', serif" font-size="7.5" fill="#000000" text-anchor="middle">5. 200 OK: deltas [v42, v43] replayed sequentially &rarr; snapshot updated to v43</text>
 
-    <line x1="400" y1="138" x2="700" y2="138" stroke="#777777" stroke-width="1.2" stroke-dasharray="2,2" marker-end="url(#seq-arr)"/>
-    <text x="550" y="134" font-family="'Times New Roman', serif" font-size="7.5" fill="#555555" text-anchor="middle">6. Delayed v41 packet delivered out of order</text>
+    <line x1="400" y1="138" x2="700" y2="138" stroke="#000000" stroke-width="1.2" stroke-dasharray="2,2" marker-end="url(#seq-arr)"/>
+    <text x="550" y="134" font-family="'Times New Roman', serif" font-size="7.5" fill="#000000" text-anchor="middle">6. Delayed v41 packet delivered out of order</text>
 
-    <text x="700" y="154" font-family="'Times New Roman', serif" font-size="7.5" font-style="italic" fill="#444444" text-anchor="middle">Monotonic check: v41 &le; v43 &rarr; discarded silently as idempotent no-op</text>
+    <text x="700" y="154" font-family="'Times New Roman', serif" font-size="7.5" font-style="italic" fill="#000000" text-anchor="middle">Monotonic check: v41 &le; v43 &rarr; discarded silently as idempotent no-op</text>
   </svg>
 </div>
-<div class="diagram-caption">Figure 2: End-to-End Propagation, Packet Loss, and Resynchronization Flow</div>
+<div class="diagram-caption">Figure 3: End-to-End Propagation, Packet Loss, and Resynchronization Flow</div>
 
 <p>
   <strong>Reconnection Resilience &amp; Full Jitter Protocol:</strong> When network partitions heal, 200 microservice nodes attempting simultaneous reconnects would overwhelm the central server. The SDK implements AWS-style full decorrelated jitter: <em>t_sleep = min(2000 ms, random(50 ms, t_prev &times; 3))</em>. This smooths retry spikes across time and prevents synchronized reconnection storms.
@@ -630,10 +621,14 @@ int window = client.get(snapshot, "cancellation_window", Integer.class);
   <li><strong>config-client-sdk (2 tests):</strong> Zero-lock snapshot reads, canary empty delta ingestion, and offline disk snapshot hydration.</li>
   <li><strong>config-server (13 tests):</strong> Compound all-or-nothing validation, 50-thread concurrent atomic reads (2.1M operations), canary staged rollouts, forward rollbacks, multi-tenant REST/SSE isolation, 401 unauthorized rejection, SSE gap catch-up, stale packet drop, hard kill -9 crash durability, and 200-client reconnect benchmark.</li>
 </ul>
+<div class="diagram-container" style="text-align: center; margin: 4pt 0 2pt 0;">
+  <img src="/Users/sakshamgupta/Documents/resume/MoveInSync/test_suite_verification.png" style="height: 98px; width: auto; max-width: 480px; display: block; margin: 0 auto; border: 1px solid #000000;">
+  <div class="diagram-caption" style="margin-top: 2.5pt;">Figure 4: Automated Test Suite Execution Terminal Output (26/26 Tests Passed)</div>
+</div>
 
 <h2>13. Conclusion &amp; Production Readiness Assessment</h2>
 <p>
-  The developed architecture fulfills all MoveInSync Case Study 2 requirements. By decoupling the write path (ACID durability via SQLite WAL and SSE streaming) from the read path (lock-free in-memory resolution via immutable AtomicReference snapshots), the platform achieves sub-microsecond local reads (~170 ns) and sub-second fleet propagation (~320 ms). The codebase is fully containerized, packaged with a complete Maven wrapper, and documented with comprehensive automated tests ready for immediate production deployment.
+  The platform satisfies all Case Study 2 requirements by decoupling the ACID write path (SQLite WAL and SSE push) from the lock-free read path (immutable AtomicReference snapshots), delivering ~170 ns reads at p50 and ~320 ms fleet propagation. The codebase is containerized, includes a Maven wrapper, and passes all 26 automated tests for production deployment.
 </p>
 
 <div class="page-num">Page 5 of 5</div>
