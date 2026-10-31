@@ -50,6 +50,11 @@ class ConcurrencyAtomicReadTest {
             AtomicBoolean stop = new AtomicBoolean(false);
             AtomicInteger partialStateViolations = new AtomicInteger(0);
             AtomicInteger totalReads = new AtomicInteger(0);
+            AtomicInteger readerErrors = new AtomicInteger(0);
+            CountDownLatch observedFirstUpdate = new CountDownLatch(1);
+            CountDownLatch observedSecondUpdate = new CountDownLatch(1);
+            var firstVersion = new java.util.concurrent.atomic.AtomicLong(Long.MAX_VALUE);
+            var secondVersion = new java.util.concurrent.atomic.AtomicLong(Long.MAX_VALUE);
             CountDownLatch startSignal = new CountDownLatch(1);
 
             // 50 threads reading continuously
@@ -70,6 +75,8 @@ class ConcurrencyAtomicReadTest {
                                 boolean validState1 = (start == 20 && end == 6);
                                 boolean validState2 = (start == 22 && end == 5);
                                 boolean validState3 = (start == 23 && end == 4);
+                                if (validState2 && snapshot.version() >= firstVersion.get()) observedFirstUpdate.countDown();
+                                if (validState3 && snapshot.version() >= secondVersion.get()) observedSecondUpdate.countDown();
 
                                 if (!validState1 && !validState2 && !validState3) {
                                     partialStateViolations.incrementAndGet();
@@ -78,7 +85,7 @@ class ConcurrencyAtomicReadTest {
                             }
                         }
                     } catch (Exception ex) {
-                        // ignore
+                        readerErrors.incrementAndGet();
                     }
                 });
             }
@@ -87,6 +94,7 @@ class ConcurrencyAtomicReadTest {
 
             // Publish compound changesets updating both keys simultaneously
             Thread.sleep(100);
+            firstVersion.set(configService.getLatestVersion() + 1);
             configService.publishChangeSet(
                     ConfigScopeKey.client("Google"),
                     null,
@@ -95,7 +103,8 @@ class ConcurrencyAtomicReadTest {
                     "Atomic shift 1"
             );
 
-            Thread.sleep(100);
+            boolean firstObserved = observedFirstUpdate.await(5, TimeUnit.SECONDS);
+            secondVersion.set(configService.getLatestVersion() + 1);
             configService.publishChangeSet(
                     ConfigScopeKey.client("Google"),
                     null,
@@ -104,7 +113,7 @@ class ConcurrencyAtomicReadTest {
                     "Atomic shift 2"
             );
 
-            Thread.sleep(300);
+            boolean secondObserved = observedSecondUpdate.await(5, TimeUnit.SECONDS);
             stop.set(true);
             readersPool.shutdown();
             readersPool.awaitTermination(3, TimeUnit.SECONDS);
@@ -114,6 +123,9 @@ class ConcurrencyAtomicReadTest {
 
             // PROVEN GUARANTEE: In-memory atomic reference swap ensures 0 partial states
             assertThat(totalReads.get()).isGreaterThan(1000);
+            assertThat(firstObserved).as("Readers must observe the first update").isTrue();
+            assertThat(secondObserved).as("Readers must observe the second update").isTrue();
+            assertThat(readerErrors.get()).as("Reader failures must not be swallowed").isZero();
             assertThat(partialStateViolations.get())
                     .as("No thread should ever see start from version A with end from version B")
                     .isZero();

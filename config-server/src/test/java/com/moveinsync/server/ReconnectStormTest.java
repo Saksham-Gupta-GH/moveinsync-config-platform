@@ -6,6 +6,7 @@ import com.moveinsync.core.model.SettingDefinition;
 import com.moveinsync.core.model.SettingType;
 import com.moveinsync.core.model.ValidationRule;
 import com.moveinsync.server.service.ConfigService;
+import com.moveinsync.server.service.SseBroadcaster;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -38,13 +39,13 @@ class ReconnectStormTest {
     Path tempDir;
 
     @Test
-    @DisplayName("Reconnect Storm: 200 simulated clients connect concurrently, receive live SSE deltas, and maintain 0 queue drops")
-    void shouldHandle200ConcurrentSubscribersGracefully() throws Exception {
+    @DisplayName("Reconnect Storm: 500 clients recover after all SSE connections are closed")
+    void shouldRecover500SubscribersAfterStreamInterruption() throws Exception {
         configService.registerDefinition(new SettingDefinition(
                 "storm_flag", SettingType.BOOLEAN, false, "Storm Flag", ValidationRule.none()));
 
         String serverUrl = "http://localhost:" + port;
-        int clientCount = 200;
+        int clientCount = 500;
         List<MoveInSyncConfigClient> clients = new CopyOnWriteArrayList<>();
         ExecutorService stormPool = Executors.newFixedThreadPool(50);
         CountDownLatch connectLatch = new CountDownLatch(clientCount);
@@ -63,7 +64,7 @@ class ReconnectStormTest {
                     try {
                         Path clientDir = tempDir.resolve("client_" + id);
                         MoveInSyncConfigClient client = new MoveInSyncConfigClient(
-                                serverUrl, "Google", "BLR-" + (id % 5 + 1), "google-service-key", clientDir,
+                                serverUrl, "Google", "RECONNECT-" + id, "google-service-key", clientDir,
                                 sharedHttpClient, sharedHeartbeat, sharedSsePool);
                         client.start();
                         clients.add(client);
@@ -79,12 +80,33 @@ class ReconnectStormTest {
             assertThat(clients.size()).isEqualTo(clientCount);
 
             // Allow all 200 SSE streams to register and connect
-            long settleDeadline = System.currentTimeMillis() + 8000;
+            long settleDeadline = System.currentTimeMillis() + 15000;
             while (System.currentTimeMillis() < settleDeadline) {
                 long connected = clients.stream().filter(MoveInSyncConfigClient::isSseConnected).count();
                 if (connected >= clientCount) break;
                 Thread.sleep(50);
             }
+            assertThat(clients.stream().filter(MoveInSyncConfigClient::isSseConnected).count())
+                    .as("All streams must be established before interruption").isEqualTo(clientCount);
+
+            var interruptedSessions = sseBroadcaster.getSubscribers().values().stream()
+                    .filter(session -> session.officeId().startsWith("RECONNECT-"))
+                    .toList();
+            assertThat(interruptedSessions).hasSize(clientCount);
+            interruptedSessions.forEach(session -> session.emitter().complete());
+            var oldIds = interruptedSessions.stream().map(SseBroadcaster.SubscriberSession::id)
+                    .collect(java.util.stream.Collectors.toSet());
+            long reconnectDeadline = System.currentTimeMillis() + 15000;
+            while (System.currentTimeMillis() < reconnectDeadline) {
+                long newConnections = sseBroadcaster.getSubscribers().keySet().stream()
+                        .filter(id -> id.contains(":RECONNECT-") && !oldIds.contains(id)).count();
+                if (newConnections >= clientCount) break;
+                Thread.sleep(50);
+            }
+            assertThat(sseBroadcaster.getSubscribers().keySet().stream()
+                    .filter(id -> id.contains(":RECONNECT-") && !oldIds.contains(id)).count())
+                    .as("Every interrupted subscriber must establish a new stream")
+                    .isGreaterThanOrEqualTo(clientCount);
 
             // 2. Publish a live changeset to all Google offices
             long versionBefore = configService.getLatestVersion();

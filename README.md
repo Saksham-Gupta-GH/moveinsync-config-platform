@@ -9,13 +9,13 @@
 This system is a distributed, tenant-aware configuration engine built for 24/7 employee commute logistics (e.g., booking cutoffs, panic response windows, escort requirements, and fleet policies). In multi-office transportation systems, configuration access must satisfy three core requirements:
 
 1. **Sub-Microsecond In-Memory Reads:** Routing, dispatch, and billing algorithms read configurations millions of times per hour. Reads must never hit network sockets or block behind locks.
-2. **Deterministic Live Propagation (< 5 seconds):** When an operational policy changes, active offices and client instances must receive the update live without polling loops or restarts.
+2. **Live Propagation (5-second target):** SSE pushes changes to connected clients; a one-second version check heals missed pushes. Reads remain local. Network outages can exceed the staleness target.
 3. **Resilient Local Fallback:** Client SDKs must operate seamlessly during network drops, out-of-order deliveries, and cold boots from local storage.
 
 ### Technology Stack
 - **Language & Runtime:** Java 17 LTS + Spring Boot 3.3.4
 - **Client Cache:** Immutable snapshot pointer swap via `AtomicReference<ConfigSnapshot>`
-- **Live Stream Transport:** Server-Sent Events (SSE) with HTTP chunked streaming & AWS Full Jitter backoff
+- **Live Stream Transport:** Server-Sent Events (SSE) with HTTP chunked streaming and decorrelated jitter backoff
 - **Storage & Durability:** Embedded SQLite in WAL mode with `PRAGMA synchronous = FULL;` (fsync before ACK)
 - **Dependencies:** Minimal runtime dependencies (`jackson-databind` for serialization)
 - **Packaging:** Multi-module Maven (`config-core`, `config-client-sdk`, `config-server`), Docker, and GitHub Actions CI
@@ -112,7 +112,11 @@ Measures end-to-end time from server SQLite commit & fsync to in-memory visibili
 
 ---
 
-## 4. Automated Test Verification Suite (26 / 26 Tests Passing)
+## 4. Automated Test Verification Suite
+
+The submitted PDF records the original **26/26** test run. The follow-up implementation adds a Bearer authentication integration test, strengthens concurrent-read assertions, and exercises 500 clients reconnecting after simultaneous SSE interruption. Run `./mvnw test` for the current results; the original transcript below is historical, not a claim about a new run.
+
+Verified follow-up run (31 October 2026, Java 17): `./mvnw clean test` passed **27/27 tests** (11 core, 2 SDK, 14 server), with zero failures, errors, or skips. All 500 interrupted clients reconnected and received the subsequent update. The concurrency test observed both new versions across 209,210 reads with zero mixed states. Total Maven time was 20.152 seconds; timings and read counts vary by run.
 
 The project includes an automated test suite across all 3 modules verifying consistency, tenant isolation, fault injection, and concurrency:
 
@@ -136,19 +140,20 @@ The project includes an automated test suite across all 3 modules verifying cons
 8. `TenantIsolationTest` (5 tests): Missing/unknown API key rejection (401), cross-tenant RBAC enforcement, REST snapshot/delta data isolation, and SSE tenant filtering.
 9. `OutOfOrderAndGapSyncTest` (2 tests): Network reordering recovery (V43 arriving before V42 triggers delta catch-up), duplicate stale deltas ignored.
 10. `ServerKillFaultInjectionTest`: Abrupt process kill via `SIGKILL (kill -9)`; committed changesets survive on reboot.
-11. `ReconnectStormTest`: 200 concurrent clients reconnect simultaneously, receive live deltas, 0 dropped events.
+11. `ReconnectStormTest`: 500 clients establish streams, all streams are interrupted, every client establishes a new stream, and all receive the next update within 5 seconds. This models transport interruption; the separate process-kill test verifies server restart durability.
 12. `BenchmarkRunnerTest`: Empirical test validating < 10 µs read latency and < 5s live propagation SLA.
+13. `BearerAuthenticationTest`: HTTP Bearer authentication, tenant isolation, invalid credentials, and rejection of conflicting authentication headers.
 
 ---
 
 ## 5. Security, RBAC & Tenant Isolation
 
-Authentication uses an API key passed via the `X-API-Key` header (in production, loaded from environment variables or a secrets manager):
+Authentication accepts `Authorization: Bearer <key>` as described in the PDF, or the original `X-API-Key` header. Both use the same opaque demo credentials and RBAC rules. These are not JWTs. Conflicting headers are rejected. Credentials are currently demo constants; external secret management and TLS are deployment requirements.
 
 | Role | Permissions | Demo API Key |
 |---|---|---|
 | **`ADMIN`** | Register definitions, publish changesets, trigger rollbacks, promote rollouts | `admin-root-key` |
-| **`OPERATOR`**| Publish changesets within authorized client tenant | `operator-key-google` |
+| **`OPERATOR`**| Publish and promote changesets across tenants (trusted platform operator) | `operator-secret-key` |
 | **`EMPLOYEE`**| Read-only access to snapshots, deltas, and live SSE stream for authorized tenant | `google-service-key` |
 
 - **Missing or Invalid Key:** Requests without a valid key receive HTTP 401 Unauthorized.
@@ -169,52 +174,55 @@ curl -X POST http://localhost:8080/api/v1/config/definitions \
     "type": "DURATION_MINUTES",
     "defaultValue": 45,
     "description": "Cutoff window for shift cab bookings",
-    "validationRule": { "min": 0, "max": 1440 }
+    "validationRule": { "minDurationMinutes": 0, "maxDurationMinutes": 1440 }
   }'
 ```
 
 ### 2. Publish a Global or Tenant Changeset (Admin / Operator)
 ```bash
-curl -X POST http://localhost:8080/api/v1/config/publish \
+curl -X POST http://localhost:8080/api/v1/config/changeset \
   -H "X-API-Key: admin-root-key" \
   -H "Content-Type: application/json" \
   -d '{
-    "scopeKey": { "type": "CLIENT", "clientId": "Google" },
-    "changes": { "booking_cutoff_minutes": 30 },
+    "scopeKey": { "scope": "CLIENT", "clientId": "Google" },
+    "updates": { "booking_cutoff_minutes": 30 },
     "author": "ops-lead",
-    "description": "Shorten booking cutoff for Google fleet"
+    "reason": "Shorten booking cutoff for Google fleet"
   }'
 ```
 
 ### 3. Staged Canary Rollout to Specific Office
 ```bash
-curl -X POST http://localhost:8080/api/v1/config/publish \
+curl -X POST http://localhost:8080/api/v1/config/changeset \
   -H "X-API-Key: admin-root-key" \
   -H "Content-Type: application/json" \
   -d '{
-    "scopeKey": { "type": "OFFICE", "clientId": "Google", "officeId": "BLR-1" },
+    "scopeKey": { "scope": "CLIENT", "clientId": "Google" },
     "stagedOffices": ["BLR-1"],
-    "changes": { "booking_cutoff_minutes": 20 },
+    "updates": { "booking_cutoff_minutes": 20 },
     "author": "ops-lead",
-    "description": "Canary trial in BLR-1"
+    "reason": "Canary trial in BLR-1"
   }'
 ```
 
 ### 4. Promote Canary Rollout to All Offices
 ```bash
-curl -X POST "http://localhost:8080/api/v1/config/promote?client_id=Google&target_key=booking_cutoff_minutes" \
+# Replace CHANGESET_ID with the id returned by the staged changeset request.
+curl -X POST "http://localhost:8080/api/v1/config/changeset/CHANGESET_ID/promote?author=ops-lead" \
   -H "X-API-Key: admin-root-key"
 ```
 
 ### 5. Rollback with Dry-Run Diff Preview
 ```bash
 # Preview the rollback diff without mutating state
-curl -X POST "http://localhost:8080/api/v1/config/rollback?target_version=1&dry_run=true" \
-  -H "X-API-Key: admin-root-key"
+curl -X POST "http://localhost:8080/api/v1/config/rollback" \
+  -H "X-API-Key: admin-root-key" -H "Content-Type: application/json" \
+  -d '{"targetVersion":1,"dryRun":true,"author":"admin"}'
 
 # Execute the rollback as a forward-reverting changeset
-curl -X POST "http://localhost:8080/api/v1/config/rollback?target_version=1&dry_run=false" \
-  -H "X-API-Key: admin-root-key"
+curl -X POST "http://localhost:8080/api/v1/config/rollback" \
+  -H "X-API-Key: admin-root-key" -H "Content-Type: application/json" \
+  -d '{"targetVersion":1,"dryRun":false,"author":"admin"}'
 ```
 
 ### 6. Inspect Server Metrics & Lag Telemetry
@@ -254,5 +262,22 @@ docker compose up --build
    - *Design Choice:* Rollback creates a forward-reverting changeset, restoring keys to their target version values and resetting newly added keys to definition defaults.
    - *Trade-off:* Rollback never rewrites past WAL history. This guarantees client gap detectors remain intact and audit trails are preserved.
 3. **SSE In-Process Broadcaster:**
-   - *Capacity:* A single JVM supports 10,000–15,000 concurrent SSE subscribers before TCP file descriptor exhaustion.
+   - *Capacity:* Capacity depends on file descriptors, blocking SDK reader threads, dispatch threads, and heap. The test targets 500 reconnecting clients; 10,000+ subscribers have not been demonstrated.
    - *Multi-Node Clustering:* To scale horizontally across multiple instances, an external message broker (e.g., Redis Pub/Sub or Kafka) would fan out changesets across servers.
+
+## 9. Submitted Dossier and Implementation Follow-up
+
+The submitted PDF is retained as the submission-time design report. Follow-up commits add Bearer-header support and the typed SDK call shown in its concurrency example:
+
+```java
+ConfigSnapshot snapshot = client.getSnapshot();
+int cutoff = client.get(snapshot, "booking_cutoff_minutes", Integer.class);
+```
+
+Four configurable scopes (SHIFT, OFFICE, CLIENT, GLOBAL) plus the definition default form the five-step lookup sequence. Defaults are a fallback, not a fifth independently configurable scope.
+
+Consistency model: writes are serialized and durably committed before acknowledgment. Clients converge through ordered SSE updates and REST catch-up. A caller captures one snapshot for a consistent multi-key evaluation; separate reads that capture different snapshots may observe different versions. During partitions, clients favor availability and serve the last snapshot without a finite staleness bound.
+
+The reported ~170 ns reads and ~320 ms propagation are historical local measurements, not universal latency guarantees. The assessment target is 5 seconds under healthy connectivity. The heartbeat checks versions every second; network and replay time must also fit that budget. The reconnect formula uses decorrelated jitter with a 50 ms base and 2,000 ms cap, as illustrated in the PDF; this is distinct from full exponential jitter.
+
+Remaining deployment limits include demo credentials, a single writer/server, and rollback implemented as forward per-scope changes rather than a single atomic multi-scope transaction. The current rollback resets newly introduced overrides to definition defaults rather than deleting them, so it does not restore inherited values in every hierarchy case. Crash tests demonstrate recovery for their tested scenario, not immunity to every storage failure. The PDF's production-readiness wording should be read in the context of this assessment prototype.

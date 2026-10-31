@@ -1,4 +1,5 @@
 # MoveInSync Hierarchical Tenant Configuration Platform — Complete Codebase Bundle
+> Historical submission-time source bundle. For the current implementation and follow-up verification, use the actual module source files and README; this archived bundle is not regenerated on each code change.
 Repository: https://github.com/Saksham-Gupta-GH/moveinsync-config-platform
 Author: Saksham Gupta (B.Tech IT, MIT Manipal)
 Tech Stack: Java 17 LTS, Spring Boot 3.3.4, SQLite WAL (fsync FULL), Maven Multi-Module

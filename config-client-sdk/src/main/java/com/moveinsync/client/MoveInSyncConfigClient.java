@@ -49,6 +49,9 @@ public class MoveInSyncConfigClient implements AutoCloseable {
     private final boolean ownsExecutors;
     private final AtomicBoolean running = new AtomicBoolean(false);
     private final AtomicBoolean sseConnected = new AtomicBoolean(false);
+    private volatile InputStream activeStream;
+    private Future<?> sseTask;
+    private ScheduledFuture<?> heartbeatTask;
 
     public MoveInSyncConfigClient(String serverBaseUrl, String clientId, String officeId, String apiKey, Path storageDir) {
         this(serverBaseUrl, clientId, officeId, apiKey, storageDir, null, null, null);
@@ -95,10 +98,10 @@ public class MoveInSyncConfigClient implements AutoCloseable {
         tryFetchInitialSnapshot();
 
         // 3. Start SSE Stream Listener
-        sseExecutor.submit(this::runSseLoop);
+        sseTask = sseExecutor.submit(this::runSseLoop);
 
-        // 4. Start 5-second Heartbeat & Gap-healing Poller
-        heartbeatExecutor.scheduleAtFixedRate(this::pollHeartbeatAndHeal, 5, 5, TimeUnit.SECONDS);
+        // Leave time within the five-second target for HTTP catch-up.
+        heartbeatTask = heartbeatExecutor.scheduleAtFixedRate(this::pollHeartbeatAndHeal, 1, 1, TimeUnit.SECONDS);
     }
 
     /**
@@ -117,6 +120,13 @@ public class MoveInSyncConfigClient implements AutoCloseable {
 
     public Optional<Object> get(ConfigSnapshot snapshot, String key) {
         return snapshot.resolve(key, clientId, officeId, null);
+    }
+
+    /** Typed read from a captured snapshot, preserving multi-key consistency. */
+    public <T> T get(ConfigSnapshot snapshot, String key, Class<T> type) {
+        Object value = get(snapshot, key).orElseThrow(() ->
+                new IllegalArgumentException("Unknown configuration key: " + key));
+        return type.cast(value);
     }
 
     public Optional<Object> get(String key, String shiftId) {
@@ -232,9 +242,7 @@ public class MoveInSyncConfigClient implements AutoCloseable {
     }
 
     private void runSseLoop() {
-        int attempt = 0;
-        long baseBackoffMs = 100;
-        long maxCapMs = 3000;
+        long previousDelayMs = 50;
 
         while (running.get()) {
             try {
@@ -248,8 +256,10 @@ public class MoveInSyncConfigClient implements AutoCloseable {
 
                 HttpResponse<InputStream> response = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
                 if (response.statusCode() == 200) {
+                    activeStream = response.body();
                     sseConnected.set(true);
-                    attempt = 0; // Reset backoff on successful connection
+                    // Subscribe first, then replay changes missed while disconnected.
+                    fetchMissingDeltas(getCurrentVersion());
                     try (BufferedReader reader = new BufferedReader(new InputStreamReader(response.body()))) {
                         String line;
                         while (running.get() && (line = reader.readLine()) != null) {
@@ -262,19 +272,24 @@ public class MoveInSyncConfigClient implements AutoCloseable {
                             }
                         }
                     }
+                } else {
+                    response.body().close();
                 }
             } catch (Exception e) {
                 if (!running.get()) break;
-                // Full Jitter Exponential Backoff: random(0, min(cap, base * 2^attempt))
-                long maxWait = Math.min(maxCapMs, baseBackoffMs * (1L << Math.min(attempt, 6)));
-                long jitteredSleep = ThreadLocalRandom.current().nextLong(0, maxWait + 1);
-                attempt++;
-                try {
-                    Thread.sleep(jitteredSleep);
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                    break;
-                }
+            } finally {
+                activeStream = null;
+                sseConnected.set(false);
+            }
+            // Back off after EOF and rejected requests as well as network exceptions.
+            if (!running.get()) break;
+            previousDelayMs = Math.min(2000,
+                    ThreadLocalRandom.current().nextLong(50, previousDelayMs * 3 + 1));
+            try {
+                Thread.sleep(previousDelayMs);
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                break;
             }
         }
     }
@@ -283,6 +298,12 @@ public class MoveInSyncConfigClient implements AutoCloseable {
     public void close() {
         if (!running.getAndSet(false)) return;
         sseConnected.set(false);
+        if (heartbeatTask != null) heartbeatTask.cancel(true);
+        if (sseTask != null) sseTask.cancel(true);
+        InputStream stream = activeStream;
+        if (stream != null) {
+            try { stream.close(); } catch (java.io.IOException ignored) { }
+        }
         if (ownsExecutors) {
             heartbeatExecutor.shutdownNow();
             sseExecutor.shutdownNow();

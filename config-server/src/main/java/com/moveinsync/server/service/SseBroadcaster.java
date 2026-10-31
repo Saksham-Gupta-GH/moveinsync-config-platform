@@ -48,7 +48,7 @@ public class SseBroadcaster {
     public SseEmitter subscribe(String clientId, String officeId) {
         // 1-hour timeout for persistent connection
         SseEmitter emitter = new SseEmitter(3600_000L);
-        String id = clientId + ":" + officeId + ":" + System.nanoTime();
+        String id = clientId + ":" + officeId + ":" + java.util.UUID.randomUUID();
         // Bounded queue: capacity 100 to protect server memory
         BlockingQueue<Delta> queue = new ArrayBlockingQueue<>(100);
         SubscriberSession session = new SubscriberSession(id, clientId, officeId, emitter, queue, new AtomicInteger(0));
@@ -61,6 +61,14 @@ public class SseBroadcaster {
             subscribers.remove(id);
         });
         emitter.onError(e -> subscribers.remove(id));
+
+        // Flush response headers even when no configuration has changed yet.
+        try {
+            emitter.send(SseEmitter.event().comment("connected"));
+        } catch (IOException e) {
+            subscribers.remove(id);
+            emitter.completeWithError(e);
+        }
 
         log.info("Registered SSE subscriber: " + id + " (Active subscribers: " + subscribers.size() + ")");
         return emitter;

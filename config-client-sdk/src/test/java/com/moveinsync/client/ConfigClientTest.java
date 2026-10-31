@@ -35,6 +35,10 @@ class ConfigClientTest {
 
             assertThat(client.getCurrentVersion()).isEqualTo(1L);
             assertThat(client.get("booking_cutoff_mins")).contains(45);
+            assertThat(client.get(client.getSnapshot(), "booking_cutoff_mins", Integer.class)).isEqualTo(45);
+            org.assertj.core.api.Assertions.assertThatThrownBy(() ->
+                    client.get(client.getSnapshot(), "booking_cutoff_mins", String.class))
+                    .isInstanceOf(ClassCastException.class);
 
             // Stale / Duplicate V1 delta should be dropped as a no-op
             client.handleDelta(d1);
