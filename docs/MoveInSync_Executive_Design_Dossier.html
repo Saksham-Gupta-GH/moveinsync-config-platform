@@ -6,7 +6,7 @@
 <style>
   @page {
     size: A4;
-    margin: 11mm 17mm 11mm 17mm;
+    margin: 10mm 16mm 10mm 16mm;
   }
   * {
     box-sizing: border-box;
@@ -17,7 +17,7 @@
     font-family: "Times New Roman", Times, Georgia, serif;
     color: #000000;
     background: #ffffff;
-    font-size: 9.5pt;
+    font-size: 9.6pt;
     line-height: 1.38;
     margin: 0;
     padding: 0;
@@ -26,8 +26,8 @@
   /* Academic Header block */
   .institution-header {
     text-align: center;
-    margin-bottom: 7px;
-    padding-bottom: 4px;
+    margin-bottom: 6px;
+    padding-bottom: 3px;
     border-bottom: 1px solid #000000;
   }
   .inst-name {
@@ -36,42 +36,42 @@
     font-weight: bold;
     letter-spacing: 0.5px;
     color: #000000;
-    line-height: 1.25;
+    line-height: 1.2;
   }
   .inst-sub {
     font-family: "Times New Roman", Times, serif;
     font-size: 8.5pt;
     font-style: italic;
     color: #333333;
-    line-height: 1.25;
+    line-height: 1.2;
   }
 
   /* Title block */
   .title-block {
     text-align: center;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
   }
   .doc-title {
     font-family: "Times New Roman", Times, serif;
     font-size: 15.5pt;
     font-weight: bold;
     color: #000000;
-    margin: 0 0 3px 0;
-    line-height: 1.22;
+    margin: 0 0 2px 0;
+    line-height: 1.2;
   }
   .doc-subtitle {
     font-family: "Times New Roman", Times, serif;
-    font-size: 9.8pt;
+    font-size: 9.6pt;
     font-weight: normal;
     color: #222222;
-    margin: 0 0 4px 0;
-    line-height: 1.25;
+    margin: 0 0 3px 0;
+    line-height: 1.2;
   }
   .meta-line {
     font-size: 9pt;
     color: #222222;
-    margin: 0 0 2px 0;
-    line-height: 1.25;
+    margin: 0 0 1.5px 0;
+    line-height: 1.2;
   }
   a {
     color: #0000ee;
@@ -81,24 +81,24 @@
   /* Headings - Exact SmartPay style: Times New Roman, Bold, Underlined, Numbered */
   h2 {
     font-family: "Times New Roman", Times, serif;
-    font-size: 11.2pt;
+    font-size: 11pt;
     font-weight: bold;
     text-decoration: underline;
     color: #000000;
-    margin: 10px 0 4px 0;
+    margin: 9px 0 3px 0;
     padding: 0;
-    line-height: 1.25;
+    line-height: 1.22;
   }
 
   h3 {
     font-family: "Times New Roman", Times, serif;
-    font-size: 10.2pt;
+    font-size: 10pt;
     font-weight: bold;
     text-decoration: underline;
     color: #000000;
-    margin: 8px 0 3px 0;
+    margin: 6px 0 2px 0;
     padding: 0;
-    line-height: 1.25;
+    line-height: 1.22;
   }
 
   p {
@@ -114,16 +114,16 @@
     background: #f8f9fa;
     border: 1px solid #d1d5db;
     border-radius: 2px;
-    padding: 5px 9px;
-    margin: 5px 0 7px 0;
-    line-height: 1.35;
+    padding: 4px 8px;
+    margin: 4px 0 6px 0;
+    line-height: 1.32;
     color: #000000;
   }
 
   /* Diagrams */
   .diagram-container {
     background: #ffffff;
-    margin: 5px 0 7px 0;
+    margin: 5px 0 6px 0;
   }
   .diagram-container svg {
     display: block;
@@ -137,7 +137,7 @@
     font-size: 9.2pt;
     font-weight: bold;
     color: #000000;
-    margin: 6px 0 3px 0;
+    margin: 5px 0 2px 0;
   }
 
   /* Classic Word/Docs Grid Table */
@@ -155,12 +155,12 @@
     font-weight: bold;
     color: #000000;
     text-align: left;
-    padding: 3px 6px;
+    padding: 3.5px 6px;
     background: #ffffff;
   }
   td {
     border: 1px solid #000000;
-    padding: 2.8px 6px;
+    padding: 3.2px 6px;
     color: #000000;
     vertical-align: top;
     background: #ffffff;
@@ -172,7 +172,7 @@
     padding-left: 18px;
   }
   li {
-    margin-bottom: 3px;
+    margin-bottom: 2.8px;
     font-size: 9.2pt;
     line-height: 1.36;
   }
@@ -193,7 +193,7 @@
 <body>
 
 <!-- ======================================================================= -->
-<!-- PAGE 1: CONTEXT, REQUIREMENTS & ARCHITECTURE                            -->
+<!-- PAGE 1: CONTEXT, ARCHITECTURE & DATA FLOW                               -->
 <!-- ======================================================================= -->
 
 <div class="institution-header">
@@ -210,7 +210,7 @@
 
 <h2>1. Operational Problem Statement &amp; Context</h2>
 <p>
-  MoveInSync manages enterprise commute transport across 100+ corporate clients (e.g., Google, Microsoft, and Amazon campuses), coordinating tens of thousands of shared employee cab trips daily. The backend infrastructure consists of 40+ microservices spanning trip booking, route optimization, vehicle dispatch, billing, and female employee night-safety compliance. Every dispatch decision evaluates multi-level policies—including <code>booking_cutoff_minutes</code>, <code>max_route_deviation</code>, <code>night_escort_required</code>, and allowed vehicle tiers.
+  MoveInSync manages enterprise employee commute transport across 100+ corporate clients (e.g., Google, Microsoft, and Amazon campuses), coordinating tens of thousands of shared cab trips daily. The backend infrastructure comprises 40+ microservices spanning trip booking, route optimization, vehicle dispatch, billing, and female employee night-safety compliance. Every dispatch decision evaluates multi-level policies—including <code>booking_cutoff_minutes</code>, <code>max_route_deviation</code>, <code>night_escort_required</code>, and allowed vehicle tiers.
 </p>
 <p>
   Executing synchronous remote HTTP calls to a centralized database during high-frequency dispatch evaluations introduces intolerable RPC latency and creates a catastrophic single point of failure. The platform mandates two opposing engineering guarantees: <strong>sub-microsecond local reads</strong> (measured ~170 ns at p50) directly from process memory with zero thread lock contention, and <strong>sub-second fleet propagation</strong> (&lt; 1,000 ms SLA; measured ~320 ms) when administrators modify policies, perform emergency overrides, or execute staged regional canary rollouts.
@@ -303,6 +303,14 @@
   </svg>
 </div>
 
+<h2>3. Data Flow &amp; Separation of Planes</h2>
+<p>
+  <strong>Write Pipeline:</strong> Administrative requests submit changesets via <code>POST /api/v1/config/changeset</code>. The control plane validates business constraints, acquires the reentrant write lock, increments the monotonic version, appends to the SQLite Write-Ahead Log, and invokes <code>PRAGMA synchronous = FULL</code>. Only after the WAL entry is fsynced to disk does the server return HTTP 201 Created and emit a versioned delta to the SSE event loop.
+</p>
+<p>
+  <strong>Read &amp; Ingestion Pipeline:</strong> Subscriber microservices receive the delta event over the persistent chunked SSE stream. The SDK verifies monotonic continuity, clones the existing configuration graph, applies the overrides, and points the <code>AtomicReference</code> to the new immutable snapshot. Client worker threads resolve keys against this local snapshot in memory with zero network latency, zero lock synchronization, and zero contention.
+</p>
+
 <div class="page-num">Page 1 of 3</div>
 
 <!-- ======================================================================= -->
@@ -310,7 +318,7 @@
 <!-- ======================================================================= -->
 <div class="page-break"></div>
 
-<h2>3. Concurrency Model &amp; Lock-Free Read Path</h2>
+<h2>4. Concurrency Model &amp; Lock-Free Read Path</h2>
 <p>
   Commute microservices frequently evaluate compound keys during dispatch decisions. For instance, before confirming a cab booking, the routing engine simultaneously queries <code>booking_cutoff_minutes</code> and <code>cancellation_window</code>. In a naive implementation using a mutable synchronized map, an update arriving mid-evaluation risks exposing a mixed-version state where one key reflects version 42 and the other reflects version 43. Introducing reader-writer locks resolves consistency but degrades throughput via lock acquisition overhead and contention under heavy traffic.
 </p>
@@ -328,12 +336,15 @@ int window = client.get(snapshot, "cancellation_window", Integer.class);
   All subsequent key lookups execute strictly against that immutable snapshot instance. Reads bypass synchronization barriers, taking ~170 ns at p50 (~5.4 million ops/sec per thread). When incoming SSE deltas arrive, the background subscriber thread builds a cloned, updated snapshot and swaps the pointer via a single atomic <code>set()</code> call (&lt; 10 ns). In stress testing with 50 concurrent reader threads performing 2,100,000 evaluations during continuous writes, zero torn reads or thread deadlocks occurred.
 </p>
 
-<h2>4. Hierarchical Precedence &amp; Explain Audit Trail</h2>
+<h2>5. Hierarchical Precedence &amp; Explain Audit Trail</h2>
 <p>
   Configurations resolve through a deterministic 4-tier hierarchy: <strong>Shift &gt; Office &gt; Client &gt; Global &gt; Default</strong>. The resolver evaluates scoped paths in <code>O(1)</code> time against pre-indexed snapshot scopes. For compliance and operations auditing, the SDK exposes an <code>explain(key, context)</code> interface that returns the full resolution lineage—showing exactly which scope provided the winning value, which higher-level values were overridden, and the authoritative timestamp.
 </p>
+<p>
+  For example, querying <code>explain("booking_cutoff_minutes", ctx)</code> returns a structured trace: <code>{"resolved": 45, "scope": "OFFICE:BLR_CAMPUS", "overridden": [{"scope": "CLIENT:MSFT", "val": 30}, {"scope": "GLOBAL", "val": 60}], "version": 44}</code>. This audit trail is critical for transport operations teams investigating dispatch anomalies or employee escalation tickets.
+</p>
 
-<h2>5. Staged Canary Rollouts &amp; False-Gap Mitigation</h2>
+<h2>6. Staged Canary Rollouts &amp; False-Gap Mitigation</h2>
 <p>
   In production, MoveInSync operators roll out operational policy changes incrementally—for example, piloting a new 45-minute booking cutoff in the Bangalore campus before enabling it in Hyderabad. In an early implementation, assigning version 44 to the Bangalore-only update caused Hyderabad SDK nodes listening to the global SSE stream to observe an apparent sequence gap from version 43 to 45. The gap detector reacted by triggering an immediate wave of HTTP REST queries (<code>GET /deltas?since_version=43</code>) across hundreds of nodes, generating a self-inflicted thundering herd.
 </p>
@@ -341,13 +352,13 @@ int window = client.get(snapshot, "cancellation_window", Integer.class);
   This was resolved by implementing <strong>empty delta propagation</strong>. When a staged change commits at version 44, the server emits the targeted changeset to Bangalore subscribers, while emitting an empty delta payload (<code>empty=true</code>) to non-targeted subscribers. Hyderabad nodes ingest the empty delta and advance their version watermark to 44 without altering cached values. This preserves strict fleet-wide version alignment and eliminates false gap storms while keeping rollout isolation fully intact.
 </p>
 
-<h2>6. End-to-End Propagation &amp; Resynchronization Flow</h2>
+<h2>7. End-to-End Propagation &amp; Resynchronization Flow</h2>
 <p>
   The lifecycle below illustrates how administrative changes commit durably, stream to client nodes, and recover deterministically from transient network packet loss:
 </p>
 
 <div class="diagram-container">
-  <svg viewBox="0 0 800 200" xmlns="http://www.w3.org/2000/svg">
+  <svg viewBox="0 0 800 195" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <marker id="seq-arr" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M 0 1 L 10 5 L 0 9 z" fill="#000000"/>
@@ -355,9 +366,9 @@ int window = client.get(snapshot, "cancellation_window", Integer.class);
     </defs>
 
     <!-- Vertical Lifelines -->
-    <line x1="100" y1="24" x2="100" y2="190" stroke="#cccccc" stroke-width="1.2" stroke-dasharray="3,3"/>
-    <line x1="400" y1="24" x2="400" y2="190" stroke="#cccccc" stroke-width="1.2" stroke-dasharray="3,3"/>
-    <line x1="700" y1="24" x2="700" y2="190" stroke="#cccccc" stroke-width="1.2" stroke-dasharray="3,3"/>
+    <line x1="100" y1="24" x2="100" y2="185" stroke="#cccccc" stroke-width="1.2" stroke-dasharray="3,3"/>
+    <line x1="400" y1="24" x2="400" y2="185" stroke="#cccccc" stroke-width="1.2" stroke-dasharray="3,3"/>
+    <line x1="700" y1="24" x2="700" y2="185" stroke="#cccccc" stroke-width="1.2" stroke-dasharray="3,3"/>
 
     <!-- Labels -->
     <rect x="30" y="6" width="140" height="20" rx="2" fill="#ffffff" stroke="#333333"/>
@@ -370,36 +381,36 @@ int window = client.get(snapshot, "cancellation_window", Integer.class);
     <text x="700" y="19" font-family="'Times New Roman', serif" font-size="9" font-weight="bold" fill="#000000" text-anchor="middle">Client SDK Node</text>
 
     <!-- Flow Steps -->
-    <line x1="100" y1="42" x2="400" y2="42" stroke="#000000" stroke-width="1.2" marker-end="url(#seq-arr)"/>
-    <text x="250" y="38" font-family="'Times New Roman', serif" font-size="8" fill="#000000" text-anchor="middle">1. POST /api/v1/config/changeset &rarr; commit v42 (SQLite WAL fsync)</text>
+    <line x1="100" y1="40" x2="400" y2="40" stroke="#000000" stroke-width="1.2" marker-end="url(#seq-arr)"/>
+    <text x="250" y="36" font-family="'Times New Roman', serif" font-size="7.8" fill="#000000" text-anchor="middle">1. POST /api/v1/config/changeset &rarr; commit v42 (SQLite WAL fsync)</text>
 
-    <line x1="400" y1="58" x2="550" y2="58" stroke="#cc0000" stroke-width="1.2" stroke-dasharray="3,2"/>
-    <text x="575" y="61" font-family="'Times New Roman', serif" font-size="8" font-weight="bold" fill="#cc0000">X (packet dropped by network)</text>
+    <line x1="400" y1="56" x2="550" y2="56" stroke="#cc0000" stroke-width="1.2" stroke-dasharray="3,2"/>
+    <text x="575" y="59" font-family="'Times New Roman', serif" font-size="8" font-weight="bold" fill="#cc0000">X (packet dropped by network)</text>
 
-    <line x1="100" y1="78" x2="400" y2="78" stroke="#000000" stroke-width="1.2" marker-end="url(#seq-arr)"/>
-    <text x="250" y="74" font-family="'Times New Roman', serif" font-size="8" fill="#000000" text-anchor="middle">2. POST /api/v1/config/changeset &rarr; commit v43 (SQLite WAL fsync)</text>
+    <line x1="100" y1="74" x2="400" y2="74" stroke="#000000" stroke-width="1.2" marker-end="url(#seq-arr)"/>
+    <text x="250" y="70" font-family="'Times New Roman', serif" font-size="7.8" fill="#000000" text-anchor="middle">2. POST /api/v1/config/changeset &rarr; commit v43 (SQLite WAL fsync)</text>
 
-    <line x1="400" y1="94" x2="700" y2="94" stroke="#000000" stroke-width="1.2" marker-end="url(#seq-arr)"/>
-    <text x="550" y="90" font-family="'Times New Roman', serif" font-size="8" fill="#000000" text-anchor="middle">3. SSE delta v43 arrives at client (client is on v41)</text>
+    <line x1="400" y1="90" x2="700" y2="90" stroke="#000000" stroke-width="1.2" marker-end="url(#seq-arr)"/>
+    <text x="550" y="86" font-family="'Times New Roman', serif" font-size="7.8" fill="#000000" text-anchor="middle">3. SSE delta v43 arrives at client (client is on v41)</text>
 
-    <rect x="620" y="104" width="160" height="18" rx="2" fill="#ffffff" stroke="#cc0000" stroke-width="1"/>
-    <text x="700" y="116" font-family="'Times New Roman', serif" font-size="8" font-weight="bold" fill="#cc0000" text-anchor="middle">Gap detected: v43 &gt; v41 + 1</text>
+    <rect x="620" y="99" width="160" height="17" rx="2" fill="#ffffff" stroke="#cc0000" stroke-width="1"/>
+    <text x="700" y="111" font-family="'Times New Roman', serif" font-size="7.8" font-weight="bold" fill="#cc0000" text-anchor="middle">Gap detected: v43 &gt; v41 + 1</text>
 
-    <line x1="700" y1="134" x2="400" y2="134" stroke="#444444" stroke-width="1.2" stroke-dasharray="4,2" marker-end="url(#seq-arr)"/>
-    <text x="550" y="130" font-family="'Times New Roman', serif" font-size="8" fill="#333333" text-anchor="middle">4. GET /api/v1/config/deltas?since_version=41</text>
+    <line x1="700" y1="128" x2="400" y2="128" stroke="#444444" stroke-width="1.2" stroke-dasharray="4,2" marker-end="url(#seq-arr)"/>
+    <text x="550" y="124" font-family="'Times New Roman', serif" font-size="7.8" fill="#333333" text-anchor="middle">4. GET /api/v1/config/deltas?since_version=41</text>
 
-    <line x1="400" y1="150" x2="700" y2="150" stroke="#000000" stroke-width="1.2" marker-end="url(#seq-arr)"/>
-    <text x="550" y="146" font-family="'Times New Roman', serif" font-size="8" fill="#000000" text-anchor="middle">5. 200 OK: deltas [v42, v43] replayed sequentially &rarr; snapshot updated to v43</text>
+    <line x1="400" y1="144" x2="700" y2="144" stroke="#000000" stroke-width="1.2" marker-end="url(#seq-arr)"/>
+    <text x="550" y="140" font-family="'Times New Roman', serif" font-size="7.8" fill="#000000" text-anchor="middle">5. 200 OK: deltas [v42, v43] replayed sequentially &rarr; snapshot updated to v43</text>
 
-    <line x1="400" y1="169" x2="700" y2="169" stroke="#777777" stroke-width="1.2" stroke-dasharray="2,2" marker-end="url(#seq-arr)"/>
-    <text x="550" y="165" font-family="'Times New Roman', serif" font-size="8" fill="#555555" text-anchor="middle">6. Delayed v41 packet delivered out of order</text>
+    <line x1="400" y1="162" x2="700" y2="162" stroke="#777777" stroke-width="1.2" stroke-dasharray="2,2" marker-end="url(#seq-arr)"/>
+    <text x="550" y="158" font-family="'Times New Roman', serif" font-size="7.8" fill="#555555" text-anchor="middle">6. Delayed v41 packet delivered out of order</text>
 
-    <text x="700" y="184" font-family="'Times New Roman', serif" font-size="8" font-style="italic" fill="#444444" text-anchor="middle">Monotonic check: v41 &lt;= v43 &rarr; discarded silently as idempotent no-op</text>
+    <text x="700" y="177" font-family="'Times New Roman', serif" font-size="7.8" font-style="italic" fill="#444444" text-anchor="middle">Monotonic check: v41 &lt;= v43 &rarr; discarded silently as idempotent no-op</text>
   </svg>
 </div>
 
-<p style="font-size: 8.5pt; color: #333333; margin-top: 2px;">
-  <strong>Reconnection Resilience:</strong> When network drops occur, the SDK applies truncated exponential backoff with full decorrelated jitter (base: 50 ms, max: 2,000 ms), preventing synchronized reconnect waves across the 200 microservice nodes from overloading the central server.
+<p style="font-size: 8.8pt; color: #333333; margin-top: 2px;">
+  <strong>Reconnection Resilience &amp; Jitter Protocol:</strong> When network drops occur, the SDK applies truncated exponential backoff with full decorrelated jitter: <code>t_sleep = min(2000 ms, random(50 ms, t_prev &times; 3))</code>. This prevents synchronized reconnect storms across the 200 microservice nodes from overwhelming the central server upon recovery. Missing deltas are pulled via REST catch-up and applied in strict sequence order before live SSE streaming resumes.
 </p>
 
 <div class="page-num">Page 2 of 3</div>
@@ -409,7 +420,7 @@ int window = client.get(snapshot, "cancellation_window", Integer.class);
 <!-- ======================================================================= -->
 <div class="page-break"></div>
 
-<h2>7. Fault Tolerance &amp; Failure Recovery</h2>
+<h2>8. Fault Tolerance &amp; Failure Recovery</h2>
 <div class="table-title">Table 1: Fault Scenarios, Observable Symptoms, and Recovery Mechanisms</div>
 <table>
   <thead>
@@ -453,8 +464,8 @@ int window = client.get(snapshot, "cancellation_window", Integer.class);
   </tbody>
 </table>
 
-<h2>8. Performance Benchmarks &amp; Empirical Latency Profile</h2>
-<p style="font-size: 8.6pt; margin-bottom: 2px;">
+<h2>9. Performance Benchmarks &amp; Empirical Latency Profile</h2>
+<p style="font-size: 8.8pt; margin-bottom: 2px;">
   Benchmarks executed on OpenJDK 17 LTS (Apple M1, 8 cores, 8 GB RAM) following 50,000 warm-up iterations to ensure HotSpot C2 JIT compilation.
 </p>
 <div class="table-title">Table 2: Empirical Latency and Throughput Benchmarks</div>
@@ -497,19 +508,20 @@ int window = client.get(snapshot, "cancellation_window", Integer.class);
   </tbody>
 </table>
 
-<p style="font-size: 8.2pt; color: #333333; margin-top: 1px; margin-bottom: 4px;">
-  Read latency is sub-microsecond because it avoids lock synchronization and network I/O. Propagation latency is bounded by SQLite fsync and thread scheduling across 200 concurrent client threads within the JVM.
+<p style="font-size: 8.5pt; color: #333333; margin-top: 1px; margin-bottom: 4px;">
+  Read latency is sub-microsecond because it avoids lock synchronization and network I/O. Propagation latency is bounded by SQLite fsync and thread scheduling across 200 concurrent client threads within the test JVM.
 </p>
 
-<h2>9. Architectural Trade-Offs &amp; Design Boundaries</h2>
+<h2>10. Architectural Trade-Offs &amp; Design Boundaries</h2>
 <ul>
   <li><strong>SQLite WAL vs Distributed Raft:</strong> For 99.99% local reads and low write volume (&lt; 10/min), embedded SQLite WAL with synchronous fsync avoids split-brain and consensus churn (~2,500 writes/sec capacity). Multi-region scaling utilizes PostgreSQL read replicas.</li>
   <li><strong>Monotonic Versioning vs CRDTs:</strong> Corporate commute policies follow top-down governance (Shift &gt; Office &gt; Client &gt; Global &gt; Default). Monotonic versioning provides deterministic ordering without CRDT metadata bloat or tombstone overhead.</li>
+  <li><strong>SSE Push vs Periodic Polling:</strong> Polling across 40 services generating 2,400 queries/min wastes compute and averages 2.5s update lag. SSE push eliminates idle database queries and guarantees sub-second updates (~320 ms).</li>
   <li><strong>SSE vs WebSockets:</strong> Configuration delivery is strictly unidirectional (server to client). SSE runs over HTTP/1.1 chunking, easily traversing enterprise API gateways, proxies, and firewalls without custom framing.</li>
 </ul>
 
-<h2>10. Verification Suite &amp; Test Matrix</h2>
-<p style="font-size: 8.6pt; margin-bottom: 2px;">
+<h2>11. Verification Suite &amp; Test Matrix</h2>
+<p style="font-size: 8.8pt; margin-bottom: 2px;">
   The project includes <strong>26 automated tests</strong> across three Maven modules, running in 34 seconds via <code>./mvnw test</code> with 100% pass rate:
 </p>
 <ul>
