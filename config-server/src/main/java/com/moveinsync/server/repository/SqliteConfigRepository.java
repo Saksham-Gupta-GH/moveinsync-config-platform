@@ -131,10 +131,30 @@ public class SqliteConfigRepository {
     }
 
     public void saveChangeSetAndOverrides(ChangeSet cs) {
+        saveChangeSetAndOverrides(cs, null, null, null);
+    }
+
+    public void saveChangeSetAndOverrides(ChangeSet cs, List<String> officeScopesToClean, Set<String> keysToClean, Long canaryVersionToClean) {
         writerLock.lock();
         try (Connection conn = dataSource.getConnection()) {
             conn.setAutoCommit(false);
             try {
+                // If this is a promotion, delete only the rows the canary wrote at OFFICE scope inside this transaction
+                if (officeScopesToClean != null && !officeScopesToClean.isEmpty() && keysToClean != null && !keysToClean.isEmpty() && canaryVersionToClean != null) {
+                    try (PreparedStatement psDel = conn.prepareStatement(
+                            "DELETE FROM effective_overrides WHERE scope_path = ? AND key = ? AND version = ?;")) {
+                        for (String scopePath : officeScopesToClean) {
+                            for (String k : keysToClean) {
+                                psDel.setString(1, scopePath);
+                                psDel.setString(2, k);
+                                psDel.setLong(3, canaryVersionToClean);
+                                psDel.addBatch();
+                            }
+                        }
+                        psDel.executeBatch();
+                    }
+                }
+
                 // 1. Insert changeset
                 try (PreparedStatement ps = conn.prepareStatement("""
                     INSERT INTO changesets (version, id, scope_path, staged_offices, updates_json, author, reason, created_at)

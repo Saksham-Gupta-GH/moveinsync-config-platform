@@ -58,6 +58,17 @@ public class ConfigService {
                                       Map<String, Object> updates,
                                       String author,
                                       String reason) {
+        return publishChangeSet(scopeKey, stagedOffices, updates, author, reason, null, null, null);
+    }
+
+    public ChangeSet publishChangeSet(ConfigScopeKey scopeKey,
+                                      List<String> stagedOffices,
+                                      Map<String, Object> updates,
+                                      String author,
+                                      String reason,
+                                      List<String> officeScopesToClean,
+                                      Set<String> keysToClean,
+                                      Long canaryVersionToClean) {
         // 1. Validation phase (If ANY key fails validation, the entire changeset is rejected)
         Map<String, SettingDefinition> defs = repository.getAllDefinitions();
         for (Map.Entry<String, Object> entry : updates.entrySet()) {
@@ -81,8 +92,8 @@ public class ConfigService {
             String id = UUID.randomUUID().toString();
             ChangeSet cs = new ChangeSet(id, nextVersion, scopeKey, stagedOffices, updates, author, reason, Instant.now());
 
-            // Durable commit with SQLite WAL fsync
-            repository.saveChangeSetAndOverrides(cs);
+            // Durable commit with SQLite WAL fsync, atomically cleaning up previous canary rows if promoting
+            repository.saveChangeSetAndOverrides(cs, officeScopesToClean, keysToClean, canaryVersionToClean);
 
             // Broadcast delta across SSE in strict monotonic order
             Delta delta = new Delta(nextVersion, scopeKey, stagedOffices, updates, false, Instant.now());
@@ -106,9 +117,26 @@ public class ConfigService {
             throw new IllegalArgumentException("Changeset is already global/non-staged: " + changesetId);
         }
 
-        // Apply without stagedOffices constraint (promoted to entire client scope)
+        List<String> officeScopesToClean = new ArrayList<>();
+        if (original.scopeKey().clientId() != null) {
+            for (String stagedOffice : original.stagedOffices()) {
+                officeScopesToClean.add(ConfigScopeKey.office(original.scopeKey().clientId(), stagedOffice).toPath());
+            }
+        }
+
+        // Apply without stagedOffices constraint (promoted to entire client scope),
+        // deleting only the temporary office rows the canary wrote inside the same atomic promote transaction.
         ConfigScopeKey targetScope = ConfigScopeKey.client(original.scopeKey().clientId());
-        return publishChangeSet(targetScope, Collections.emptyList(), original.updates(), author, "Promoted from canary changeset " + changesetId);
+        return publishChangeSet(
+                targetScope,
+                Collections.emptyList(),
+                original.updates(),
+                author,
+                "Promoted from canary changeset " + changesetId,
+                officeScopesToClean,
+                original.updates().keySet(),
+                original.version()
+        );
     }
 
     /**

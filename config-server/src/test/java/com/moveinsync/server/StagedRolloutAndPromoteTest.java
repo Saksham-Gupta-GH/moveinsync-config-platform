@@ -71,6 +71,22 @@ class StagedRolloutAndPromoteTest {
         assertThat(hydPromoted).hasSize(1);
         assertThat(hydPromoted.get(0).empty()).isFalse();
         assertThat(hydPromoted.get(0).changes()).containsEntry("staged_feature_flag", true);
+
+        // 4. Regression check: after promotion, BLR-1 must not have an orphaned OFFICE override shadowing subsequent client updates!
+        configService.publishChangeSet(
+                ConfigScopeKey.client("Google"),
+                List.of(),
+                Map.of("staged_feature_flag", false),
+                "admin",
+                "Subsequent client-wide update to false"
+        );
+
+        com.moveinsync.client.cache.ConfigSnapshot postPromoteSnapshot = configService.getSnapshot("Google", "ALL");
+        // Prior to the promote fix, BLR-1 remained shadowed with 'true'. Now it resolves 'false' from CLIENT scope!
+        assertThat(postPromoteSnapshot.resolve("staged_feature_flag", "Google", "BLR-1", null).orElse(null))
+                .isEqualTo(false);
+        assertThat(postPromoteSnapshot.resolve("staged_feature_flag", "Google", "HYD-1", null).orElse(null))
+                .isEqualTo(false);
     }
 }
 
