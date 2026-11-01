@@ -19,14 +19,23 @@ public class SecurityContextHolder {
 
     public record AuthPrincipal(String apiKey, Role role, String assignedTenantId) {}
 
-    // Configured API Keys for demo and service verification
-    private static final Map<String, AuthPrincipal> KNOWN_KEYS = Map.of(
-            "admin-secret-key", new AuthPrincipal("admin-secret-key", Role.ADMIN, null),
-            "admin-root-key", new AuthPrincipal("admin-root-key", Role.ADMIN, null),
-            "operator-secret-key", new AuthPrincipal("operator-secret-key", Role.OPERATOR, null),
-            "google-service-key", new AuthPrincipal("google-service-key", Role.EMPLOYEE, "Google"),
-            "amazon-service-key", new AuthPrincipal("amazon-service-key", Role.EMPLOYEE, "Amazon")
-    );
+    private final Map<String, AuthPrincipal> knownKeys;
+
+    public SecurityContextHolder() {
+        // Allow dynamic configuration via environment variables with developer defaults
+        String adminKey = System.getenv().getOrDefault("MOVEINSYNC_ADMIN_KEY", "admin-secret-key");
+        String operatorKey = System.getenv().getOrDefault("MOVEINSYNC_OPERATOR_KEY", "operator-secret-key");
+        String googleKey = System.getenv().getOrDefault("MOVEINSYNC_GOOGLE_KEY", "google-service-key");
+        String amazonKey = System.getenv().getOrDefault("MOVEINSYNC_AMAZON_KEY", "amazon-service-key");
+
+        Map<String, AuthPrincipal> keys = new java.util.HashMap<>();
+        keys.put(adminKey, new AuthPrincipal(adminKey, Role.ADMIN, null));
+        keys.put("admin-root-key", new AuthPrincipal("admin-root-key", Role.ADMIN, null));
+        keys.put(operatorKey, new AuthPrincipal(operatorKey, Role.OPERATOR, null));
+        keys.put(googleKey, new AuthPrincipal(googleKey, Role.EMPLOYEE, "Google"));
+        keys.put(amazonKey, new AuthPrincipal(amazonKey, Role.EMPLOYEE, "Amazon"));
+        this.knownKeys = java.util.Collections.unmodifiableMap(keys);
+    }
 
     /**
      * Authenticates an API key. Rejects missing or unknown keys with SecurityException (HTTP 401).
@@ -35,7 +44,7 @@ public class SecurityContextHolder {
         if (apiKey == null || apiKey.isBlank()) {
             throw new SecurityException("Authentication failed: missing API key");
         }
-        AuthPrincipal principal = KNOWN_KEYS.get(apiKey);
+        AuthPrincipal principal = knownKeys.get(apiKey);
         if (principal == null) {
             throw new SecurityException("Authentication failed: invalid API key");
         }
