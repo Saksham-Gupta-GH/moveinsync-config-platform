@@ -11,7 +11,7 @@
       --surface-variant: #f1f3f4;
       --border: #dadce0;
       --border-subtle: #e8eaed;
-      --border-focus: #00875a;
+      --border-focus: #202124;
 
       --text: #202124;
       --text-secondary: #5f6368;
@@ -131,11 +131,11 @@
     }
 
     .nav-tab-item:hover {
-      color: var(--brand-green);
+      color: var(--text);
     }
 
     .nav-tab-item.active {
-      color: var(--brand-green);
+      color: var(--text);
       font-weight: 600;
     }
 
@@ -146,7 +146,7 @@
       left: 1rem;
       right: 1rem;
       height: 3px;
-      background: var(--brand-green);
+      background: var(--text);
       border-top-left-radius: 3px;
       border-top-right-radius: 3px;
     }
@@ -249,7 +249,7 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      color: var(--brand-green);
+      color: var(--text-secondary);
       margin-right: 0.2rem;
     }
 
@@ -321,12 +321,13 @@
     .btn-pill-secondary {
       background: var(--surface);
       border-color: var(--border);
-      color: var(--brand-green);
+      color: var(--text);
     }
 
     .btn-pill-secondary:hover {
-      background: var(--brand-green-bg);
-      border-color: var(--brand-green-border);
+      background: var(--surface-variant);
+      border-color: var(--border);
+      color: var(--text);
     }
 
     /* Dual-Grid Main Layout (Cards like ExoPlanet Explorer) */
@@ -360,7 +361,7 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      color: var(--brand-green);
+      color: var(--text-secondary);
       margin-bottom: 0.25rem;
     }
 
@@ -452,7 +453,7 @@
       border: 1px solid transparent;
     }
 
-    .tier-badge-clean.office { background: var(--brand-green-bg); color: var(--brand-green); border-color: var(--brand-green-border); }
+    .tier-badge-clean.office { background: #f1f3f4; color: var(--text); border-color: var(--border); }
     .tier-badge-clean.shift { background: var(--google-purple-bg); color: var(--google-purple); border-color: var(--google-purple-border); }
     .tier-badge-clean.client { background: var(--google-amber-bg); color: var(--google-amber); border-color: var(--google-amber-border); }
     .tier-badge-clean.global { background: var(--surface-variant); color: var(--text-secondary); border-color: var(--border); }
@@ -478,9 +479,9 @@
     }
 
     .btn-row-action:hover {
-      background: var(--brand-green-bg);
-      color: var(--brand-green);
-      border-color: var(--brand-green-border);
+      background: var(--surface-variant);
+      color: var(--text);
+      border-color: var(--border);
     }
 
     /* Right Stacked Column (Cards like Active Evidence / Matches) */
@@ -502,7 +503,7 @@
 
     .stream-feed-card {
       background: var(--surface);
-      border: 1px solid var(--brand-green-border);
+      border: 1px solid var(--border);
       border-radius: var(--card-radius);
       padding: 1.25rem 1.5rem;
       display: flex;
@@ -549,7 +550,7 @@
     .stream-event-item {
       background: #f8fafd;
       border: 1px solid var(--border-subtle);
-      border-left: 3px solid var(--brand-green);
+      border-left: 3px solid #334155;
       border-radius: 8px;
       padding: 0.6rem 0.85rem;
       display: flex;
@@ -570,7 +571,7 @@
     .stream-event-ver {
       font-family: var(--font-mono);
       font-weight: 700;
-      color: var(--brand-green);
+      color: #0f172a;
     }
 
     .stream-diff-line {
@@ -593,15 +594,19 @@
     }
 
     .telemetry-summary-banner {
-      background: var(--brand-green-bg);
-      border: 1px solid var(--brand-green-border);
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
       border-radius: var(--card-radius);
       padding: 1.25rem 1.5rem;
       display: flex;
       flex-direction: column;
       gap: 0.35rem;
       font-size: 13px;
-      color: #006e48;
+      color: var(--text-secondary);
+    }
+
+    .telemetry-summary-banner strong {
+      color: var(--text);
     }
 
     /* Dialog Modal (Google Clean Light Style) */
@@ -724,8 +729,8 @@
     }
 
     .toast-pill.simulation {
-      background: var(--brand-green);
-      border: 1px solid #10b981;
+      background: #1e293b;
+      border: 1px solid #334155;
     }
 
     .toast-pill.error {
