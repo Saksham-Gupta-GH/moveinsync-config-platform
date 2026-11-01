@@ -43,6 +43,12 @@ class DossierClaimsBenchmarkTest {
     @DisplayName("Measures commit latency (WAL, synchronous=FULL), 1,000-key snapshot heap, and pointer-swap cost")
     void measureDossierClaims() {
         System.out.println("=== DOSSIER CLAIMS BENCHMARK (measured, not asserted) ===");
+        System.out.printf("Environment: %s %s on %s %s (%s)%n",
+                System.getProperty("java.vm.name"),
+                System.getProperty("java.version"),
+                System.getProperty("os.name"),
+                System.getProperty("os.version"),
+                System.getProperty("os.arch"));
 
         // 1. Single-writer commit latency: each call is a full validated, fsync'd commit
         configService.registerDefinition(new SettingDefinition(

@@ -43,6 +43,12 @@ class BenchmarkRunnerTest {
     void runFullPerformanceBenchmark() throws Exception {
         System.out.println("===============================================================================");
         System.out.println("           MOVEINSYNC CONFIGURATION PLATFORM BENCHMARK SUITE");
+        System.out.printf("Environment: %s %s on %s %s (%s)%n",
+                System.getProperty("java.vm.name"),
+                System.getProperty("java.version"),
+                System.getProperty("os.name"),
+                System.getProperty("os.version"),
+                System.getProperty("os.arch"));
         System.out.println("===============================================================================");
 
         configService.registerDefinition(new SettingDefinition(

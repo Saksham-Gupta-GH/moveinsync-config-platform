@@ -49,7 +49,7 @@ This system is a distributed, tenant-aware configuration engine built for 24/7 e
 |   | Incoming Delta Stream | -------------------> |    AtomicReference<ConfigSnapshot>        |   |
 |   +-----------------------+                      +-------------------------------------------+   |
 |              |                                                         |                         |
-|   +-----------------------+                         Local Read (250 ns measured p50)             |
+|   +-----------------------+                         Local Read (~0.25–0.9 µs p50)                |
 |   | Gap Detector Engine   |                                            |                         |
 |   | (v > current + 1)     |                                            v                         |
 |   +-----------------------+                      +-------------------------------------------+   |
