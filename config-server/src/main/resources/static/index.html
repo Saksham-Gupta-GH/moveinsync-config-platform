@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MoveInSync — Policy management</title>
+  <link rel="icon" type="image/png" href="/moveinsync-logo.png">
   <style>
     :root {
       --bg: #f8fafc;
@@ -834,6 +835,7 @@
       height:76px;padding:0 max(28px,calc((100vw - 1360px)/2));gap:28px;
       background:rgba(255,255,255,.96);backdrop-filter:blur(12px);
     }
+    .brand-logo-img {height:36px;width:auto;object-fit:contain;display:block;}
     .brand-title {font-size:21px;font-weight:600;letter-spacing:-.65px;white-space:nowrap;}
     .brand-logo-ring {width:27px;height:27px;border-color:#a8d8bd;}
     .brand-logo-ring::after {width:9px;height:9px;background:var(--brand-green);box-shadow:0 0 0 4px #e5f2ea;}
@@ -941,8 +943,7 @@
   <!-- Top Navigation Bar -->
   <header class="navbar">
     <div class="nav-brand-group">
-      <div class="brand-logo-ring"></div>
-      <span class="brand-title">MoveInSync</span>
+      <img src="/moveinsync-logo.png" alt="MoveInSync" class="brand-logo-img">
     </div>
 
     <!-- Center Navigation Tabs -->
