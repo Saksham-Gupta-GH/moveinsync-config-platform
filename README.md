@@ -94,17 +94,17 @@ Evaluates full 4-tier resolution (`SHIFT -> OFFICE -> CLIENT -> GLOBAL -> Defaul
 
 | Metric | Recorded result (`docs/test-run.log`) | Earlier Idle M1 Run |
 |---|---|---|
-| Min | 0.591 µs (591 ns) | 0.042 µs (42 ns) |
-| **p50 (Median)** | **0.892 µs (892 ns)** | **0.250 µs (250 ns)** |
-| p90 | 1.032 µs | 0.292 µs |
-| p95 | 1.082 µs | 0.292 µs |
-| p99 | 1.533 µs | 0.375 µs |
-| p99.9 | 16.381 µs | 1.792 µs |
-| Average | 1.094 µs | 0.280 µs |
-| Maximum | 3,038.059 µs | 46.333 µs |
-| Estimated throughput | 913,983 ops/sec per thread | ~3.6M ops/sec |
+| Min | 0.350 µs (350 ns) | 0.042 µs (42 ns) |
+| **p50 (Median)** | **0.741 µs (741 ns)** | **0.250 µs (250 ns)** |
+| p90 | 0.881 µs | 0.292 µs |
+| p95 | 0.941 µs | 0.292 µs |
+| p99 | 1.483 µs | 0.375 µs |
+| p99.9 | 4.699 µs | 1.792 µs |
+| Average | 0.947 µs | 0.280 µs |
+| Maximum | 2,037.085 µs | 46.333 µs |
+| Estimated throughput | 1,055,812 ops/sec per thread | ~3.6M ops/sec |
 
-*Note: The loaded run in `docs/test-run.log` was executed on a shared cloud VM during full reactor test execution, yielding ~0.892 µs median resolution (~3.5× higher than an idle M1 run), both well within the sub-millisecond requirement.*
+*Note: The loaded run in `docs/test-run.log` was executed on a shared cloud VM during full reactor test execution, yielding ~0.741 µs median resolution (~3× higher than an idle M1 run), both well within the sub-millisecond requirement.*
 
 ### Benchmark 2: 200-Client Live SSE Propagation Latency
 Measures time from immediately before publishing (including commit and fsync) to observed visibility across **200 concurrent client instances** running within the test JVM.
@@ -112,11 +112,11 @@ Measures time from immediately before publishing (including commit and fsync) to
 | Metric | Measured Latency (`docs/test-run.log`) | Target SLA | Explanation |
 |---|---|---|---|
 | **Fleet Size** | **200 Active Clients** | 200 Clients | Full concurrent fleet |
-| **p50 Latency** | **171 ms** | < 5,000 ms (5s) | Includes publish, fsync, and observation overhead |
-| **p90 Latency** | **188 ms** | < 5,000 ms (5s) | Full concurrent test suite run |
-| **p95 Latency** | **189 ms** | < 5,000 ms (5s) | Full concurrent test suite run |
-| **p99 Latency** | **189 ms** | < 5,000 ms (5s) | Full concurrent test suite run |
-| **Max Latency** | **189 ms** | < 5,000 ms (5s) | **4,811 ms measured headroom under SLA** |
+| **p50 Latency** | **317 ms** | < 5,000 ms (5s) | Includes publish, fsync, and observation overhead |
+| **p90 Latency** | **319 ms** | < 5,000 ms (5s) | Full concurrent test suite run |
+| **p95 Latency** | **319 ms** | < 5,000 ms (5s) | Full concurrent test suite run |
+| **p99 Latency** | **321 ms** | < 5,000 ms (5s) | Full concurrent test suite run |
+| **Max Latency** | **321 ms** | < 5,000 ms (5s) | **4,679 ms measured headroom under SLA** |
 
 ---
 
@@ -323,12 +323,12 @@ The table below reconciles the estimates in the submitted dossier against genuin
 
 | Dossier Claim / Metric | Submitted PDF Claim | Verified Measured Reality (`DossierClaimsBenchmarkTest`) | Status & Technical Grounding |
 | :--- | :--- | :--- | :--- |
-| **Commit Latency (fsync)** | Single-writer commit | **p50 = 3.83 ms, p90 = 5.65 ms, p99 = 10.71 ms** | Measured over 2,000 fsync commits with WAL mode + `synchronous=FULL` |
-| **Commit Throughput** | ~2,500 writes/sec | **233 writes/sec** | Genuine disk-bound fsync throughput on single writer (not an in-memory mock) |
+| **Commit Latency (fsync)** | Single-writer commit | **p50 = 5.34 ms, p90 = 7.36 ms, p99 = 14.25 ms** | Measured over 2,000 fsync commits with WAL mode + `synchronous=FULL` |
+| **Commit Throughput** | ~2,500 writes/sec | **172 writes/sec** | Genuine disk-bound fsync throughput on single writer (not an in-memory mock) |
 | **Snapshot Heap Footprint** | < 2.4 MB for 1k keys | **~0.31 MB (310 KB)** | Measured via GC-settled heap delta; compact immutable records and unmodifiable maps |
-| **AtomicReference Swap** | < 10 ns pointer swap | **4.54 ns/op** | Lock-free volatile reference swap in memory |
-| **In-Memory Read Latency** | 170 ns | **0.892 µs p50 (loaded run) / ~250 ns (idle M1)** | Micro-benchmark resolution latency via in-memory 4-tier hierarchy lookup |
-| **Live SSE Propagation** | 278 ms | **171 ms p50, 189 ms max** | Verified across 200 concurrent clients; 4,811 ms headroom under 5s SLA |
+| **AtomicReference Swap** | < 10 ns pointer swap | **3.28 ns/op** | Lock-free volatile reference swap in memory |
+| **In-Memory Read Latency** | 170 ns | **0.741 µs p50 (loaded run) / ~250 ns (idle M1)** | Micro-benchmark resolution latency via in-memory 4-tier hierarchy lookup |
+| **Live SSE Propagation** | 278 ms | **317 ms p50, 321 ms max** | Verified across 200 concurrent clients; 4,679 ms headroom under 5s SLA |
 | **Test Suite Count & Scope** | 26 tests (34 s) | **29 tests across 3 modules (Reactor)** | Unit, context-load, claims-bench, RBAC, tenant isolation, gap sync, and recovery |
 | **Version Gap Handling** | "Buffers v43" | **Active REST delta catch-up** | Client triggers `/api/v1/config/deltas?since=X` rather than buffering unbounded out-of-order versions |
 | **Reconnect Backoff** | "Full jitter" | **Decorrelated jitter** | Jitter formula uses `min(cap, random(base, prev * 3))` to prevent synchronized stampedes |
@@ -344,6 +344,6 @@ Four configurable scopes (SHIFT, OFFICE, CLIENT, GLOBAL) plus the definition def
 
 Consistency model: writes are serialized and durably committed before acknowledgment. Clients converge through ordered SSE updates and REST catch-up. A caller captures one snapshot for a consistent multi-key evaluation; separate reads that capture different snapshots may observe different versions. During partitions, clients favor availability and serve the last snapshot without a finite staleness bound.
 
-The saved run reports 0.892 µs p50 reads (loaded run in test-run.log; ~250 ns on idle M1) and 171 ms p50 / 189 ms maximum propagation (4,811 ms headroom under the 5s SLA); these are local measurements, not universal latency guarantees. The assessment target is 5 seconds under healthy connectivity. The heartbeat checks versions every second; network and replay time must also fit that budget. The reconnect formula uses decorrelated jitter with a 50 ms base and 2,000 ms cap, as illustrated in the PDF; this is distinct from full exponential jitter.
+The saved run reports 0.741 µs p50 reads (loaded run in test-run.log; ~250 ns on idle M1) and 317 ms p50 / 321 ms maximum propagation (4,679 ms headroom under the 5s SLA); these are local measurements, not universal latency guarantees. The assessment target is 5 seconds under healthy connectivity. The heartbeat checks versions every second; network and replay time must also fit that budget. The reconnect formula uses decorrelated jitter with a 50 ms base and 2,000 ms cap, as illustrated in the PDF; this is distinct from full exponential jitter.
 
 Remaining deployment limits include demo credentials, a single writer/server, and rollback implemented as forward per-scope changes rather than a single atomic multi-scope transaction. The current rollback resets newly introduced overrides to definition defaults rather than deleting them, so it does not restore inherited values in every hierarchy case. Crash tests demonstrate recovery for their tested scenario, not immunity to every storage failure. The PDF's production-readiness wording should be read in the context of this assessment prototype.
