@@ -3,50 +3,47 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MoveInSync Fleet Configuration Engine</title>
+  <title>MoveInSync ION — Fleet Policy Platform</title>
   <style>
     :root {
-      --bg: #f9fafb;
+      --bg: #f8fafd;
       --surface: #ffffff;
-      --surface-subtle: #f3f4f6;
-      --border: #e5e7eb;
-      --border-strong: #d1d5db;
-      --border-focus: #0284c7;
+      --surface-variant: #f1f3f4;
+      --border: #dadce0;
+      --border-subtle: #e8eaed;
+      --border-focus: #1a73e8;
 
-      --text: #111827;
-      --text-secondary: #4b5563;
-      --text-muted: #6b7280;
-      --text-dim: #9ca3af;
+      --text: #202124;
+      --text-secondary: #5f6368;
+      --text-muted: #80868b;
 
-      --primary: #0f172a;
-      --primary-hover: #1e293b;
-      --accent: #0284c7;
-      --accent-hover: #0369a1;
+      --google-blue: #1a73e8;
+      --google-blue-hover: #1557b0;
+      --google-blue-bg: #e8f0fe;
+      --google-blue-border: #bfdbfe;
 
-      --green: #10b981;
-      --green-bg: #ecfdf5;
-      --green-border: #a7f3d0;
+      --google-green: #1e8e3e;
+      --google-green-bg: #e6f4ea;
+      --google-green-border: #ceead6;
 
-      --red: #ef4444;
-      --red-bg: #fef2f2;
-      --red-border: #fecaca;
+      --google-red: #d93025;
+      --google-red-bg: #fce8e6;
+      --google-red-border: #fad2cf;
 
-      --amber: #d97706;
-      --amber-bg: #fffbeb;
-      --amber-border: #fde68a;
+      --google-amber: #e37400;
+      --google-amber-bg: #fef7e0;
+      --google-amber-border: #feefc3;
 
-      --blue: #2563eb;
-      --blue-bg: #eff6ff;
-      --blue-border: #bfdbfe;
+      --google-purple: #9334e6;
+      --google-purple-bg: #f3e8fd;
+      --google-purple-border: #e9d2fd;
 
-      --purple: #7c3aed;
-      --purple-bg: #f5f3ff;
-      --purple-border: #ddd6fe;
-
-      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", "Helvetica Neue", Arial, sans-serif;
-      --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace;
+      --font-sans: "Google Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
       
-      --radius: 6px;
+      --card-radius: 16px;
+      --input-radius: 10px;
+      --pill-radius: 20px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -55,82 +52,103 @@
       font-family: var(--font-sans);
       background: var(--bg);
       color: var(--text);
-      height: 100vh;
-      overflow: hidden;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      font-size: 13px;
+      font-size: 13.5px;
       line-height: 1.5;
       -webkit-font-smoothing: antialiased;
     }
 
     /* Top Navigation Bar */
     header.navbar {
-      height: 52px;
+      height: 60px;
       background: var(--surface);
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 1.25rem;
+      padding: 0 2rem;
       flex-shrink: 0;
-      z-index: 30;
+      position: sticky;
+      top: 0;
+      z-index: 40;
     }
 
     .nav-brand-group {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.65rem;
     }
 
-    .brand-badge {
-      font-weight: 700;
-      font-size: 11px;
-      letter-spacing: 0.06em;
-      color: #fff;
-      background: #e11d48;
-      padding: 0.2rem 0.5rem;
-      border-radius: var(--radius);
+    .brand-logo-ring {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid var(--google-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .brand-logo-ring::after {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--google-blue);
     }
 
     .brand-title {
-      font-size: 13px;
-      font-weight: 600;
+      font-size: 17px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
       color: var(--text);
     }
 
-    .nav-tabs-center {
+    .nav-tabs-group {
       display: flex;
       align-items: center;
-      background: var(--surface-subtle);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 2px;
-      gap: 2px;
+      gap: 0.5rem;
+      height: 60px;
     }
 
-    .nav-tab-btn {
-      background: transparent;
+    .nav-tab-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      height: 100%;
+      padding: 0 1rem;
       border: none;
+      background: transparent;
       font-family: inherit;
-      font-size: 12px;
+      font-size: 13.5px;
       font-weight: 500;
-      color: var(--text-muted);
-      padding: 0.3rem 0.75rem;
-      border-radius: 4px;
+      color: var(--text-secondary);
       cursor: pointer;
-      transition: all 0.12s ease;
+      position: relative;
+      transition: color 0.15s ease;
     }
 
-    .nav-tab-btn:hover {
-      color: var(--text);
+    .nav-tab-item:hover {
+      color: var(--google-blue);
     }
 
-    .nav-tab-btn.active {
-      background: var(--surface);
-      color: var(--text);
+    .nav-tab-item.active {
+      color: var(--google-blue);
       font-weight: 600;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+    }
+
+    .nav-tab-item.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 1rem;
+      right: 1rem;
+      height: 3px;
+      background: var(--google-blue);
+      border-top-left-radius: 3px;
+      border-top-right-radius: 3px;
     }
 
     .nav-right-cluster {
@@ -139,515 +157,580 @@
       gap: 1rem;
     }
 
-    .sse-status {
+    .sse-live-pill {
       display: inline-flex;
       align-items: center;
       gap: 0.45rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: var(--pill-radius);
       font-size: 12px;
-      color: var(--text-muted);
       font-weight: 500;
+      background: var(--google-green-bg);
+      border: 1px solid var(--google-green-border);
+      color: var(--google-green);
     }
 
-    .status-dot {
+    .sse-live-pill.disconnected {
+      background: var(--google-red-bg);
+      border-color: var(--google-red-border);
+      color: var(--google-red);
+    }
+
+    .live-dot {
       width: 7px;
       height: 7px;
       border-radius: 50%;
-      background: var(--green);
+      background: var(--google-green);
     }
 
-    .status-dot.disconnected {
-      background: var(--red);
+    .live-dot.disconnected {
+      background: var(--google-red);
     }
 
-    .version-indicator {
+    .version-tag {
       font-family: var(--font-mono);
-      font-size: 12px;
-      color: var(--text-muted);
-      background: var(--surface-subtle);
-      border: 1px solid var(--border);
-      padding: 0.15rem 0.5rem;
-      border-radius: var(--radius);
-    }
-
-    .user-pill {
       font-size: 12px;
       font-weight: 500;
       color: var(--text-secondary);
+      background: var(--surface-variant);
       border: 1px solid var(--border);
-      padding: 0.18rem 0.55rem;
-      border-radius: var(--radius);
-      background: var(--surface);
+      padding: 0.25rem 0.65rem;
+      border-radius: var(--pill-radius);
     }
 
-    /* Sub-header Filter & Scope Toolbar */
-    .toolbar-subnav {
+    .account-badge {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: #7c3aed;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    /* Main Container (Spacious, Clean Google Layout) */
+    .app-content-container {
+      flex: 1;
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.75rem 2rem 3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* Top Filter Scope Strip */
+    .filter-card {
       background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 0.65rem 1.25rem;
+      border: 1px solid var(--border);
+      border-radius: var(--card-radius);
+      padding: 1.1rem 1.5rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 1rem;
+      gap: 1.25rem;
       flex-wrap: wrap;
-      flex-shrink: 0;
     }
 
-    .scope-controls-row {
+    .filter-fields-row {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      font-size: 12px;
+      gap: 0.85rem;
+      flex-wrap: wrap;
     }
 
-    .scope-controls-row span.label {
-      color: var(--text-muted);
-      font-weight: 500;
+    .scope-label-caps {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--google-blue);
+      margin-right: 0.2rem;
     }
 
-    .dropdown-control {
+    .google-input-select {
       background: var(--surface);
-      border: 1px solid var(--border-strong);
+      border: 1px solid var(--border);
       color: var(--text);
       font-family: inherit;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 500;
-      padding: 0.35rem 0.65rem;
-      border-radius: var(--radius);
+      padding: 0.45rem 0.85rem;
+      border-radius: var(--input-radius);
       outline: none;
       cursor: pointer;
+      transition: all 0.15s ease;
     }
 
-    .dropdown-control:focus {
+    .google-input-select:focus {
       border-color: var(--border-focus);
+      box-shadow: 0 0 0 1px var(--border-focus);
     }
 
-    .precedence-legend {
+    .precedence-order-badge {
       display: flex;
       align-items: center;
-      gap: 0.35rem;
+      gap: 0.4rem;
       font-size: 12px;
-      color: var(--text-muted);
+      color: var(--text-secondary);
       border-left: 1px solid var(--border);
-      padding-left: 0.75rem;
+      padding-left: 1rem;
       margin-left: 0.25rem;
     }
 
-    .precedence-legend strong {
-      color: var(--text-secondary);
+    .precedence-order-badge strong {
+      color: var(--text);
       font-weight: 600;
     }
 
-    .actions-cluster {
+    .filter-actions {
       display: flex;
       align-items: center;
-      gap: 0.45rem;
+      gap: 0.6rem;
     }
 
-    .btn {
+    .btn-pill {
       font-family: inherit;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 500;
-      padding: 0.38rem 0.75rem;
-      border-radius: var(--radius);
+      padding: 0.5rem 1.15rem;
+      border-radius: var(--pill-radius);
       border: 1px solid transparent;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 0.35rem;
-      transition: all 0.1s ease;
+      gap: 0.45rem;
+      transition: all 0.15s ease;
     }
 
-    .btn-primary {
-      background: var(--accent);
+    .btn-pill-primary {
+      background: var(--google-blue);
       color: #fff;
     }
 
-    .btn-primary:hover {
-      background: var(--accent-hover);
+    .btn-pill-primary:hover {
+      background: var(--google-blue-hover);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12);
     }
 
-    .btn-secondary {
+    .btn-pill-secondary {
       background: var(--surface);
-      border-color: var(--border-strong);
-      color: var(--text);
+      border-color: var(--border);
+      color: var(--google-blue);
     }
 
-    .btn-secondary:hover {
-      background: var(--surface-subtle);
+    .btn-pill-secondary:hover {
+      background: var(--google-blue-bg);
+      border-color: var(--google-blue-border);
     }
 
-    .btn-quiet {
-      background: transparent;
-      border-color: transparent;
-      color: var(--text-muted);
-      font-size: 11px;
-    }
-
-    .btn-quiet:hover {
-      color: var(--text);
-      background: var(--surface-subtle);
-    }
-
-    /* Main Dual-Pane Workspace */
-    .main-workspace {
-      flex: 1;
+    /* Dual-Grid Main Layout (Cards like ExoPlanet Explorer) */
+    .content-grid {
       display: grid;
-      grid-template-columns: 1fr 340px;
-      overflow: hidden;
-      background: var(--surface);
+      grid-template-columns: 1fr 360px;
+      gap: 1.5rem;
+      align-items: start;
     }
 
-    /* Policies Table Container */
-    .table-view-container {
-      overflow-y: auto;
-      border-right: 1px solid var(--border);
+    /* Left Policy Table Card */
+    .white-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--card-radius);
+      padding: 1.5rem;
       display: flex;
       flex-direction: column;
+      gap: 1.25rem;
     }
 
-    table.data-table {
+    .card-header-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .card-eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--google-blue);
+      margin-bottom: 0.25rem;
+    }
+
+    .card-main-title {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--text);
+    }
+
+    .card-subtitle {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 0.2rem;
+      line-height: 1.4;
+    }
+
+    /* Table Styling inside White Card */
+    .table-container-responsive {
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    table.google-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 12px;
       text-align: left;
+      font-size: 13px;
     }
 
-    table.data-table thead {
-      position: sticky;
-      inset-block-start: 0;
-      background: var(--bg);
+    table.google-table thead {
+      background: #f8fafd;
       border-bottom: 1px solid var(--border);
-      z-index: 10;
     }
 
-    table.data-table th {
-      padding: 0.55rem 1.25rem;
+    table.google-table th {
+      padding: 0.75rem 1.15rem;
       font-weight: 600;
-      font-size: 11px;
-      color: var(--text-muted);
+      font-size: 11.5px;
+      color: var(--text-secondary);
       border-bottom: 1px solid var(--border);
       white-space: nowrap;
     }
 
-    table.data-table td {
-      padding: 0.65rem 1.25rem;
-      border-bottom: 1px solid var(--border);
+    table.google-table td {
+      padding: 0.85rem 1.15rem;
+      border-bottom: 1px solid var(--border-subtle);
       vertical-align: middle;
       color: var(--text);
-      height: 48px;
     }
 
-    table.data-table tbody tr:hover {
-      background: var(--bg);
+    table.google-table tbody tr:last-child td {
+      border-bottom: none;
     }
 
-    .key-name {
+    table.google-table tbody tr:hover {
+      background: #fafbfd;
+    }
+
+    .key-bold-mono {
       font-family: var(--font-mono);
       font-weight: 600;
-      font-size: 12px;
+      font-size: 12.5px;
       color: var(--text);
     }
 
-    .key-subline {
-      font-size: 11px;
+    .key-description {
+      font-size: 11.5px;
       color: var(--text-muted);
       margin-top: 2px;
-      line-height: 1.3;
+      line-height: 1.35;
     }
 
-    .val-text {
+    .val-highlight {
       font-family: var(--font-mono);
       font-weight: 600;
-      font-size: 12px;
+      font-size: 13px;
       color: var(--text);
     }
 
-    .tier-tag {
-      display: inline-block;
-      font-size: 11px;
-      font-weight: 600;
-      padding: 0.15rem 0.45rem;
-      border-radius: var(--radius);
+    .tier-badge-clean {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.2rem 0.65rem;
+      border-radius: var(--pill-radius);
+      font-size: 11.5px;
+      font-weight: 500;
       border: 1px solid transparent;
     }
 
-    .tier-tag.shift { background: var(--purple-bg); color: var(--purple); border-color: var(--purple-border); }
-    .tier-tag.office { background: var(--blue-bg); color: var(--blue); border-color: var(--blue-border); }
-    .tier-tag.client { background: var(--amber-bg); color: var(--amber); border-color: var(--amber-border); }
-    .tier-tag.global { background: var(--surface-subtle); color: var(--text-secondary); border-color: var(--border-strong); }
-    .tier-tag.default { background: var(--bg); color: var(--text-muted); border-color: var(--border); }
+    .tier-badge-clean.office { background: var(--google-blue-bg); color: var(--google-blue); border-color: var(--google-blue-border); }
+    .tier-badge-clean.shift { background: var(--google-purple-bg); color: var(--google-purple); border-color: var(--google-purple-border); }
+    .tier-badge-clean.client { background: var(--google-amber-bg); color: var(--google-amber); border-color: var(--google-amber-border); }
+    .tier-badge-clean.global { background: var(--surface-variant); color: var(--text-secondary); border-color: var(--border); }
+    .tier-badge-clean.default { background: #fafafa; color: var(--text-muted); border-color: var(--border); }
 
-    .lineage-hint {
+    .overridden-hint-text {
       font-size: 11px;
-      color: var(--text-dim);
-      margin-top: 2px;
+      color: var(--text-muted);
+      margin-top: 3px;
     }
 
-    .btn-table-action {
-      background: transparent;
-      border: 1px solid var(--border-strong);
+    .btn-row-action {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      padding: 0.25rem 0.65rem;
+      border-radius: var(--pill-radius);
+      cursor: pointer;
+      transition: all 0.12s ease;
+    }
+
+    .btn-row-action:hover {
+      background: var(--google-blue-bg);
+      color: var(--google-blue);
+      border-color: var(--google-blue-border);
+    }
+
+    /* Right Stacked Column (Cards like Active Evidence / Matches) */
+    .sidebar-cards-col {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .telemetry-card-clean {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--card-radius);
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .stream-feed-card {
+      background: var(--surface);
+      border: 1px solid var(--google-blue-border);
+      border-radius: var(--card-radius);
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .kpi-row-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.85rem;
+    }
+
+    .kpi-metric-box {
+      background: #f8fafd;
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+    }
+
+    .kpi-label-text {
       font-size: 11px;
       font-weight: 500;
       color: var(--text-secondary);
-      padding: 0.22rem 0.5rem;
-      border-radius: var(--radius);
-      cursor: pointer;
-      transition: all 0.1s ease;
+      margin-bottom: 0.2rem;
     }
 
-    .btn-table-action:hover {
-      background: var(--surface-subtle);
+    .kpi-num-large {
+      font-family: var(--font-mono);
+      font-size: 1.4rem;
+      font-weight: 700;
       color: var(--text);
-      border-color: var(--border-focus);
     }
 
-    /* Live Event Stream Sidebar */
-    aside.stream-sidebar {
-      background: var(--bg);
+    /* Stream Feed in Right Card */
+    .stream-log-scroll {
       display: flex;
       flex-direction: column;
-      overflow: hidden;
-    }
-
-    .stream-header {
-      padding: 0.75rem 1rem;
-      border-bottom: 1px solid var(--border);
-      background: var(--surface);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .stream-title {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text);
-    }
-
-    .stream-counter-muted {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: var(--text-dim);
-    }
-
-    .stream-scroll-log {
-      flex: 1;
+      gap: 0.55rem;
+      max-height: 480px;
       overflow-y: auto;
-      padding: 0.75rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      font-family: var(--font-mono);
-      font-size: 11px;
     }
 
-    .stream-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 0.6rem 0.75rem;
+    .stream-event-item {
+      background: #f8fafd;
+      border: 1px solid var(--border-subtle);
+      border-left: 3px solid var(--google-blue);
+      border-radius: 8px;
+      padding: 0.6rem 0.85rem;
       display: flex;
       flex-direction: column;
       gap: 0.25rem;
+      font-size: 12px;
       animation: fadeIn 0.15s ease;
     }
 
-    .stream-card-top {
+    .stream-event-top {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      color: var(--text-muted);
+      color: var(--text-secondary);
+      font-size: 11.5px;
     }
 
-    .stream-ver {
-      font-weight: 700;
-      color: var(--accent);
-    }
-
-    .stream-diff-content {
-      color: var(--text);
-      word-break: break-all;
-    }
-
-    .stream-scope-target {
-      font-size: 10px;
-      color: var(--text-dim);
-    }
-
-    /* Telemetry View (Replaces table when tab is active) */
-    .telemetry-container {
-      flex: 1;
-      padding: 1.5rem;
-      overflow-y: auto;
-      display: none;
-      background: var(--bg);
-    }
-
-    .telemetry-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 0.85rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .stat-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1rem 1.15rem;
-    }
-
-    .stat-label {
-      font-size: 11px;
-      font-weight: 500;
-      color: var(--text-muted);
-      margin-bottom: 0.4rem;
-    }
-
-    .stat-val {
+    .stream-event-ver {
       font-family: var(--font-mono);
-      font-size: 1.45rem;
       font-weight: 700;
+      color: var(--google-blue);
+    }
+
+    .stream-diff-line {
+      font-family: var(--font-mono);
       color: var(--text);
-      font-variant-numeric: tabular-nums;
+      font-size: 11.5px;
     }
 
-    .stat-desc {
-      font-size: 11px;
-      color: var(--text-dim);
-      margin-top: 0.25rem;
+    .stream-scope-badge {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      align-self: flex-start;
     }
 
-    .telemetry-banner {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1rem 1.25rem;
+    /* Telemetry Tab Full View */
+    .telemetry-full-view {
+      display: none;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .telemetry-summary-banner {
+      background: var(--google-blue-bg);
+      border: 1px solid var(--google-blue-border);
+      border-radius: var(--card-radius);
+      padding: 1.25rem 1.5rem;
       display: flex;
       flex-direction: column;
       gap: 0.35rem;
-      font-size: 12px;
-      color: var(--text-secondary);
+      font-size: 13px;
+      color: #1a56db;
     }
 
-    /* Accessible Native Dialog Modal */
-    dialog.app-dialog {
+    /* Dialog Modal (Google Clean Light Style) */
+    dialog.google-dialog {
       margin: auto;
-      border: 1px solid var(--border-strong);
-      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      border-radius: var(--card-radius);
       background: var(--surface);
       max-width: 480px;
       width: 90vw;
       padding: 0;
-      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.12);
       outline: none;
     }
 
-    dialog.app-dialog::backdrop {
-      background: rgba(15, 23, 42, 0.45);
+    dialog.google-dialog::backdrop {
+      background: rgba(32, 33, 36, 0.45);
       backdrop-filter: blur(1px);
     }
 
-    .dialog-header {
-      padding: 0.85rem 1.15rem;
+    .dialog-top-bar {
+      padding: 1.15rem 1.5rem;
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
 
-    .dialog-header h3 {
-      font-size: 13px;
+    .dialog-top-bar h3 {
+      font-size: 16px;
       font-weight: 600;
+      color: var(--text);
     }
 
-    .dialog-close {
+    .dialog-btn-close {
       background: transparent;
       border: none;
-      font-size: 16px;
-      color: var(--text-muted);
+      font-size: 18px;
+      color: var(--text-secondary);
       cursor: pointer;
     }
 
-    .dialog-body {
-      padding: 1.15rem;
+    .dialog-body-content {
+      padding: 1.5rem;
       display: flex;
       flex-direction: column;
-      gap: 0.9rem;
+      gap: 1.1rem;
     }
 
-    .form-group label {
+    .google-form-group label {
       display: block;
-      font-size: 12px;
+      font-size: 12.5px;
       font-weight: 500;
-      margin-bottom: 0.3rem;
+      color: var(--text);
+      margin-bottom: 0.35rem;
     }
 
-    .form-group input, .form-group select {
+    .google-form-input, .google-form-select {
       width: 100%;
-      padding: 0.45rem 0.65rem;
+      padding: 0.55rem 0.85rem;
       font-family: inherit;
-      font-size: 12px;
-      border: 1px solid var(--border-strong);
-      border-radius: var(--radius);
+      font-size: 13px;
+      border: 1px solid var(--border);
+      border-radius: var(--input-radius);
       outline: none;
+      transition: all 0.15s ease;
     }
 
-    .form-group input:focus, .form-group select:focus {
+    .google-form-input:focus, .google-form-select:focus {
       border-color: var(--border-focus);
+      box-shadow: 0 0 0 1px var(--border-focus);
     }
 
-    .form-hint {
-      font-size: 11px;
+    .google-form-hint {
+      font-size: 11.5px;
       color: var(--text-muted);
-      margin-top: 0.25rem;
+      margin-top: 0.3rem;
     }
 
-    .dialog-footer {
-      padding: 0.75rem 1.15rem;
-      background: var(--bg);
+    .dialog-foot-bar {
+      padding: 1rem 1.5rem;
+      background: #fafbfd;
       border-top: 1px solid var(--border);
       display: flex;
       justify-content: flex-end;
-      gap: 0.5rem;
+      gap: 0.6rem;
+      border-bottom-left-radius: var(--card-radius);
+      border-bottom-right-radius: var(--card-radius);
     }
 
-    /* Toast Notification Tray */
+    /* Toast Center */
     .toast-tray {
       position: fixed;
-      bottom: 20px;
-      right: 20px;
+      bottom: 24px;
+      right: 24px;
       z-index: 100;
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
+      gap: 0.6rem;
     }
 
-    .toast-card {
+    .toast-pill {
       background: var(--text);
       color: #fff;
-      padding: 0.65rem 1rem;
-      border-radius: var(--radius);
-      font-size: 12px;
-      max-width: 450px;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+      padding: 0.75rem 1.25rem;
+      border-radius: var(--pill-radius);
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
       animation: fadeIn 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      max-width: 480px;
     }
 
-    .toast-card.success {
-      background: #065f46;
-      border: 1px solid var(--green);
+    .toast-pill.success {
+      background: #0f5132;
+      border: 1px solid #198754;
     }
 
-    .toast-card.test-simulation {
-      background: #1e293b;
-      border: 1px solid #38bdf8;
-      color: #f8fafc;
+    .toast-pill.simulation {
+      background: #1a73e8;
+      border: 1px solid #4285f4;
     }
 
-    .toast-card.error {
-      background: #7f1d1d;
-      border: 1px solid var(--red);
+    .toast-pill.error {
+      background: #842029;
+      border: 1px solid #dc3545;
     }
 
     @keyframes fadeIn {
@@ -658,243 +741,308 @@
 </head>
 <body>
 
-  <!-- Top Global Header -->
+  <!-- Top Navigation Bar -->
   <header class="navbar">
     <div class="nav-brand-group">
-      <span class="brand-badge">MOVEINSYNC</span>
-      <span class="brand-title">Fleet Policy Engine</span>
+      <div class="brand-logo-ring"></div>
+      <span class="brand-title">MoveInSync ION</span>
     </div>
 
     <!-- Center Navigation Tabs -->
-    <div class="nav-tabs-center">
-      <button id="tabBtnPolicies" class="nav-tab-btn active" onclick="switchMainTab('policies')">Policies &amp; Hierarchy</button>
-      <button id="tabBtnTelemetry" class="nav-tab-btn" onclick="switchMainTab('telemetry')">Cluster Telemetry</button>
+    <div class="nav-tabs-group">
+      <button id="tabPolicies" class="nav-tab-item active" onclick="switchNavTab('policies')">
+        Policies &amp; Hierarchy
+      </button>
+      <button id="tabTelemetry" class="nav-tab-item" onclick="switchNavTab('telemetry')">
+        Cluster Telemetry
+      </button>
     </div>
 
-    <!-- Right Status Cluster -->
+    <!-- Right Cluster -->
     <div class="nav-right-cluster">
-      <div class="sse-status">
-        <span id="sseDot" class="status-dot"></span>
-        <span id="sseStatusLabel">Live (SSE)</span>
+      <div class="sse-live-pill" id="sseLiveBadge">
+        <span class="live-dot" id="liveDot"></span>
+        <span id="sseStatusText">Stream Live</span>
       </div>
-      <div id="topVersionBadge" class="version-indicator">v0 committed</div>
-      <div class="user-pill">admin</div>
+      <div class="version-tag" id="topVersionLabel">v0 committed</div>
+      <div class="account-badge" title="Role: Administrator">A</div>
     </div>
   </header>
 
-  <!-- Filter & Precedence Subnav -->
-  <div class="toolbar-subnav">
-    <div class="scope-controls-row">
-      <span class="label">Scope:</span>
-      <select id="selClient" class="dropdown-control">
-        <option value="Google">Google Fleet</option>
-        <option value="Amazon">Amazon Fleet</option>
-        <option value="Microsoft">Microsoft Fleet</option>
-        <option value="Flipkart">Flipkart Fleet</option>
-      </select>
-      <span>/</span>
-      <select id="selOffice" class="dropdown-control">
-        <option value="BLR_CAMPUS">Bangalore (BLR-1)</option>
-        <option value="HYD_CAMPUS">Hyderabad (HYD-1)</option>
-        <option value="PA_CAMPUS">Palo Alto (PA-1)</option>
-        <option value="ALL">All campuses</option>
-      </select>
-      <span>/</span>
-      <select id="selShift" class="dropdown-control">
-        <option value="ALL">All shifts</option>
-        <option value="MORNING">Morning (06:00)</option>
-        <option value="GENERAL">General (09:00)</option>
-        <option value="NIGHT">Night escort (21:00)</option>
-      </select>
+  <!-- Main Content Body -->
+  <div class="app-content-container">
 
-      <div class="precedence-legend">
-        <span>Order:</span>
-        <strong>Shift › Office › Client › Global › Default</strong>
+    <!-- Active Scope Toolbar Strip -->
+    <div class="filter-card">
+      <div class="filter-fields-row">
+        <span class="scope-label-caps">Active Scope</span>
+        <select id="selClient" class="google-input-select">
+          <option value="Google">Google Fleet</option>
+          <option value="Amazon">Amazon Fleet</option>
+          <option value="Microsoft">Microsoft Fleet</option>
+          <option value="Flipkart">Flipkart Fleet</option>
+        </select>
+        <span style="color: var(--text-muted); font-size: 13px;">/</span>
+        <select id="selOffice" class="google-input-select">
+          <option value="BLR_CAMPUS">Bangalore (BLR-1)</option>
+          <option value="HYD_CAMPUS">Hyderabad (HYD-1)</option>
+          <option value="PA_CAMPUS">Palo Alto (PA-1)</option>
+          <option value="ALL">All Campuses</option>
+        </select>
+        <span style="color: var(--text-muted); font-size: 13px;">/</span>
+        <select id="selShift" class="google-input-select">
+          <option value="ALL">All Shifts</option>
+          <option value="MORNING">Morning (06:00)</option>
+          <option value="GENERAL">General (09:00)</option>
+          <option value="NIGHT">Night Escort (21:00)</option>
+        </select>
+
+        <div class="precedence-order-badge">
+          <span>Resolution Precedence:</span>
+          <strong>Shift › Office › Client › Global › Default</strong>
+        </div>
+      </div>
+
+      <div class="filter-actions">
+        <button class="btn-pill btn-pill-secondary" onclick="triggerValidationTest()" title="Injects a negative cutoff to verify atomic rejection">
+          Simulate Invalid Input (400)
+        </button>
+        <button class="btn-pill btn-pill-secondary" onclick="refreshSnapshot()">
+          Refresh
+        </button>
+        <button class="btn-pill btn-pill-primary" onclick="openPublishModal()">
+          + Publish Changeset
+        </button>
       </div>
     </div>
 
-    <div class="actions-cluster">
-      <button class="btn btn-quiet" onclick="triggerValidationTest()" title="Injects a negative cutoff to verify atomic rejection">Simulate Invalid Cutoff (400)</button>
-      <button class="btn btn-secondary" onclick="refreshSnapshot()">Refresh</button>
-      <button class="btn btn-primary" onclick="openPublishModal()">+ Publish Changeset</button>
+    <!-- View 1: Policies & Hierarchy Grid -->
+    <div id="policiesView" class="content-grid">
+      
+      <!-- Left Main Card: Policy Rules Table -->
+      <div class="white-card">
+        <div class="card-header-row">
+          <div>
+            <div class="card-eyebrow">CONFIGURATION MATRIX</div>
+            <div class="card-main-title">Hierarchical Policy Rules</div>
+            <div class="card-subtitle">
+              Evaluates in-memory against local client snapshots in ~250 ns with zero lock contention.
+            </div>
+          </div>
+          <button class="btn-pill btn-pill-secondary" style="font-size: 12px; padding: 0.35rem 0.85rem;" onclick="seedDefaultPolicies()">
+            Reset Defaults
+          </button>
+        </div>
+
+        <div class="table-container-responsive">
+          <table class="google-table">
+            <thead>
+              <tr>
+                <th>Policy Key</th>
+                <th>Resolved Value</th>
+                <th>Winning Tier &amp; Overrides</th>
+                <th>Type</th>
+                <th>Validation Constraints</th>
+                <th style="text-align: right;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="policyTableBody">
+              <tr>
+                <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 3rem;">
+                  Loading tenant policy graph...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Right Sidebar Cards Column -->
+      <div class="sidebar-cards-col">
+        
+        <!-- Live SSE Stream Card -->
+        <div class="stream-feed-card">
+          <div class="card-eyebrow">LIVE EVENT BROADCASTER</div>
+          <div style="display: flex; justify-content: space-between; align-items: baseline;">
+            <div style="font-size: 15px; font-weight: 600;">Live SSE Stream</div>
+            <span id="streamCountText" style="font-size: 11.5px; color: var(--text-muted);">0 events</span>
+          </div>
+          <div id="streamScrollList" class="stream-log-scroll">
+            <div style="font-size: 12px; color: var(--text-muted); text-align: center; padding: 2rem 1rem;">
+              Listening for real-time deltas...
+            </div>
+          </div>
+        </div>
+
+        <!-- Telemetry Summary Card -->
+        <div class="telemetry-card-clean">
+          <div class="card-eyebrow">ON-CALL TELEMETRY</div>
+          <div style="font-size: 15px; font-weight: 600;">Cluster Vitals</div>
+          
+          <div class="kpi-row-grid">
+            <div class="kpi-metric-box">
+              <div class="kpi-label-text">Global Version</div>
+              <div id="quickVersion" class="kpi-num-large">0</div>
+            </div>
+            <div class="kpi-metric-box">
+              <div class="kpi-label-text">Subscribers</div>
+              <div id="quickSubs" class="kpi-num-large">0</div>
+            </div>
+            <div class="kpi-metric-box">
+              <div class="kpi-label-text">Rejections (400)</div>
+              <div id="quickRejections" class="kpi-num-large" style="color: var(--google-red);">0</div>
+            </div>
+            <div class="kpi-metric-box">
+              <div class="kpi-label-text">Queue Depth</div>
+              <div id="quickQueue" class="kpi-num-large">0</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
     </div>
-  </div>
 
-  <!-- Main Dual-Pane Workspace -->
-  <div class="main-workspace">
-    
-    <!-- Left Pane: Policies Table View -->
-    <div id="policiesPane" class="table-view-container">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Policy key</th>
-            <th>Effective value</th>
-            <th>Winning tier &amp; lineage</th>
-            <th>Type</th>
-            <th>Constraints</th>
-            <th style="text-align: right;">Action</th>
-          </tr>
-        </thead>
-        <tbody id="policyTableBody">
-          <tr>
-            <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 3rem;">
-              Loading policy graph...
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <!-- View 2: Full Cluster Telemetry View (Tab 2) -->
+    <div id="telemetryView" class="telemetry-full-view">
+      
+      <div class="telemetry-summary-banner">
+        <strong style="font-size: 14px;">High-Availability Fleet Infrastructure Status</strong>
+        <div>Durable Commit: <strong>SQLite WAL mode</strong> with <code>PRAGMA synchronous = FULL</code> (durably fsynced before HTTP 201 ACK).</div>
+        <div>Propagation: HTTP/1.1 chunked Server-Sent Events with bounded queues (100 events max) and AWS full decorrelated jitter reconnect backoff.</div>
+      </div>
+
+      <div class="white-card">
+        <div class="card-header-row">
+          <div>
+            <div class="card-eyebrow">METRICS &amp; OBSERVABILITY</div>
+            <div class="card-main-title">3 AM On-Call Operational Counters</div>
+            <div class="card-subtitle">Direct real-time metrics polled from <code>/api/v1/metrics</code>.</div>
+          </div>
+          <button class="btn-pill btn-pill-secondary" onclick="fetchMetrics()">Poll Now</button>
+        </div>
+
+        <div class="kpi-row-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+          <div class="kpi-metric-box">
+            <div class="kpi-label-text">Monotonic Commit Version</div>
+            <div id="mVersion" class="kpi-num-large">0</div>
+          </div>
+          <div class="kpi-metric-box">
+            <div class="kpi-label-text">Active SSE Subscribers</div>
+            <div id="mSubs" class="kpi-num-large">0</div>
+          </div>
+          <div class="kpi-metric-box">
+            <div class="kpi-label-text">Subscriber Queue Depth</div>
+            <div id="mQueue" class="kpi-num-large">0</div>
+          </div>
+          <div class="kpi-metric-box">
+            <div class="kpi-label-text">Validation Rejections (400)</div>
+            <div id="mRejections" class="kpi-num-large" style="color: var(--google-red);">0</div>
+          </div>
+          <div class="kpi-metric-box">
+            <div class="kpi-label-text">Max Version Lag Seen</div>
+            <div id="mMaxLag" class="kpi-num-large">0</div>
+          </div>
+          <div class="kpi-metric-box">
+            <div class="kpi-label-text">REST Catch-Up Queries</div>
+            <div id="mCatchups" class="kpi-num-large">0</div>
+          </div>
+          <div class="kpi-metric-box">
+            <div class="kpi-label-text">JVM Runtime Uptime</div>
+            <div id="mUptime" class="kpi-num-large">0s</div>
+          </div>
+          <div class="kpi-metric-box">
+            <div class="kpi-label-text">Process Heap Memory</div>
+            <div id="mMemory" class="kpi-num-large">0 MB</div>
+          </div>
+        </div>
+      </div>
+
     </div>
-
-    <!-- Left Pane Alternative: Cluster Telemetry View -->
-    <div id="telemetryPane" class="telemetry-container">
-      <div class="telemetry-grid">
-        <div class="stat-card">
-          <div class="stat-label">Global Version</div>
-          <div id="mVersion" class="stat-val">0</div>
-          <div class="stat-desc">Monotonic commit sequence</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Active SSE Subscribers</div>
-          <div id="mSubs" class="stat-val">0</div>
-          <div class="stat-desc">Connected microservice streams</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Subscriber Queue Depth</div>
-          <div id="mQueue" class="stat-val">0</div>
-          <div class="stat-desc">Buffered frames across fleet</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Validation Rejections (400)</div>
-          <div id="mRejections" class="stat-val" style="color: var(--red);">0</div>
-          <div class="stat-desc">Atomic compound rollbacks</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Max Lag Seen</div>
-          <div id="mMaxLag" class="stat-val">0</div>
-          <div class="stat-desc">Highest delta gap caught by poller</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">REST Catch-Up Queries</div>
-          <div id="mCatchups" class="stat-val">0</div>
-          <div class="stat-desc">Missing delta range replays</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">JVM Uptime</div>
-          <div id="mUptime" class="stat-val">0s</div>
-          <div class="stat-desc">Server runtime elapsed</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Heap Memory</div>
-          <div id="mMemory" class="stat-val">0 MB</div>
-          <div class="stat-desc">Active process memory usage</div>
-        </div>
-      </div>
-
-      <div class="telemetry-banner">
-        <strong style="color: var(--text);">Durability &amp; Delivery Engine Status</strong>
-        <div>Storage: <code>SQLite WAL mode</code> with <code>PRAGMA synchronous = FULL</code> (durably fsynced before HTTP 201 ACK).</div>
-        <div>Transport: Unidirectional Server-Sent Events (SSE) with bounded per-client queues and full decorrelated jitter reconnect backoff.</div>
-      </div>
-    </div>
-
-    <!-- Right Pane: Live SSE Event Stream -->
-    <aside class="stream-sidebar">
-      <div class="stream-header">
-        <span class="stream-title">Live event stream</span>
-        <span id="streamCounterText" class="stream-counter-muted">0 events</span>
-      </div>
-      <div id="streamScrollArea" class="stream-scroll-log">
-        <div style="font-size: 11px; color: var(--text-dim); text-align: center; padding: 2rem 1rem;">
-          Waiting for live changesets...
-        </div>
-      </div>
-    </aside>
 
   </div>
 
   <!-- Publish Changeset Modal Dialog -->
-  <dialog id="publishModal" class="app-dialog" aria-labelledby="publishTitle">
-    <div class="dialog-header">
-      <h3 id="publishTitle">Publish Configuration Changeset</h3>
-      <button class="dialog-close" onclick="closePublishModal()" aria-label="Close">&times;</button>
+  <dialog id="publishModal" class="google-dialog" aria-labelledby="dlgTitle">
+    <div class="dialog-top-bar">
+      <h3 id="dlgTitle">Publish Configuration Changeset</h3>
+      <button class="dialog-btn-close" onclick="closePublishModal()" aria-label="Close">&times;</button>
     </div>
     <form id="publishForm" onsubmit="handlePublishSubmit(event)">
-      <div class="dialog-body">
+      <div class="dialog-body-content">
         
-        <div class="form-group">
+        <div class="google-form-group">
           <label for="dlgKey">Policy Key</label>
-          <select id="dlgKey" required onchange="handleModalKeyChange()"></select>
-          <div id="dlgKeyDesc" class="form-hint"></div>
+          <select id="dlgKey" class="google-form-select" required onchange="handleModalKeyChange()"></select>
+          <div id="dlgKeyDesc" class="google-form-hint"></div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
-          <div class="form-group">
-            <label for="dlgScope">Precedence Tier</label>
-            <select id="dlgScope" required onchange="handleModalScopeChange()">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem;">
+          <div class="google-form-group">
+            <label for="dlgScope">Target Scope Tier</label>
+            <select id="dlgScope" class="google-form-select" required onchange="handleModalScopeChange()">
               <option value="OFFICE" selected>Office (Campus override)</option>
               <option value="CLIENT">Client (Entire tenant fleet)</option>
               <option value="SHIFT">Shift (Specific shift only)</option>
               <option value="GLOBAL">Global (All clients)</option>
             </select>
           </div>
-
-          <div class="form-group" id="dlgOfficeGroup">
+          <div class="google-form-group" id="dlgOfficeGroup">
             <label for="dlgOfficeId">Office Identifier</label>
-            <input type="text" id="dlgOfficeId" value="BLR_CAMPUS" required>
+            <input type="text" id="dlgOfficeId" class="google-form-input" value="BLR_CAMPUS" required>
           </div>
         </div>
 
-        <div class="form-group" id="dlgShiftGroup" style="display: none;">
+        <div class="google-form-group" id="dlgShiftGroup" style="display: none;">
           <label for="dlgShiftId">Shift Identifier</label>
-          <input type="text" id="dlgShiftId" value="NIGHT">
+          <input type="text" id="dlgShiftId" class="google-form-input" value="NIGHT">
         </div>
 
-        <div class="form-group">
+        <div class="google-form-group">
           <label for="dlgValue">Override Value</label>
-          <input type="text" id="dlgValue" required placeholder="e.g. 30">
-          <div id="dlgBoundsHint" class="form-hint"></div>
+          <input type="text" id="dlgValue" class="google-form-input" required placeholder="e.g. 30">
+          <div id="dlgBoundsHint" class="google-form-hint"></div>
         </div>
 
-        <div class="form-group">
-          <label style="display: flex; align-items: center; gap: 0.45rem; cursor: pointer; font-weight: normal;">
+        <div class="google-form-group">
+          <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: normal;">
             <input type="checkbox" id="dlgCanaryCheck">
             <span>Staged canary rollout (target BLR-1 only)</span>
           </label>
-          <div class="form-hint">Emits an empty delta to non-canary offices to advance monotonic version alignment with zero false gap storms.</div>
+          <div class="google-form-hint">Non-canary offices receive an empty delta to advance monotonic version alignment with zero false gap storms.</div>
         </div>
 
-        <div class="form-group">
+        <div class="google-form-group">
           <label for="dlgReason">Audit Reason</label>
-          <input type="text" id="dlgReason" value="Adjusting dispatch booking cutoff" required>
+          <input type="text" id="dlgReason" class="google-form-input" value="Adjusting dispatch booking cutoff" required>
         </div>
 
       </div>
-      <div class="dialog-footer">
-        <button type="button" class="btn btn-secondary" onclick="closePublishModal()">Cancel</button>
-        <button type="submit" id="btnSubmitChangeset" class="btn btn-primary">Commit &amp; Broadcast</button>
+      <div class="dialog-foot-bar">
+        <button type="button" class="btn-pill btn-pill-secondary" onclick="closePublishModal()">Cancel</button>
+        <button type="submit" id="btnSubmitChangeset" class="btn-pill btn-pill-primary">Commit &amp; Broadcast</button>
       </div>
     </form>
   </dialog>
 
   <!-- Lineage Audit Modal Dialog -->
-  <dialog id="lineageModal" class="app-dialog" aria-labelledby="lineageTitle">
-    <div class="dialog-header">
+  <dialog id="lineageModal" class="google-dialog" aria-labelledby="lineageTitle">
+    <div class="dialog-top-bar">
       <h3 id="lineageTitle">Resolution Lineage Trace</h3>
-      <button class="dialog-close" onclick="closeLineageModal()" aria-label="Close">&times;</button>
+      <button class="dialog-btn-close" onclick="closeLineageModal()" aria-label="Close">&times;</button>
     </div>
-    <div class="dialog-body">
-      <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 0.5rem;">
+    <div class="dialog-body-content">
+      <p style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 0.35rem;">
         Deterministic 4-tier evaluation for this key under active scope:
       </p>
-      <div id="lineageStepsList" style="display: flex; flex-direction: column; gap: 0.35rem; font-family: var(--font-mono); font-size: 11px;"></div>
+      <div id="lineageStepsList" style="display: flex; flex-direction: column; gap: 0.45rem; font-family: var(--font-mono); font-size: 12px;"></div>
     </div>
-    <div class="dialog-footer">
-      <button type="button" class="btn btn-secondary" onclick="closeLineageModal()">Close</button>
+    <div class="dialog-foot-bar">
+      <button type="button" class="btn-pill btn-pill-secondary" onclick="closeLineageModal()">Close</button>
     </div>
   </dialog>
 
-  <!-- Toast Container -->
+  <!-- Toast Tray -->
   <div id="toastTray" class="toast-tray"></div>
 
   <script>
@@ -919,18 +1067,18 @@
       document.getElementById('selShift').addEventListener('change', refreshSnapshot);
     });
 
-    function switchMainTab(tab) {
-      document.getElementById('policiesPane').style.display = tab === 'policies' ? 'flex' : 'none';
-      document.getElementById('telemetryPane').style.display = tab === 'telemetry' ? 'block' : 'none';
-      document.getElementById('tabBtnPolicies').classList.toggle('active', tab === 'policies');
-      document.getElementById('tabBtnTelemetry').classList.toggle('active', tab === 'telemetry');
+    function switchNavTab(tab) {
+      document.getElementById('policiesView').style.display = tab === 'policies' ? 'grid' : 'none';
+      document.getElementById('telemetryView').style.display = tab === 'telemetry' ? 'flex' : 'none';
+      document.getElementById('tabPolicies').classList.toggle('active', tab === 'policies');
+      document.getElementById('tabTelemetry').classList.toggle('active', tab === 'telemetry');
       if (tab === 'telemetry') fetchMetrics();
     }
 
     function showToast(msg, type = 'info') {
       const tray = document.getElementById('toastTray');
       const toast = document.createElement('div');
-      toast.className = `toast-card ${type}`;
+      toast.className = `toast-pill ${type}`;
       toast.textContent = msg;
       tray.appendChild(toast);
       setTimeout(() => {
@@ -960,7 +1108,9 @@
         const res = await fetch(url, { headers: { 'X-API-Key': API_KEY } });
         if (res.ok) {
           currentSnapshot = await res.json();
-          document.getElementById('topVersionBadge').textContent = `v${currentSnapshot.version} committed`;
+          const verStr = `v${currentSnapshot.version} committed`;
+          document.getElementById('topVersionLabel').textContent = verStr;
+          document.getElementById('quickVersion').textContent = currentSnapshot.version;
           renderTable();
         }
       } catch (e) {
@@ -968,7 +1118,6 @@
       }
     }
 
-    // Resolves winning tier AND identifies what parent tier value was overridden
     function resolveKeyHierarchy(key, client, office, shift) {
       const o = currentSnapshot.overrides || {};
       const def = (currentSnapshot.definitions && currentSnapshot.definitions[key]) || registeredDefinitions[key];
@@ -1026,7 +1175,7 @@
       const keys = Object.keys(defs);
 
       if (keys.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 3rem;">No policies configured. Click "Reset to standard policies" to populate.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 3rem;">No policies configured. Click "Reset Defaults" above.</td></tr>`;
         return;
       }
 
@@ -1038,21 +1187,21 @@
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>
-            <div class="key-name">${k}</div>
-            <div class="key-subline">${def.description || ''}</div>
+            <div class="key-bold-mono">${k}</div>
+            <div class="key-description">${def.description || ''}</div>
           </td>
           <td>
-            <span class="val-text">${formatVal(res.val, def.type)}</span>
+            <span class="val-highlight">${formatVal(res.val, def.type)}</span>
           </td>
           <td>
-            <div><span class="tier-tag ${res.scope}">${res.scopeLabel}</span></div>
-            ${res.hint ? `<div class="lineage-hint">${res.hint}</div>` : ''}
+            <div><span class="tier-badge-clean ${res.scope}">${res.scopeLabel}</span></div>
+            ${res.hint ? `<div class="overridden-hint-text">${res.hint}</div>` : ''}
           </td>
-          <td style="color: var(--text-secondary);">${formatType(def.type)}</td>
-          <td style="color: var(--text-muted);">${formatConstraints(def.validationRule)}</td>
-          <td style="text-align: right;">
-            <button class="btn-table-action" onclick="openOverride('${k}')">Override</button>
-            <button class="btn-table-action" onclick="openLineage('${k}')">Lineage</button>
+          <td style="color: var(--text-secondary); font-size: 12px;">${formatType(def.type)}</td>
+          <td style="color: var(--text-muted); font-size: 12px;">${formatConstraints(def.validationRule)}</td>
+          <td style="text-align: right; white-space: nowrap;">
+            <button class="btn-row-action" onclick="openOverride('${k}')">Override</button>
+            <button class="btn-row-action" onclick="openLineage('${k}')">Lineage</button>
           </td>
         `;
         tbody.appendChild(tr);
@@ -1061,7 +1210,7 @@
 
     function formatVal(v, type) {
       if (v === null || v === undefined) return '—';
-      if (type === 'DURATION_MINUTES') return `${v}m`;
+      if (type === 'DURATION_MINUTES') return `${v} min`;
       if (typeof v === 'boolean') return v ? 'true' : 'false';
       return String(v);
     }
@@ -1084,24 +1233,26 @@
       return c.length ? c.join(', ') : 'None';
     }
 
-    // SSE connection with api_key query param for authentication
     function initSse() {
       if (eventSource) eventSource.close();
       const client = document.getElementById('selClient').value;
       const url = `/api/v1/config/stream?client_id=${encodeURIComponent(client)}&office_id=ALL&api_key=${encodeURIComponent(API_KEY)}`;
 
       eventSource = new EventSource(url);
-      const dot = document.getElementById('sseDot');
-      const text = document.getElementById('sseStatusLabel');
+      const dot = document.getElementById('liveDot');
+      const text = document.getElementById('sseStatusText');
+      const badge = document.getElementById('sseLiveBadge');
 
       eventSource.onopen = () => {
         dot.classList.remove('disconnected');
-        text.textContent = 'Live (SSE)';
+        badge.classList.remove('disconnected');
+        text.textContent = 'Stream Live';
       };
 
       eventSource.onerror = () => {
         dot.classList.add('disconnected');
-        text.textContent = 'Offline';
+        badge.classList.add('disconnected');
+        text.textContent = 'Reconnecting';
       };
 
       eventSource.addEventListener('delta', (e) => {
@@ -1116,21 +1267,22 @@
 
     function handleDelta(d) {
       sseEventsReceived++;
-      document.getElementById('streamCounterText').textContent = `${sseEventsReceived} event${sseEventsReceived > 1 ? 's' : ''}`;
-      document.getElementById('topVersionBadge').textContent = `v${d.version} committed`;
+      document.getElementById('streamCountText').textContent = `${sseEventsReceived} event${sseEventsReceived > 1 ? 's' : ''}`;
+      document.getElementById('topVersionLabel').textContent = `v${d.version} committed`;
+      document.getElementById('quickVersion').textContent = d.version;
 
-      const log = document.getElementById('streamScrollArea');
+      const log = document.getElementById('streamScrollList');
       if (sseEventsReceived === 1) log.innerHTML = '';
 
       const card = document.createElement('div');
-      card.className = 'stream-card';
+      card.className = 'stream-event-item';
 
       const time = new Date(d.timestamp || Date.now()).toTimeString().split(' ')[0];
       const targetScope = d.scopeKey ? `${d.scopeKey.scope}${d.scopeKey.officeId ? ':' + d.scopeKey.officeId : ''}` : 'GLOBAL';
 
       let diff = '';
       if (d.empty) {
-        diff = `<span style="color: var(--text-dim); font-style: italic;">[Empty delta: Monotonic alignment for non-canary node]</span>`;
+        diff = `<span style="color: var(--text-muted); font-style: italic;">[Empty delta: Monotonic alignment for non-canary node]</span>`;
       } else if (d.updates && Object.keys(d.updates).length > 0) {
         diff = Object.entries(d.updates).map(([k, v]) => `<strong>${k}</strong> &rarr; ${v}`).join(', ');
       } else {
@@ -1138,12 +1290,12 @@
       }
 
       card.innerHTML = `
-        <div class="stream-card-top">
-          <span class="stream-ver">v${d.version}</span>
+        <div class="stream-event-top">
+          <span class="stream-event-ver">v${d.version}</span>
           <span>${time}</span>
         </div>
-        <div class="stream-diff-content">${diff}</div>
-        <div class="stream-scope-target">${targetScope}</div>
+        <div class="stream-diff-line">${diff}</div>
+        <div class="stream-scope-badge">${targetScope}</div>
       `;
 
       log.insertBefore(card, log.firstChild);
@@ -1235,7 +1387,7 @@
 
         if (res.status === 201) {
           const c = await res.json();
-          showToast(`Committed v${c.version} to SQLite WAL and broadcast.`, 'success');
+          showToast(`Committed v${c.version} to SQLite WAL and broadcasted to fleet.`, 'success');
           closePublishModal();
         } else {
           const err = await res.json();
@@ -1248,7 +1400,6 @@
       }
     }
 
-    // Explicitly labeled Simulation Test
     async function triggerValidationTest() {
       const client = document.getElementById('selClient').value;
       const payload = {
@@ -1256,7 +1407,7 @@
         stagedOffices: [],
         updates: { booking_cutoff_minutes: -30 },
         author: 'test-runner',
-        reason: 'Fault injection simulation: negative duration constraint check'
+        reason: 'Fault injection test: negative duration constraint check'
       };
 
       try {
@@ -1267,7 +1418,7 @@
         });
         const err = await res.json();
         if (res.status === 400) {
-          showToast(`[Simulation Verification] Server rejected invalid payload (-30 min) with HTTP 400 Bad Request. Database state protected.`, 'test-simulation');
+          showToast(`[Verification Test] Server rejected invalid cutoff (-30 min) with HTTP 400 Bad Request. Storage protected.`, 'simulation');
         }
       } catch (e) {
         showToast(`Error: ${e.message}`, 'error');
@@ -1335,7 +1486,7 @@
 
       await fetchDefinitions();
       await refreshSnapshot();
-      if (!silent) showToast('Reset to standard MoveInSync policies.', 'success');
+      if (!silent) showToast('Reset to standard MoveInSync fleet policies.', 'success');
     }
 
     function openLineage(k) {
@@ -1360,16 +1511,16 @@
 
       for (const s of steps) {
         const div = document.createElement('div');
-        div.style.padding = '0.45rem 0.65rem';
-        div.style.borderRadius = 'var(--radius)';
+        div.style.padding = '0.5rem 0.75rem';
+        div.style.borderRadius = '8px';
         div.style.border = '1px solid var(--border)';
         div.style.display = 'flex';
         div.style.justifyContent = 'space-between';
 
         if (s.val !== null && s.val !== undefined && !won) {
-          div.style.background = 'var(--green-bg)';
-          div.style.borderColor = 'var(--green-border)';
-          div.innerHTML = `<span><strong style="color: var(--green);">[Active] ${s.scope}</strong> (${s.path})</span><span style="font-weight: 700;">${s.val}</span>`;
+          div.style.background = 'var(--google-green-bg)';
+          div.style.borderColor = 'var(--google-green-border)';
+          div.innerHTML = `<span><strong style="color: var(--google-green);">[Active] ${s.scope}</strong> (${s.path})</span><span style="font-weight: 700;">${s.val}</span>`;
           won = true;
         } else if (s.val !== null && s.val !== undefined && won) {
           div.style.opacity = '0.5';
@@ -1394,6 +1545,11 @@
         const res = await fetch('/api/v1/metrics', { headers: { 'X-API-Key': API_KEY } });
         if (res.ok) {
           const m = await res.json();
+          document.getElementById('quickVersion').textContent = m.config_current_version || 0;
+          document.getElementById('quickSubs').textContent = m.config_connected_subscribers || 0;
+          document.getElementById('quickRejections').textContent = m.config_rejections_total || 0;
+          document.getElementById('quickQueue').textContent = m.config_subscriber_queue_depth || 0;
+
           document.getElementById('mVersion').textContent = m.config_current_version || 0;
           document.getElementById('mSubs').textContent = m.config_connected_subscribers || 0;
           document.getElementById('mQueue').textContent = m.config_subscriber_queue_depth || 0;
