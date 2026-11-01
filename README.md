@@ -3,6 +3,9 @@
 **Author:** Saksham Gupta  
 **Email:** [saksham77779@gmail.com](mailto:saksham77779@gmail.com) | **Repository:** [github.com/Saksham-Gupta-GH/moveinsync-config-platform](https://github.com/Saksham-Gupta-GH/moveinsync-config-platform) | **Live Demo (HTTPS):** [https://20-219-130-205.sslip.io/moveinsync/](https://20-219-130-205.sslip.io/moveinsync/) | **Demo Video:** [Google Drive Walkthrough Video](https://drive.google.com/file/d/1672qzG3t7DkPtfmpotBypt1Jz9PRil3e/view?usp=sharing)
 
+> 🌐 **Live Cloud Deployment (HTTPS with SSL):** [https://20-219-130-205.sslip.io/moveinsync/](https://20-219-130-205.sslip.io/moveinsync/)  
+> *Active, public production instance deployed on Azure Cloud with verified Let's Encrypt TLS, Nginx reverse proxying, and persistent Server-Sent Events (SSE) broadcasting.*
+
 ---
 
 ## 1. Overview & Problem Context
