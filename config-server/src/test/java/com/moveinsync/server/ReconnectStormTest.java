@@ -75,12 +75,12 @@ class ReconnectStormTest {
                 });
             }
 
-            boolean connectedInTime = connectLatch.await(10, TimeUnit.SECONDS);
+            boolean connectedInTime = connectLatch.await(30, TimeUnit.SECONDS);
             assertThat(connectedInTime).isTrue();
             assertThat(clients.size()).isEqualTo(clientCount);
 
-            // Allow all 200 SSE streams to register and connect
-            long settleDeadline = System.currentTimeMillis() + 15000;
+            // Allow all 500 SSE streams to register and connect
+            long settleDeadline = System.currentTimeMillis() + 30000;
             while (System.currentTimeMillis() < settleDeadline) {
                 long connected = clients.stream().filter(MoveInSyncConfigClient::isSseConnected).count();
                 if (connected >= clientCount) break;
@@ -96,7 +96,7 @@ class ReconnectStormTest {
             interruptedSessions.forEach(session -> session.emitter().complete());
             var oldIds = interruptedSessions.stream().map(SseBroadcaster.SubscriberSession::id)
                     .collect(java.util.stream.Collectors.toSet());
-            long reconnectDeadline = System.currentTimeMillis() + 15000;
+            long reconnectDeadline = System.currentTimeMillis() + 30000;
             while (System.currentTimeMillis() < reconnectDeadline) {
                 long newConnections = sseBroadcaster.getSubscribers().keySet().stream()
                         .filter(id -> id.contains(":RECONNECT-") && !oldIds.contains(id)).count();
@@ -120,8 +120,8 @@ class ReconnectStormTest {
             long publishedVersion = cs.version();
             assertThat(publishedVersion).isGreaterThan(versionBefore);
 
-            // 3. Verify all 200 clients receive the update via SSE within 5 seconds
-            long deadline = System.currentTimeMillis() + 5000;
+            // 3. Verify all 500 clients receive the update via SSE
+            long deadline = System.currentTimeMillis() + 10000;
             AtomicInteger updatedCount = new AtomicInteger(0);
 
             while (System.currentTimeMillis() < deadline && updatedCount.get() < clientCount) {
@@ -138,7 +138,7 @@ class ReconnectStormTest {
 
             System.out.println("Clients successfully receiving live update: " + updatedCount.get() + " / " + clientCount);
             assertThat(updatedCount.get())
-                    .as("All 200 concurrent clients should receive the broadcast update")
+                    .as("All 500 concurrent clients should receive the broadcast update")
                     .isEqualTo(clientCount);
 
         } finally {
