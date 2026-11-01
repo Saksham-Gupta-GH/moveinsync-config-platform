@@ -323,10 +323,10 @@ The table below reconciles the estimates in the submitted dossier against genuin
 
 | Dossier Claim / Metric | Submitted PDF Claim | Verified Measured Reality (`DossierClaimsBenchmarkTest`) | Status & Technical Grounding |
 | :--- | :--- | :--- | :--- |
-| **Commit Latency (fsync)** | Single-writer commit | **p50 = 3.77 ms, p90 = 5.90 ms, p99 = 10.55 ms** | Measured over 2,000 fsync commits with WAL mode + `synchronous=FULL` |
-| **Commit Throughput** | ~2,500 writes/sec | **231 writes/sec** | Genuine disk-bound fsync throughput on single writer (not an in-memory mock) |
-| **Snapshot Heap Footprint** | < 2.4 MB for 1k keys | **~0.30 MB (300 KB)** | Measured via GC-settled heap delta; compact immutable records and unmodifiable maps |
-| **AtomicReference Swap** | < 10 ns pointer swap | **1.95 - 3.49 ns/op** | Lock-free volatile reference swap in memory |
+| **Commit Latency (fsync)** | Single-writer commit | **p50 = 3.83 ms, p90 = 5.65 ms, p99 = 10.71 ms** | Measured over 2,000 fsync commits with WAL mode + `synchronous=FULL` |
+| **Commit Throughput** | ~2,500 writes/sec | **233 writes/sec** | Genuine disk-bound fsync throughput on single writer (not an in-memory mock) |
+| **Snapshot Heap Footprint** | < 2.4 MB for 1k keys | **~0.31 MB (310 KB)** | Measured via GC-settled heap delta; compact immutable records and unmodifiable maps |
+| **AtomicReference Swap** | < 10 ns pointer swap | **4.54 ns/op** | Lock-free volatile reference swap in memory |
 | **In-Memory Read Latency** | 170 ns | **~250 ns p50** | Micro-benchmark resolution latency via in-memory 4-tier hierarchy lookup |
 | **Live SSE Propagation** | 278 ms | **119 ms p50, 127 ms max** | Verified across 200 concurrent clients; well within the 5,000 ms SLA budget |
 | **Test Suite Count & Scope** | 26 tests (34 s) | **29 tests across 3 modules (Reactor)** | Unit, context-load, claims-bench, RBAC, tenant isolation, gap sync, and recovery |
