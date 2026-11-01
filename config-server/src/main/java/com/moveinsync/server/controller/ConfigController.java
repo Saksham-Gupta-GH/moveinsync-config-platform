@@ -159,9 +159,11 @@ public class ConfigController {
      */
     @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter stream(@RequestHeader(value = "X-API-Key", required = false) String apiKey,
+                             @RequestParam(value = "api_key", required = false) String apiKeyParam,
                              @RequestParam("client_id") String clientId,
                              @RequestParam(value = "office_id", defaultValue = "ALL") String officeId) {
-        var principal = securityContext.authenticate(apiKey);
+        String effectiveKey = (apiKey != null && !apiKey.isBlank()) ? apiKey : apiKeyParam;
+        var principal = securityContext.authenticate(effectiveKey);
         securityContext.enforceTenantAccess(principal, clientId);
 
         return sseBroadcaster.subscribe(clientId, officeId);
