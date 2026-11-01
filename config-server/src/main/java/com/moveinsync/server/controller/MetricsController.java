@@ -46,6 +46,7 @@ public class MetricsController {
         metrics.put("config_rejections_total", configService.getRejectionCount());
         metrics.put("config_max_lag_seen", configService.getMaxVersionLagSeen());
         metrics.put("config_client_catchup_requests_total", configService.getClientCatchupRequestsTotal());
+        metrics.put("config_retries_total", configService.getClientCatchupRequestsTotal());
         metrics.put("config_error_requests_total", configService.getErrorRequestsTotal());
         metrics.put("jvm_uptime_seconds", ManagementFactory.getRuntimeMXBean().getUptime() / 1000);
         metrics.put("jvm_memory_used_mb", (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / (1024 * 1024));
