@@ -1,7 +1,7 @@
 # MoveInSync Hierarchical Tenant Configuration Platform
 ### Distributed Configuration Engine with Sub-Microsecond In-Memory Reads & Live SSE Propagation
 **Author:** Saksham Gupta  
-**Email:** [saksham77779@gmail.com](mailto:saksham77779@gmail.com) | **Repository:** [github.com/Saksham-Gupta-GH/moveinsync-config-platform](https://github.com/Saksham-Gupta-GH/moveinsync-config-platform) | **Live Demo:** [http://20.219.130.205/moveinsync/](http://20.219.130.205/moveinsync/) | **Demo Video:** [Google Drive Walkthrough Video](https://drive.google.com/file/d/1672qzG3t7DkPtfmpotBypt1Jz9PRil3e/view?usp=sharing)
+**Email:** [saksham77779@gmail.com](mailto:saksham77779@gmail.com) | **Repository:** [github.com/Saksham-Gupta-GH/moveinsync-config-platform](https://github.com/Saksham-Gupta-GH/moveinsync-config-platform) | **Live Demo (HTTPS):** [https://20-219-130-205.sslip.io/moveinsync/](https://20-219-130-205.sslip.io/moveinsync/) | **Demo Video:** [Google Drive Walkthrough Video](https://drive.google.com/file/d/1672qzG3t7DkPtfmpotBypt1Jz9PRil3e/view?usp=sharing)
 
 ---
 
@@ -233,10 +233,11 @@ curl -s -H "X-API-Key: admin-root-key" http://localhost:8080/api/v1/metrics
 ## 7. Quickstart & CI
 
 ### Live Cloud Deployment (Azure)
-The platform is deployed and running live on Azure Cloud VM with Nginx reverse proxying:
-- **Interactive Web Dashboard:** [http://20.219.130.205/moveinsync/](http://20.219.130.205/moveinsync/)
-- **Actuator Health Endpoint:** [http://20.219.130.205/actuator/health](http://20.219.130.205/actuator/health)
-- **Live SSE Event Stream:** `http://20.219.130.205/api/v1/config/stream?client_id=Google&office_id=ALL&api_key=admin-root-key`
+The platform is deployed and running live on Azure Cloud VM with Let's Encrypt SSL & Nginx reverse proxying:
+- **Interactive Web Dashboard (HTTPS):** [https://20-219-130-205.sslip.io/moveinsync/](https://20-219-130-205.sslip.io/moveinsync/)
+- **Actuator Health Endpoint:** [https://20-219-130-205.sslip.io/actuator/health](https://20-219-130-205.sslip.io/actuator/health)
+- **Live SSE Event Stream:** `https://20-219-130-205.sslip.io/api/v1/config/stream?client_id=Google&office_id=ALL&api_key=admin-root-key`
+- **Fallback HTTP (Direct IP):** [http://20.219.130.205/moveinsync/](http://20.219.130.205/moveinsync/)
 - **Demo API Key:** `admin-root-key` (Admin), `operator-secret-key` (Operator), `google-service-key` (Employee)
 
 ### Running the Suite Locally
