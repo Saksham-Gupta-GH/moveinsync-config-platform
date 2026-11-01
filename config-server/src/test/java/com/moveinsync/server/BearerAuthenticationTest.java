@@ -24,7 +24,7 @@ class BearerAuthenticationTest {
                 .header("Authorization", "Bearer invalid")).andExpect(status().isUnauthorized());
         mvc.perform(get("/api/v1/config/snapshot?client_id=Google")
                 .header("Authorization", "Bearer google-service-key")
-                .header("X-API-Key", "admin-root-key")).andExpect(status().isUnauthorized());
+                .header("X-API-Key", "admin-secret-key")).andExpect(status().isUnauthorized());
         mvc.perform(get("/api/v1/config/snapshot?client_id=Google")
                 .header("Authorization", "Basic invalid")).andExpect(status().isUnauthorized());
     }

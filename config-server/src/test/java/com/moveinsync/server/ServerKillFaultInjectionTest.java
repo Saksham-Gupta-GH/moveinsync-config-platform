@@ -62,7 +62,7 @@ class ServerKillFaultInjectionTest {
             try {
                 HttpRequest req = HttpRequest.newBuilder()
                         .uri(URI.create(url))
-                        .header("X-API-Key", "admin-root-key")
+                        .header("X-API-Key", "admin-secret-key")
                         .GET()
                         .build();
                 HttpResponse<String> resp = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
@@ -98,7 +98,7 @@ class ServerKillFaultInjectionTest {
             HttpRequest regReq = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:" + port + "/api/v1/config/definitions"))
                     .header("Content-Type", "application/json")
-                    .header("X-API-Key", "admin-root-key")
+                    .header("X-API-Key", "admin-secret-key")
                     .POST(HttpRequest.BodyPublishers.ofString(regPayload))
                     .build();
             HttpResponse<String> regResp = httpClient.send(regReq, HttpResponse.BodyHandlers.ofString());
@@ -114,7 +114,7 @@ class ServerKillFaultInjectionTest {
             HttpRequest csReq = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:" + port + "/api/v1/config/changeset"))
                     .header("Content-Type", "application/json")
-                    .header("X-API-Key", "admin-root-key")
+                    .header("X-API-Key", "admin-secret-key")
                     .POST(HttpRequest.BodyPublishers.ofString(csPayload))
                     .build();
             HttpResponse<String> csResp = httpClient.send(csReq, HttpResponse.BodyHandlers.ofString());

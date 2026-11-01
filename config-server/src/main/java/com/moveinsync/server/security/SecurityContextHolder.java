@@ -30,7 +30,6 @@ public class SecurityContextHolder {
 
         Map<String, AuthPrincipal> keys = new java.util.HashMap<>();
         keys.put(adminKey, new AuthPrincipal(adminKey, Role.ADMIN, null));
-        keys.put("admin-root-key", new AuthPrincipal("admin-root-key", Role.ADMIN, null));
         keys.put(operatorKey, new AuthPrincipal(operatorKey, Role.OPERATOR, null));
         keys.put(googleKey, new AuthPrincipal(googleKey, Role.EMPLOYEE, "Google"));
         keys.put(amazonKey, new AuthPrincipal(amazonKey, Role.EMPLOYEE, "Amazon"));

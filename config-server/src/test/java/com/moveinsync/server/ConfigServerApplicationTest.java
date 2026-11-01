@@ -13,3 +13,4 @@ class ConfigServerApplicationTest {
         // Verifies complete dependency injection graph and auto-configurations
     }
 }
+
