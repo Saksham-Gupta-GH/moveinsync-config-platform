@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MoveInSync ION — Fleet Policy Platform</title>
+  <title>MoveInSync — Policy management</title>
   <style>
     :root {
       --bg: #f8fafc;
@@ -22,21 +22,17 @@
       --brand-green-bg: #e6f4ea;
       --brand-green-border: #b7eb8f;
 
-      --google-green: #1e8e3e;
-      --google-green-bg: #e6f4ea;
-      --google-green-border: #ceead6;
+      --google-green: #17634c;
+      --google-green-bg: #eaf5ee;
+      --google-green-border: #c2ddcd;
 
-      --google-red: #d93025;
-      --google-red-bg: #fce8e6;
-      --google-red-border: #fad2cf;
+      --google-red: #a12622;
+      --google-red-bg: #fff0ee;
+      --google-red-border: #efc6c1;
 
-      --google-amber: #e37400;
-      --google-amber-bg: #fef7e0;
-      --google-amber-border: #feefc3;
-
-      --google-purple: #9334e6;
-      --google-purple-bg: #f3e8fd;
-      --google-purple-border: #e9d2fd;
+      --google-amber: #805500;
+      --google-amber-bg: #fff8df;
+      --google-amber-border: #ead797;
 
       --font-sans: "Google Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
       --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
@@ -454,8 +450,7 @@
     }
 
     .tier-badge-clean.office { background: #f1f3f4; color: var(--text); border-color: var(--border); }
-    .tier-badge-clean.shift { background: var(--google-purple-bg); color: var(--google-purple); border-color: var(--google-purple-border); }
-    .tier-badge-clean.client { background: var(--google-amber-bg); color: var(--google-amber); border-color: var(--google-amber-border); }
+    .tier-badge-clean.shift, .tier-badge-clean.client { background: var(--surface-variant); color: var(--text-secondary); border-color: var(--border); }
     .tier-badge-clean.global { background: var(--surface-variant); color: var(--text-secondary); border-color: var(--border); }
     .tier-badge-clean.default { background: #fafafa; color: var(--text-muted); border-color: var(--border); }
 
@@ -724,23 +719,212 @@
     }
 
     .toast-pill.success {
-      background: #0f5132;
-      border: 1px solid #198754;
+      background: var(--google-green-bg);
+      color: var(--google-green);
+      border: 1px solid var(--google-green-border);
     }
 
     .toast-pill.simulation {
-      background: #1e293b;
-      border: 1px solid #334155;
+      background: var(--google-amber-bg);
+      color: var(--google-amber);
+      border: 1px solid var(--google-amber-border);
     }
 
     .toast-pill.error {
-      background: #842029;
-      border: 1px solid #dc3545;
+      background: var(--google-red-bg);
+      color: var(--google-red);
+      border: 1px solid var(--google-red-border);
     }
 
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(4px); }
       to { opacity: 1; transform: translateY(0); }
+    }
+    /* Operations workspace: quiet surfaces, clear actions, readable data. */
+    :root { --bg:#f5f6f7; --text:#202a31; --text-secondary:#52616b; --text-muted:#65747e;
+      --border:#dce2e5; --brand-green:#17634c; --brand-green-hover:#104c3a;
+      --card-radius:8px; --input-radius:5px; --pill-radius:5px; }
+    body { font-size:14px; }
+    header.navbar { padding:0 32px; height:64px; }
+    .brand-title {font-weight:650;letter-spacing:-.4px;}
+    .account-badge {background:#e9eeeb;color:#315343;border-radius:5px;}
+    .app-content-container {max-width:1560px;gap:20px;padding:28px 32px;}
+    .workspace-heading {display:flex;align-items:center;justify-content:space-between;gap:20px;}
+    .workspace-heading h1 {font-size:27px;letter-spacing:-.7px;font-weight:650;margin-bottom:4px;}
+    .workspace-heading p {color:var(--text-secondary);font-size:14px;}
+    .workspace-heading small {color:var(--text-secondary);}
+    .filter-card {padding:16px 20px;box-shadow:none;gap:16px;}
+    .scope-label-caps {text-transform:none;letter-spacing:0;font-size:13px;font-weight:500;}
+    .precedence-order-badge {display:none;}
+    .content-grid {grid-template-columns:minmax(0,1fr);gap:20px;}
+    .white-card {padding:20px;gap:18px;min-width:0;}
+    .card-eyebrow {display:none;}
+    .card-main-title {font-size:17px;}
+    .card-subtitle {max-width:650px;}
+    .table-container-responsive {border-radius:5px;overflow-x:auto;}
+    table.google-table {min-width:850px;}
+    table.google-table th {font-size:12px;padding:12px 16px;background:#f6f8f9;}
+    table.google-table td {padding:17px 16px;}
+    .key-bold-mono {font-family:var(--font-sans);font-size:14px;font-weight:600;}
+    .policy-key {font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);margin-top:3px;}
+    .key-description {max-width:340px;font-size:12px;margin-top:6px;}
+    .val-highlight {background:transparent!important;color:var(--text)!important;font-size:14px;font-weight:600;padding:0;}
+    .tier-badge-clean {border-radius:4px!important;font-size:11px;}
+    .btn-row-action {font-size:12px;}
+    .sidebar-cards-col {display:flex;flex-direction:column;gap:16px;}
+    .telemetry-card-clean {display:none;}
+    .stream-feed-card {border:1px solid var(--border);border-radius:8px;background:#fff;padding:18px 20px;}
+    .stream-feed-card summary {cursor:pointer;font-size:14px;font-weight:600;}
+    .stream-log-scroll {max-height:230px;margin-top:14px;}
+    .search-input {width:270px;padding:9px 12px;border:1px solid var(--border);border-radius:5px;font:inherit;background:white;}
+    .demo-tools {position:relative;font-size:12px;}
+    .demo-tools summary {cursor:pointer;color:var(--text-secondary);padding:8px;}
+    .demo-tools[open] {padding:10px;border:1px solid var(--border);background:#fff;border-radius:6px;}
+    .demo-tools button {margin:4px 0;}
+    .demo-tools p {max-width:230px;color:var(--text-secondary);margin-bottom:5px;}
+    .telemetry-summary-banner {display:none;}
+    .kpi-num-large {font-size:25px!important;color:var(--text)!important;}
+    .google-dialog {border-radius:8px;max-height:90vh;overflow-y:auto;}
+    .google-dialog::backdrop {background:rgba(26,37,43,.35);}
+    :focus-visible {outline:2px solid var(--brand-green);outline-offset:3px;}
+    button:disabled {opacity:.55;cursor:wait;}
+    .nav-tab-item.active {color:var(--brand-green);}
+    .nav-tab-item.active::after {background:var(--brand-green);}
+    input[type="checkbox"] {accent-color:var(--brand-green);}
+    .sse-live-pill.connecting {background:var(--google-amber-bg);color:var(--google-amber);border-color:var(--google-amber-border);}
+    .live-dot.connecting {background:var(--google-amber);}
+    .draft-notice {padding:10px 12px;border:1px solid var(--google-amber-border);border-radius:5px;background:var(--google-amber-bg);color:var(--google-amber);font-size:12px;}
+    .draft-notice[hidden] {display:none;}
+    .google-form-group:has(#dlgCanaryCheck:checked) {background:var(--google-amber-bg);border:1px solid var(--google-amber-border);padding:12px;border-radius:5px;}
+    .stream-event-item.applied {border-left-color:var(--google-green);}
+    .stream-event-item.staged {border-left-color:var(--google-amber);}
+    .event-state {font-family:var(--font-sans);font-weight:500;font-size:11px;margin-left:8px;color:var(--google-green);}
+    .staged .event-state {color:var(--google-amber);}
+    .load-error {background:var(--google-red-bg);color:var(--google-red);}
+    @media(max-width:900px) {
+      header.navbar {padding:10px 16px;height:auto;flex-wrap:wrap;gap:8px;}
+      .nav-tabs-group {height:44px;order:3;width:100%;}
+      .app-content-container {padding:20px 16px;}
+      .workspace-heading {align-items:flex-start;}
+      .filter-card,.filter-fields-row {align-items:stretch;}
+      .filter-actions {flex-wrap:wrap;}
+      .card-header-row {flex-wrap:wrap;}.search-input {width:100%;}
+      .nav-right-cluster {gap:8px;}.account-badge {display:none;}
+    }
+    @media(prefers-reduced-motion:reduce) {* {animation:none!important;transition:none!important;}}
+  </style>
+  <style id="material-polish">
+    /* Reference-inspired presentation only. No changes to events or data flow. */
+    :root {
+      --font-sans: "Google Sans", "Avenir Next", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --bg:#f7f8fa; --surface:#fff; --text:#202124; --text-secondary:#5f6368;
+      --text-muted:#687078; --border:#dadce0; --border-subtle:#e9edef;
+      --brand-green:#137b50; --brand-green-hover:#0c6240;
+      --card-radius:20px; --input-radius:12px; --pill-radius:24px;
+      --motion-ease:cubic-bezier(.2,.8,.2,1);
+    }
+    body {font-size:14px;letter-spacing:-.12px;}
+    header.navbar {
+      height:76px;padding:0 max(28px,calc((100vw - 1360px)/2));gap:28px;
+      background:rgba(255,255,255,.96);backdrop-filter:blur(12px);
+    }
+    .brand-title {font-size:21px;font-weight:600;letter-spacing:-.65px;white-space:nowrap;}
+    .brand-logo-ring {width:27px;height:27px;border-color:#a8d8bd;}
+    .brand-logo-ring::after {width:9px;height:9px;background:var(--brand-green);box-shadow:0 0 0 4px #e5f2ea;}
+    .nav-brand-group {gap:12px;}
+    .nav-tabs-group {height:76px;margin-left:auto;gap:12px;}
+    .nav-tab-item {font-size:14px;padding:0 16px;transition:color 180ms ease,background 180ms ease;}
+    .nav-tab-item:hover {background:#f3f8f5;color:var(--brand-green);}
+    .nav-tab-item.active::after {height:3px;left:12px;right:12px;border-radius:3px;animation:tab-reveal 240ms var(--motion-ease);}
+    .nav-right-cluster {gap:12px;}
+    .sse-live-pill {padding:6px 12px;border-radius:24px;font-size:11px;}
+    .version-tag {padding:6px 10px;background:#f7f9f8;border-color:transparent;border-radius:20px;font-size:11px;}
+    .account-badge {border-radius:50%;width:32px;height:32px;background:#e5f2ea;color:#17634c;}
+    .app-content-container {max-width:1360px;padding:40px 28px 64px;gap:26px;}
+    .workspace-heading {padding:0 4px 6px;animation:surface-enter 420ms var(--motion-ease) both;}
+    .workspace-heading h1 {font-size:36px;line-height:1.2;font-weight:600;letter-spacing:-1.2px;margin-bottom:10px;}
+    .workspace-heading p {font-size:15px;line-height:1.6;}
+    .workspace-heading small {font-size:11px;border:1px solid var(--border);padding:7px 12px;border-radius:24px;background:white;white-space:nowrap;}
+    .filter-card {padding:20px 24px;border-radius:18px;gap:18px;animation:surface-enter 460ms 40ms var(--motion-ease) both;}
+    .filter-fields-row {gap:10px;flex:1;}
+    .scope-label-caps {font-size:12px;color:var(--text-secondary);}
+    .google-input-select {padding:10px 12px;min-height:42px;border-radius:11px;font-size:12px;background:#fff;}
+    .filter-actions {gap:10px;}
+    .btn-pill {padding:11px 19px;min-height:42px;border-radius:24px;font-size:13px;font-weight:600;}
+    .btn-pill-primary {box-shadow:0 1px 2px #164b1914;}
+    .btn-pill-secondary {color:var(--brand-green);border-color:var(--border);}
+    button {transition:background 180ms ease,box-shadow 180ms ease,transform 180ms var(--motion-ease),border-color 180ms ease;}
+    .btn-pill:hover:not(:disabled) {transform:translateY(-1px);box-shadow:0 3px 8px #20212412;}
+    .btn-pill:active:not(:disabled),.btn-row-action:active {transform:scale(.97);box-shadow:none;}
+    .btn-pill-secondary:hover {background:#f0f7f2;border-color:#bbd6c5;color:var(--brand-green);}
+    .content-grid {gap:24px;}
+    .white-card {border-radius:20px;padding:28px;gap:24px;animation:surface-enter 500ms 80ms var(--motion-ease) both;}
+    .card-header-row {align-items:center;gap:24px;}
+    .card-main-title {font-size:23px;font-weight:600;letter-spacing:-.6px;}
+    .card-subtitle {font-size:13px;line-height:1.65;max-width:660px;margin-top:6px;}
+    .search-input {width:270px;flex-shrink:0;border-radius:24px;padding:12px 18px;background:#f8faf9;font-size:13px;}
+    .search-input:focus {background:#fff;border-color:var(--brand-green);box-shadow:0 0 0 3px #137b5012;}
+    .table-container-responsive {border-radius:12px;border-color:var(--border-subtle);}
+    table.google-table th {background:#f8faf9;font-size:11px;font-weight:600;letter-spacing:.15px;padding:14px 16px;}
+    table.google-table td {padding:20px 16px;transition:background 150ms ease;}
+    table.google-table tbody tr:hover {background:#f3f8f5;}
+    .key-bold-mono {font-size:14px;font-weight:600;}
+    .policy-key {font-size:10px;margin-top:4px;color:#6a737a;}
+    .key-description {font-size:12px;line-height:1.5;max-width:310px;}
+    .tier-badge-clean {border-radius:20px!important;padding:4px 10px;font-size:10px;}
+    .btn-row-action {border-radius:20px;padding:7px 12px;color:var(--brand-green);background:transparent;}
+    .btn-row-action:hover {background:#e7f2ea;border-color:#b9d6c3;color:#145b3c;}
+    .stream-feed-card {border-radius:18px;padding:20px 24px;animation:surface-enter 520ms 120ms var(--motion-ease) both;}
+    .stream-feed-card summary {font-size:14px;font-weight:500;color:var(--brand-green);}
+    .stream-feed-card[open] .stream-log-scroll {animation:surface-enter 240ms var(--motion-ease);}
+    .stream-event-item {background:#fafcfb;border-radius:12px;padding:12px 16px;animation:surface-enter 240ms var(--motion-ease);}
+    .kpi-metric-box {background:#f8faf9;border-radius:16px;padding:24px;border-color:#e1e8e3;transition:border-color 180ms ease,background 180ms ease;}
+    .kpi-metric-box:hover {background:#f0f6f2;border-color:#b5d1bf;}
+    .kpi-num-large {font-family:var(--font-sans);font-size:30px!important;font-weight:500;margin-top:12px;letter-spacing:-1px;}
+    .kpi-label-text {font-size:12px;font-weight:500;}
+    dialog.google-dialog {max-width:540px;border-radius:24px;border-color:#e0e5e1;box-shadow:0 18px 64px #20212426;}
+    dialog.google-dialog[open] {animation:dialog-enter 240ms var(--motion-ease);}
+    dialog.google-dialog::backdrop {background:#20212450;backdrop-filter:blur(3px);}
+    .dialog-top-bar {padding:24px 28px;border-color:#edf0ee;}
+    .dialog-top-bar h3 {font-size:22px;font-weight:500;letter-spacing:-.5px;}
+    .dialog-btn-close {border-radius:50%;width:32px;height:32px;display:grid;place-items:center;}
+    .dialog-btn-close:hover {background:#eef3ef;}
+    .dialog-body-content {padding:24px 28px;gap:20px;}
+    .google-form-group label {font-size:13px;margin-bottom:8px;}
+    .google-form-input,.google-form-select {border-radius:12px;padding:12px 14px;min-height:46px;background:white;}
+    .google-form-input:focus,.google-form-select:focus {border-color:var(--brand-green);box-shadow:0 0 0 3px #137b5012;}
+    .google-form-hint {line-height:1.6;margin-top:7px;}
+    .dialog-foot-bar {padding:18px 28px;background:#f8faf9;border-radius:0 0 24px 24px;}
+    .draft-notice {border-radius:12px;line-height:1.6;}
+    .toast-pill {border-radius:14px;box-shadow:0 6px 24px #20212416;animation:surface-enter 240ms var(--motion-ease);}
+    .demo-tools[open] {border-radius:14px;}
+    @keyframes surface-enter {from {opacity:0;transform:translateY(10px);} to {opacity:1;transform:translateY(0);}}
+    @keyframes dialog-enter {from {opacity:0;transform:translateY(12px) scale(.98);} to {opacity:1;transform:translateY(0) scale(1);}}
+    @keyframes tab-reveal {from {transform:scaleX(.5);opacity:0;} to {transform:scaleX(1);opacity:1;}}
+    @media(min-width:1050px) {.filter-card {flex-wrap:nowrap;}.filter-fields-row {flex-wrap:wrap;}.filter-actions {flex-shrink:0;}}
+    @media(max-width:1050px) {.workspace-heading small {white-space:normal;}.card-header-row {flex-wrap:wrap;}}
+    @media(max-width:900px) {
+      header.navbar {height:auto;padding:14px 20px 0;gap:10px;}
+      .nav-tabs-group {height:48px;margin:0;gap:8px;}
+      .brand-title {font-size:19px;}.nav-right-cluster {margin-left:auto;}
+      .app-content-container {padding:28px 18px 40px;gap:20px;}
+      .workspace-heading h1 {font-size:30px;}.workspace-heading small {display:none;}
+      .white-card {padding:20px;}.filter-card {padding:18px;}
+      .search-input {width:100%;}.card-main-title {font-size:21px;}
+      .filter-actions {width:100%;}.filter-actions .btn-pill-primary {margin-left:auto;}
+      .kpi-metric-box {padding:18px;}
+    }
+    @media(max-width:520px) {
+      .version-tag {display:none;}.sse-live-pill {font-size:10px;padding:5px 8px;}
+      .filter-fields-row {display:grid;grid-template-columns:1fr;width:100%;}
+      .filter-fields-row>span:not(.scope-label-caps) {display:none;}
+      .google-input-select {width:100%;}.btn-pill {padding:10px 14px;font-size:12px;}
+      .workspace-heading h1 {font-size:28px;}.workspace-heading p {font-size:13px;}
+      .dialog-body-content,.dialog-top-bar,.dialog-foot-bar {padding:20px;}
+      .toast-tray {left:16px;right:16px;bottom:16px;}.toast-pill {max-width:100%;}
+    }
+    @media(prefers-reduced-motion:reduce) {
+      *,*::before,*::after {animation:none!important;transition:none!important;scroll-behavior:auto!important;}
     }
   </style>
 </head>
@@ -750,24 +934,24 @@
   <header class="navbar">
     <div class="nav-brand-group">
       <div class="brand-logo-ring"></div>
-      <span class="brand-title">MoveInSync ION</span>
+      <span class="brand-title">MoveInSync</span>
     </div>
 
     <!-- Center Navigation Tabs -->
     <div class="nav-tabs-group">
       <button id="tabPolicies" class="nav-tab-item active" onclick="switchNavTab('policies')">
-        Policies &amp; Hierarchy
+        Policies
       </button>
       <button id="tabTelemetry" class="nav-tab-item" onclick="switchNavTab('telemetry')">
-        Cluster Telemetry
+        Service status
       </button>
     </div>
 
     <!-- Right Cluster -->
     <div class="nav-right-cluster">
-      <div class="sse-live-pill" id="sseLiveBadge">
-        <span class="live-dot" id="liveDot"></span>
-        <span id="sseStatusText">Stream Live</span>
+      <div class="sse-live-pill connecting" id="sseLiveBadge">
+        <span class="live-dot connecting" id="liveDot"></span>
+        <span id="sseStatusText">Connecting…</span>
       </div>
       <div class="version-tag" id="topVersionLabel">v0 committed</div>
       <div class="account-badge" title="Role: Administrator">A</div>
@@ -776,26 +960,30 @@
 
   <!-- Main Content Body -->
   <div class="app-content-container">
+    <div class="workspace-heading">
+      <div><h1>Policy management</h1><p>Review the rules applied to each office and shift.</p></div>
+      <small>Demo workspace · Administrator</small>
+    </div>
 
     <!-- Active Scope Toolbar Strip -->
     <div class="filter-card">
       <div class="filter-fields-row">
-        <span class="scope-label-caps">Active Scope</span>
-        <select id="selClient" class="google-input-select">
+        <span class="scope-label-caps">View policies for</span>
+        <select id="selClient" class="google-input-select" aria-label="Client">
           <option value="Google">Google Fleet</option>
           <option value="Amazon">Amazon Fleet</option>
           <option value="Microsoft">Microsoft Fleet</option>
           <option value="Flipkart">Flipkart Fleet</option>
         </select>
         <span style="color: var(--text-muted); font-size: 13px;">/</span>
-        <select id="selOffice" class="google-input-select">
+        <select id="selOffice" class="google-input-select" aria-label="Office">
           <option value="BLR_CAMPUS">Bangalore (BLR-1)</option>
           <option value="HYD_CAMPUS">Hyderabad (HYD-1)</option>
           <option value="PA_CAMPUS">Palo Alto (PA-1)</option>
           <option value="ALL">All Campuses</option>
         </select>
         <span style="color: var(--text-muted); font-size: 13px;">/</span>
-        <select id="selShift" class="google-input-select">
+        <select id="selShift" class="google-input-select" aria-label="Shift">
           <option value="ALL">All Shifts</option>
           <option value="MORNING">Morning (06:00)</option>
           <option value="GENERAL">General (09:00)</option>
@@ -809,14 +997,16 @@
       </div>
 
       <div class="filter-actions">
-        <button class="btn-pill btn-pill-secondary" onclick="triggerValidationTest()" title="Injects a negative cutoff to verify atomic rejection">
-          Simulate Invalid Input (400)
-        </button>
+        <details class="demo-tools"><summary>Demo tools</summary>
+          <p>These actions send requests to the server.</p>
+          <button class="btn-pill btn-pill-secondary" onclick="triggerValidationTest()">Test invalid value</button>
+          <button class="btn-pill btn-pill-secondary" onclick="if(confirm('Load sample policies and the Bangalore example override? Existing definitions may be replaced.')) seedDefaultPolicies()">Load sample policies</button>
+        </details>
         <button class="btn-pill btn-pill-secondary" onclick="refreshSnapshot()">
           Refresh
         </button>
         <button class="btn-pill btn-pill-primary" onclick="openPublishModal()">
-          + Publish Changeset
+          + New change
         </button>
       </div>
     </div>
@@ -829,25 +1019,23 @@
         <div class="card-header-row">
           <div>
             <div class="card-eyebrow">CONFIGURATION MATRIX</div>
-            <div class="card-main-title">Hierarchical Policy Rules</div>
+            <div class="card-main-title">Policies</div>
             <div class="card-subtitle">
-              Evaluates in-memory against local client snapshots in ~250 ns with zero lock contention.
+              Effective values for the selected location. Office and shift rules take priority over client defaults.
             </div>
           </div>
-          <button class="btn-pill btn-pill-secondary" style="font-size: 12px; padding: 0.35rem 0.85rem;" onclick="seedDefaultPolicies()">
-            Reset Defaults
-          </button>
+          <input id="policySearch" class="search-input" type="search" placeholder="Search policies…" aria-label="Search policies" oninput="renderTable()">
         </div>
 
         <div class="table-container-responsive">
           <table class="google-table">
             <thead>
               <tr>
-                <th>Policy Key</th>
-                <th>Resolved Value</th>
-                <th>Winning Tier &amp; Overrides</th>
+                <th>Policy</th>
+                <th>Current value</th>
+                <th>Applied from</th>
                 <th>Type</th>
-                <th>Validation Constraints</th>
+                <th>Allowed range</th>
                 <th style="text-align: right;">Action</th>
               </tr>
             </thead>
@@ -866,18 +1054,19 @@
       <div class="sidebar-cards-col">
         
         <!-- Live SSE Stream Card -->
-        <div class="stream-feed-card">
+        <details class="stream-feed-card">
+          <summary>Recent changes</summary>
           <div class="card-eyebrow">LIVE EVENT BROADCASTER</div>
           <div style="display: flex; justify-content: space-between; align-items: baseline;">
-            <div style="font-size: 15px; font-weight: 600;">Live SSE Stream</div>
+            <div style="font-size: 13px; color: var(--text-secondary);">Updates received in this session</div>
             <span id="streamCountText" style="font-size: 11.5px; color: var(--text-muted);">0 events</span>
           </div>
           <div id="streamScrollList" class="stream-log-scroll">
             <div style="font-size: 12px; color: var(--text-muted); text-align: center; padding: 2rem 1rem;">
-              Listening for real-time deltas...
+              No changes received yet. Updates will appear here as they arrive.
             </div>
           </div>
-        </div>
+        </details>
 
         <!-- Telemetry Summary Card -->
         <div class="telemetry-card-clean">
@@ -921,10 +1110,10 @@
         <div class="card-header-row">
           <div>
             <div class="card-eyebrow">METRICS &amp; OBSERVABILITY</div>
-            <div class="card-main-title">3 AM On-Call Operational Counters</div>
+            <div class="card-main-title">Service status</div>
             <div class="card-subtitle">Direct real-time metrics polled from <code>/api/v1/metrics</code>.</div>
           </div>
-          <button class="btn-pill btn-pill-secondary" onclick="fetchMetrics()">Poll Now</button>
+          <button class="btn-pill btn-pill-secondary" onclick="fetchMetrics()">Refresh status</button>
         </div>
 
         <div class="kpi-row-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
@@ -970,21 +1159,22 @@
   <!-- Publish Changeset Modal Dialog -->
   <dialog id="publishModal" class="google-dialog" aria-labelledby="dlgTitle">
     <div class="dialog-top-bar">
-      <h3 id="dlgTitle">Publish Configuration Changeset</h3>
+      <h3 id="dlgTitle">Change a policy</h3>
       <button class="dialog-btn-close" onclick="closePublishModal()" aria-label="Close">&times;</button>
     </div>
-    <form id="publishForm" onsubmit="handlePublishSubmit(event)">
+    <form id="publishForm" onsubmit="handlePublishSubmit(event)" oninput="document.getElementById('draftNotice').hidden = false">
       <div class="dialog-body-content">
+        <div id="draftNotice" class="draft-notice" role="status" hidden>Unsaved changes — review the scope and value before publishing.</div>
         
         <div class="google-form-group">
-          <label for="dlgKey">Policy Key</label>
+          <label for="dlgKey">Policy</label>
           <select id="dlgKey" class="google-form-select" required onchange="handleModalKeyChange()"></select>
           <div id="dlgKeyDesc" class="google-form-hint"></div>
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem;">
           <div class="google-form-group">
-            <label for="dlgScope">Target Scope Tier</label>
+            <label for="dlgScope">Apply to</label>
             <select id="dlgScope" class="google-form-select" required onchange="handleModalScopeChange()">
               <option value="OFFICE" selected>Office (Campus override)</option>
               <option value="CLIENT">Client (Entire tenant fleet)</option>
@@ -1004,7 +1194,7 @@
         </div>
 
         <div class="google-form-group">
-          <label for="dlgValue">Override Value</label>
+          <label for="dlgValue">New value</label>
           <input type="text" id="dlgValue" class="google-form-input" required placeholder="e.g. 30">
           <div id="dlgBoundsHint" class="google-form-hint"></div>
         </div>
@@ -1018,14 +1208,14 @@
         </div>
 
         <div class="google-form-group">
-          <label for="dlgReason">Audit Reason</label>
-          <input type="text" id="dlgReason" class="google-form-input" value="Adjusting dispatch booking cutoff" required>
+          <label for="dlgReason">Reason for change</label>
+          <input type="text" id="dlgReason" class="google-form-input" placeholder="Explain why this policy needs to change" required>
         </div>
 
       </div>
       <div class="dialog-foot-bar">
         <button type="button" class="btn-pill btn-pill-secondary" onclick="closePublishModal()">Cancel</button>
-        <button type="submit" id="btnSubmitChangeset" class="btn-pill btn-pill-primary">Commit &amp; Broadcast</button>
+        <button type="submit" id="btnSubmitChangeset" class="btn-pill btn-pill-primary">Publish change</button>
       </div>
     </form>
   </dialog>
@@ -1033,7 +1223,7 @@
   <!-- Lineage Audit Modal Dialog -->
   <dialog id="lineageModal" class="google-dialog" aria-labelledby="lineageTitle">
     <div class="dialog-top-bar">
-      <h3 id="lineageTitle">Resolution Lineage Trace</h3>
+      <h3 id="lineageTitle">Why this value?</h3>
       <button class="dialog-btn-close" onclick="closeLineageModal()" aria-label="Close">&times;</button>
     </div>
     <div class="dialog-body-content">
@@ -1048,7 +1238,7 @@
   </dialog>
 
   <!-- Toast Tray -->
-  <div id="toastTray" class="toast-tray"></div>
+  <div id="toastTray" class="toast-tray" role="status" aria-live="polite"></div>
 
   <script>
     const API_KEY = "admin-root-key";
@@ -1059,11 +1249,7 @@
 
     window.addEventListener('DOMContentLoaded', async () => {
       await fetchDefinitions();
-      if (Object.keys(registeredDefinitions).length === 0) {
-        await seedDefaultPolicies(true);
-      } else {
-        await refreshSnapshot();
-      }
+      await refreshSnapshot();
       initSse();
       setInterval(fetchMetrics, 3500);
 
@@ -1111,6 +1297,7 @@
       const url = `/api/v1/config/snapshot?client_id=${encodeURIComponent(client)}${office !== 'ALL' ? '&office_id=' + encodeURIComponent(office) : ''}`;
       try {
         const res = await fetch(url, { headers: { 'X-API-Key': API_KEY } });
+        if (!res.ok) throw new Error(`Request failed (${res.status})`);
         if (res.ok) {
           currentSnapshot = await res.json();
           const verStr = `v${currentSnapshot.version} committed`;
@@ -1119,7 +1306,7 @@
           renderTable();
         }
       } catch (e) {
-        console.error(e);
+        document.getElementById('policyTableBody').innerHTML = '<tr class="load-error"><td colspan="6" style="padding:32px;text-align:center;color:inherit;">Unable to load policies. Check the server connection and select Refresh.</td></tr>';
       }
     }
 
@@ -1170,6 +1357,19 @@
       return { val: '—', scope: 'default', scopeLabel: 'Unset', hint: '' };
     }
 
+    function escapeHtml(value) {
+      const node = document.createElement('span');
+      node.textContent = String(value ?? '');
+      return node.innerHTML;
+    }
+
+    function policyName(key) {
+      const names = { booking_cutoff_minutes: 'Booking cutoff', night_escort_required: 'Night escort',
+        max_route_deviation_km: 'Maximum route deviation', panic_response_timeout_sec: 'Emergency response time',
+        allowed_vehicle_tiers: 'Allowed vehicle types' };
+      return names[key] || key.replace(/_/g, ' ').replace(/^./, c => c.toUpperCase());
+    }
+
     function renderTable() {
       const tbody = document.getElementById('policyTableBody');
       const client = document.getElementById('selClient').value;
@@ -1177,10 +1377,12 @@
       const shift = document.getElementById('selShift').value !== 'ALL' ? document.getElementById('selShift').value : null;
 
       const defs = currentSnapshot.definitions || registeredDefinitions || {};
-      const keys = Object.keys(defs);
+      const query = document.getElementById('policySearch').value.trim().toLowerCase();
+      const keys = Object.keys(defs).filter(k =>
+        `${k} ${policyName(k)} ${defs[k].description || ''}`.toLowerCase().includes(query));
 
       if (keys.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 3rem;">No policies configured. Click "Reset Defaults" above.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--text-secondary);padding:3rem;">${query ? 'No policies match your search. Try a different name or key.' : 'No policies configured. Open Demo tools to load sample policies.'}</td></tr>`;
         return;
       }
 
@@ -1192,11 +1394,12 @@
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>
-            <div class="key-bold-mono">${k}</div>
-            <div class="key-description">${def.description || ''}</div>
+            <div class="key-bold-mono">${escapeHtml(policyName(k))}</div>
+            <div class="policy-key">${escapeHtml(k)}</div>
+            <div class="key-description">${escapeHtml(def.description || '')}</div>
           </td>
           <td>
-            <span class="val-highlight">${formatVal(res.val, def.type)}</span>
+            <span class="val-highlight">${escapeHtml(formatVal(res.val, def.type))}</span>
           </td>
           <td>
             <div><span class="tier-badge-clean ${res.scope}">${res.scopeLabel}</span></div>
@@ -1205,10 +1408,12 @@
           <td style="color: var(--text-secondary); font-size: 12px;">${formatType(def.type)}</td>
           <td style="color: var(--text-muted); font-size: 12px;">${formatConstraints(def.validationRule)}</td>
           <td style="text-align: right; white-space: nowrap;">
-            <button class="btn-row-action" onclick="openOverride('${k}')">Override</button>
-            <button class="btn-row-action" onclick="openLineage('${k}')">Lineage</button>
+            <button class="btn-row-action" data-action="edit">Edit</button>
+            <button class="btn-row-action" data-action="explain">Why this value?</button>
           </td>
         `;
+        tr.querySelector('[data-action="edit"]').addEventListener('click', () => openOverride(k));
+        tr.querySelector('[data-action="explain"]').addEventListener('click', () => openLineage(k));
         tbody.appendChild(tr);
       }
     }
@@ -1216,13 +1421,17 @@
     function formatVal(v, type) {
       if (v === null || v === undefined) return '—';
       if (type === 'DURATION_MINUTES') return `${v} min`;
-      if (typeof v === 'boolean') return v ? 'true' : 'false';
+      if (typeof v === 'boolean') return v ? 'Enabled' : 'Disabled';
       return String(v);
     }
 
     function formatType(t) {
       if (t === 'DURATION_MINUTES') return 'Duration';
       if (t === 'BOOLEAN') return 'Boolean';
+      if (t === 'NUMBER') return 'Number';
+      if (t === 'STRING_LIST') return 'List';
+      if (t === 'TIME_WINDOW') return 'Time window';
+      if (t === 'ENUM') return 'Choice';
       if (t === 'DOUBLE') return 'Decimal';
       if (t === 'INTEGER') return 'Integer';
       return 'String';
@@ -1249,15 +1458,19 @@
       const badge = document.getElementById('sseLiveBadge');
 
       eventSource.onopen = () => {
+        dot.classList.remove('connecting');
+        badge.classList.remove('connecting');
         dot.classList.remove('disconnected');
         badge.classList.remove('disconnected');
         text.textContent = 'Stream Live';
       };
 
       eventSource.onerror = () => {
+        dot.classList.remove('connecting');
+        badge.classList.remove('connecting');
         dot.classList.add('disconnected');
         badge.classList.add('disconnected');
-        text.textContent = 'Reconnecting';
+        text.textContent = 'Disconnected · retrying';
       };
 
       eventSource.addEventListener('delta', (e) => {
@@ -1280,7 +1493,8 @@
       if (sseEventsReceived === 1) log.innerHTML = '';
 
       const card = document.createElement('div');
-      card.className = 'stream-event-item';
+      const staged = !d.empty && Array.isArray(d.stagedOffices) && d.stagedOffices.length > 0;
+      card.className = `stream-event-item ${d.empty ? '' : staged ? 'staged' : 'applied'}`;
 
       const time = new Date(d.timestamp || Date.now()).toTimeString().split(' ')[0];
       const targetScope = d.scopeKey ? `${d.scopeKey.scope}${d.scopeKey.officeId ? ':' + d.scopeKey.officeId : ''}` : 'GLOBAL';
@@ -1296,7 +1510,7 @@
 
       card.innerHTML = `
         <div class="stream-event-top">
-          <span class="stream-event-ver">v${d.version}</span>
+          <span class="stream-event-ver">v${d.version}<span class="event-state" style="${d.empty ? 'color:var(--text-secondary)' : ''}">${d.empty ? 'Version synced' : staged ? 'Staged rollout' : 'Update received'}</span></span>
           <span>${time}</span>
         </div>
         <div class="stream-diff-line">${diff}</div>
@@ -1330,17 +1544,32 @@
 
     function handleModalScopeChange() {
       const sc = document.getElementById('dlgScope').value;
+      document.getElementById('dlgOfficeId').required = sc === 'OFFICE' || sc === 'SHIFT';
+      document.getElementById('dlgShiftId').required = sc === 'SHIFT';
       document.getElementById('dlgOfficeGroup').style.display = (sc === 'OFFICE' || sc === 'SHIFT') ? 'block' : 'none';
       document.getElementById('dlgShiftGroup').style.display = (sc === 'SHIFT') ? 'block' : 'none';
     }
 
     function openPublishModal() {
+      document.getElementById('draftNotice').hidden = true;
+      document.getElementById('publishForm').reset();
+      handleModalKeyChange();
+      handleModalScopeChange();
       document.getElementById('publishModal').showModal();
     }
 
     function openOverride(k) {
+      document.getElementById('draftNotice').hidden = true;
+      document.getElementById('publishForm').reset();
       document.getElementById('dlgKey').value = k;
       handleModalKeyChange();
+      const office = document.getElementById('selOffice').value;
+      document.getElementById('dlgOfficeId').value = office === 'ALL' ? '' : office;
+      document.getElementById('dlgReason').value = '';
+      const resolved = resolveKeyHierarchy(k, document.getElementById('selClient').value,
+        office === 'ALL' ? null : office, document.getElementById('selShift').value === 'ALL' ? null : document.getElementById('selShift').value);
+      document.getElementById('dlgValue').value = Array.isArray(resolved.val) ? resolved.val.join(', ') : String(resolved.val);
+      handleModalScopeChange();
       document.getElementById('publishModal').showModal();
     }
 
@@ -1366,7 +1595,8 @@
       let val = raw;
       if (def) {
         if (def.type === 'DURATION_MINUTES' || def.type === 'INTEGER') val = parseInt(raw, 10);
-        else if (def.type === 'DOUBLE') val = parseFloat(raw);
+        else if (def.type === 'DOUBLE' || def.type === 'NUMBER') val = Number(raw);
+        else if (def.type === 'STRING_LIST') val = raw.split(',').map(s => s.trim()).filter(Boolean);
         else if (def.type === 'BOOLEAN') val = (raw.toLowerCase() === 'true' || raw === '1');
       }
 
@@ -1392,7 +1622,8 @@
 
         if (res.status === 201) {
           const c = await res.json();
-          showToast(`Committed v${c.version} to SQLite WAL and broadcasted to fleet.`, 'success');
+          showToast(`Policy updated. Saved as version ${c.version}.`, 'success');
+          await refreshSnapshot();
           closePublishModal();
         } else {
           const err = await res.json();
@@ -1448,22 +1679,22 @@
         },
         {
           key: 'max_route_deviation_km',
-          type: 'DOUBLE',
+          type: 'NUMBER',
           defaultValue: 5.0,
           description: 'Maximum permitted geographic detour distance from optimized shortest path',
           validationRule: { minNumber: 0.0, maxNumber: 50.0 }
         },
         {
           key: 'panic_response_timeout_sec',
-          type: 'INTEGER',
+          type: 'NUMBER',
           defaultValue: 60,
           description: 'Time window for Central Transport Command to acknowledge mobile SOS alert',
           validationRule: { minNumber: 10, maxNumber: 600 }
         },
         {
           key: 'allowed_vehicle_tiers',
-          type: 'STRING',
-          defaultValue: 'SEDAN,HATCHBACK,EV',
+          type: 'STRING_LIST',
+          defaultValue: ['SEDAN', 'HATCHBACK', 'EV'],
           description: 'Permitted vehicle classes for daily commuting rosters',
           validationRule: {}
         }
