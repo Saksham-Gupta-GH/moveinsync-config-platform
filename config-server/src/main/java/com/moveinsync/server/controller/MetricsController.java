@@ -54,4 +54,11 @@ public class MetricsController {
 
         return ResponseEntity.ok(metrics);
     }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler(SecurityException.class)
+    public ResponseEntity<?> handleSecurityException(SecurityException e) {
+        configService.incrementErrorCount();
+        HttpStatus status = e.getMessage().contains("Authentication failed") ? HttpStatus.UNAUTHORIZED : HttpStatus.FORBIDDEN;
+        return ResponseEntity.status(status).body(Map.of("error", e.getMessage()));
+    }
 }
