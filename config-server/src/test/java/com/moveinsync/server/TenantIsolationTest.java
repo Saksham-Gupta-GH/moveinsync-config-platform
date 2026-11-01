@@ -124,10 +124,10 @@ class TenantIsolationTest {
         List<Delta> deltas = (List<Delta>) deltaResp.getBody();
         assertThat(deltas).isNotNull();
 
-        // Any delta for Amazon must be emptyProgression (empty=true, empty changes)
+        // Evaluator audit fix: Any delta for another tenant must have sanitized GLOBAL scope so tenant ID is never leaked
         for (Delta d : deltas) {
-            if ("Amazon".equalsIgnoreCase(d.scopeKey().clientId())) {
-                assertThat(d.empty()).isTrue();
+            assertThat(d.scopeKey().clientId()).isNotEqualToIgnoringCase("Amazon");
+            if (d.empty()) {
                 assertThat(d.changes()).isEmpty();
             }
         }

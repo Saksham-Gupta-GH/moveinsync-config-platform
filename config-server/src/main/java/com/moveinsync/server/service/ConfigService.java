@@ -256,8 +256,8 @@ public class ConfigService {
             if (isTenantMatch && isOfficeMatch) {
                 deltas.add(new Delta(cs.version(), cs.scopeKey(), cs.stagedOffices(), cs.updates(), false, cs.timestamp()));
             } else {
-                // Return contiguous empty delta progression to advance client version counter without leaking payload
-                deltas.add(Delta.emptyProgression(cs.version(), cs.scopeKey()));
+                // Return contiguous empty delta progression with GLOBAL scope to advance client version counter without leaking tenant or office metadata
+                deltas.add(Delta.emptyProgression(cs.version(), ConfigScopeKey.global()));
             }
         }
         return deltas;

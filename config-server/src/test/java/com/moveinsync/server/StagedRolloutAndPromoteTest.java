@@ -55,6 +55,11 @@ class StagedRolloutAndPromoteTest {
         assertThat(hydDeltas.get(0).version()).isEqualTo(canaryVer);
         assertThat(hydDeltas.get(0).empty()).isTrue();
 
+        // 2b. Verify snapshot resolution isolation: BLR-1 resolves canary (true), HYD-1 resolves default (false)
+        com.moveinsync.client.cache.ConfigSnapshot snapshot = configService.getSnapshot("Google", "ALL");
+        assertThat(snapshot.resolve("staged_feature_flag", "Google", "BLR-1", null).value()).isEqualTo(true);
+        assertThat(snapshot.resolve("staged_feature_flag", "Google", "HYD-1", null).value()).isEqualTo(false);
+
         // 3. Promote to all offices under client
         ChangeSet promoted = configService.promoteChangeSet(canary.id(), "admin");
         long promotedVer = promoted.version();

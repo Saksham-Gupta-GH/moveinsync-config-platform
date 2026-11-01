@@ -92,8 +92,8 @@ public class SseBroadcaster {
             if (matchesOffice) {
                 deltaToSend = delta;
             } else {
-                // Contiguous progression: send empty delta with the same version
-                deltaToSend = Delta.emptyProgression(delta.version(), delta.scopeKey());
+                // Contiguous progression: send empty delta with GLOBAL scope to prevent leaking staged office names
+                deltaToSend = Delta.emptyProgression(delta.version(), ConfigScopeKey.global());
             }
 
             // Enqueue to bounded buffer

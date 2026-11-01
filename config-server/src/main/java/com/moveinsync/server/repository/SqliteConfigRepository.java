@@ -110,7 +110,8 @@ public class SqliteConfigRepository {
                 map.put(def.key(), def);
             }
         } catch (Exception e) {
-            log.log(Level.WARNING, "Failed to query definitions: " + e.getMessage(), e);
+            log.log(Level.SEVERE, "Failed to query definitions: " + e.getMessage(), e);
+            throw new RuntimeException("Database error querying definitions", e);
         }
         return map;
     }
@@ -123,7 +124,8 @@ public class SqliteConfigRepository {
                 return rs.getLong("max_v");
             }
         } catch (SQLException e) {
-            log.log(Level.WARNING, "Failed to fetch latest version: " + e.getMessage(), e);
+            log.log(Level.SEVERE, "Failed to fetch latest version: " + e.getMessage(), e);
+            throw new RuntimeException("Database error fetching latest version", e);
         }
         return 0L;
     }
@@ -150,16 +152,28 @@ public class SqliteConfigRepository {
                 }
 
                 // 2. Insert or replace effective overrides
+                // For staged canary rollouts, store under each staged office scope so non-canary offices do not inherit it via snapshot
+                List<String> targetScopePaths = new ArrayList<>();
+                if (cs.stagedOffices() != null && !cs.stagedOffices().isEmpty() && cs.scopeKey().clientId() != null) {
+                    for (String stagedOffice : cs.stagedOffices()) {
+                        targetScopePaths.add(ConfigScopeKey.office(cs.scopeKey().clientId(), stagedOffice).toPath());
+                    }
+                } else {
+                    targetScopePaths.add(cs.scopeKey().toPath());
+                }
+
                 try (PreparedStatement ps = conn.prepareStatement("""
                     INSERT OR REPLACE INTO effective_overrides (scope_path, key, value_json, version)
                     VALUES (?, ?, ?, ?);
                 """)) {
-                    for (Map.Entry<String, Object> entry : cs.updates().entrySet()) {
-                        ps.setString(1, cs.scopeKey().toPath());
-                        ps.setString(2, entry.getKey());
-                        ps.setString(3, mapper.writeValueAsString(entry.getValue()));
-                        ps.setLong(4, cs.version());
-                        ps.addBatch();
+                    for (String scopePath : targetScopePaths) {
+                        for (Map.Entry<String, Object> entry : cs.updates().entrySet()) {
+                            ps.setString(1, scopePath);
+                            ps.setString(2, entry.getKey());
+                            ps.setString(3, mapper.writeValueAsString(entry.getValue()));
+                            ps.setLong(4, cs.version());
+                            ps.addBatch();
+                        }
                     }
                     ps.executeBatch();
                 }
@@ -188,7 +202,8 @@ public class SqliteConfigRepository {
                 map.computeIfAbsent(scopePath, k -> new HashMap<>()).put(key, val);
             }
         } catch (Exception e) {
-            log.log(Level.WARNING, "Failed to fetch overrides: " + e.getMessage(), e);
+            log.log(Level.SEVERE, "Failed to fetch overrides: " + e.getMessage(), e);
+            throw new RuntimeException("Database error fetching overrides", e);
         }
         return map;
     }
