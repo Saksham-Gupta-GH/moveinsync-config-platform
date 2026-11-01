@@ -20,7 +20,7 @@ if [ -z "${JAVA_HOME:-}" ]; then
     fi
 fi
 
-echo "[1/3] Running Full Test Suite (24 Tests across Core, Client SDK, Server)..."
+echo "[1/3] Running Full Test Suite (27 Tests across Core, Client SDK, Server)..."
 ./mvnw clean test
 
 echo ""
