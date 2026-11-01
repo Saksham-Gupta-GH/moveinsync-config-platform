@@ -238,11 +238,15 @@ curl -s -H "X-API-Key: admin-root-key" http://localhost:8080/api/v1/metrics
 ./mvnw clean test
 ```
 
-### Starting the Server
+### Starting the Server & Web Dashboard
 ```bash
 ./run.sh
 # Server starts on port 8080 with SQLite WAL persistence
 ```
+Once started, navigate to **`http://localhost:8080`** to access the **Interactive Policy Dashboard**:
+- **4-Tier Policy Matrix:** Inspect resolved configurations across Shift, Office, Client, and Global tiers with live audit lineage (`explain`).
+- **Live SSE Stream Ticker:** Watch monotonic deltas broadcast across connected subscribers in real time.
+- **On-Call Telemetry:** Real-time visibility into subscriber queue depths, monotonic version sequence, and validation rejections.
 
 ### Running with Docker Compose
 ```bash
