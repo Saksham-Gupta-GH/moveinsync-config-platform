@@ -3,248 +3,162 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MoveInSync ION — Fleet Policy &amp; Configuration Engine</title>
+  <title>MoveInSync Policies</title>
   <style>
     :root {
-      --bg-app: #f1f5f9;
-      --bg-surface: #ffffff;
-      --bg-subtle: #f8fafc;
+      --bg: #f8fafc;
+      --surface: #ffffff;
       --border: #e2e8f0;
-      --border-focus: #3b82f6;
-      
-      --text-main: #0f172a;
+      --border-subtle: #f1f5f9;
+      --border-focus: #0284c7;
+
+      --text: #0f172a;
       --text-muted: #64748b;
-      --text-subtle: #94a3b8;
-      
-      --header-bg: #0f172a;
-      --header-border: #1e293b;
-      --sidebar-bg: #f8fafc;
-      --sidebar-border: #e2e8f0;
-      
-      --primary: #0284c7;
-      --primary-hover: #0369a1;
-      
-      --badge-shift: #7e22ce;
-      --badge-shift-bg: #faf5ff;
-      --badge-shift-border: #e9d5ff;
-      
-      --badge-office: #1d4ed8;
-      --badge-office-bg: #eff6ff;
-      --badge-office-border: #bfdbfe;
-      
-      --badge-client: #b45309;
-      --badge-client-bg: #fffbeb;
-      --badge-client-border: #fde68a;
-      
-      --badge-global: #475569;
-      --badge-global-bg: #f8fafc;
-      --badge-global-border: #cbd5e1;
-      
-      --badge-default: #71717a;
-      --badge-default-bg: #fafafa;
-      --badge-default-border: #e4e4e7;
-      
-      --status-live: #059669;
-      --status-live-bg: #ecfdf5;
-      --status-live-border: #a7f3d0;
-      
-      --status-err: #dc2626;
-      --status-err-bg: #fef2f2;
-      --status-err-border: #fecaca;
+      --text-dim: #94a3b8;
+
+      --accent: #0284c7;
+      --accent-hover: #0369a1;
+
+      --live-green: #10b981;
+      --error-red: #ef4444;
+
+      --tier-office: #0284c7;
+      --tier-office-bg: #f0f9ff;
+      --tier-office-border: #bae6fd;
+
+      --tier-shift: #7c3aed;
+      --tier-shift-bg: #f5f3ff;
+      --tier-shift-border: #ddd6fe;
+
+      --tier-client: #d97706;
+      --tier-client-bg: #fffbeb;
+      --tier-client-border: #fde68a;
+
+      --tier-global: #475569;
+      --tier-global-bg: #f8fafc;
+      --tier-global-border: #cbd5e1;
 
       --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      
+      --radius: 6px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    
+
     body {
       font-family: var(--font-sans);
-      background-color: var(--bg-app);
-      color: var(--text-main);
+      background: var(--bg);
+      color: var(--text);
       height: 100vh;
       overflow: hidden;
       display: flex;
       flex-direction: column;
       -webkit-font-smoothing: antialiased;
+      font-size: 13px;
+      line-height: 1.4;
     }
 
-    /* Header Bar */
+    /* Quiet, Minimalist Topbar */
     header.topbar {
-      height: 52px;
-      background: var(--header-bg);
-      border-bottom: 1px solid var(--header-border);
+      height: 48px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 1.25rem;
+      padding: 0 1rem;
       flex-shrink: 0;
-      z-index: 30;
+      z-index: 20;
     }
 
-    .brand-wrap {
+    .topbar-left {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.6rem;
     }
 
-    .brand-logo-badge {
-      background: #e11d48;
-      color: #ffffff;
+    .brand-mark {
       font-weight: 700;
-      font-size: 0.75rem;
-      letter-spacing: 0.08em;
-      padding: 0.2rem 0.5rem;
-      border-radius: 3px;
-    }
-
-    .brand-name {
-      color: #f8fafc;
-      font-size: 0.9rem;
-      font-weight: 600;
+      font-size: 13px;
+      color: #e11d48;
       letter-spacing: -0.01em;
     }
 
-    .brand-divider {
-      color: #334155;
-      font-weight: 300;
+    .brand-sep {
+      color: var(--text-dim);
     }
 
-    .brand-app-name {
-      color: #94a3b8;
-      font-size: 0.8rem;
+    .brand-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
     }
 
     .topbar-right {
       display: flex;
       align-items: center;
-      gap: 1rem;
+      gap: 1.25rem;
     }
 
-    .sse-indicator {
+    .live-status {
       display: inline-flex;
       align-items: center;
-      gap: 0.45rem;
-      padding: 0.2rem 0.6rem;
-      border-radius: 9999px;
-      font-size: 0.7rem;
-      font-family: var(--font-mono);
-      font-weight: 600;
-      background: var(--status-live-bg);
-      border: 1px solid var(--status-live-border);
-      color: var(--status-live);
+      gap: 0.4rem;
+      font-size: 12px;
+      color: var(--text-muted);
     }
 
-    .sse-indicator.disconnected {
-      background: var(--status-err-bg);
-      border-color: var(--status-err-border);
-      color: var(--status-err);
-    }
-
-    .status-dot {
-      width: 6px;
-      height: 6px;
+    .live-dot {
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
-      background: var(--status-live);
+      background: var(--live-green);
     }
 
-    .status-dot.disconnected {
-      background: var(--status-err);
+    .live-dot.disconnected {
+      background: var(--error-red);
     }
 
-    .version-pill {
+    .version-label {
       font-family: var(--font-mono);
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: #38bdf8;
-      background: #1e293b;
-      padding: 0.2rem 0.55rem;
-      border-radius: 4px;
-      border: 1px solid #334155;
+      font-size: 12px;
+      color: var(--text-muted);
     }
 
-    .role-tag {
-      font-size: 0.7rem;
-      font-weight: 600;
-      color: #94a3b8;
-      background: #1e293b;
+    .user-pill {
+      font-size: 12px;
+      color: var(--text-muted);
       padding: 0.2rem 0.5rem;
-      border-radius: 3px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg);
     }
 
-    /* Main Application Grid */
-    .app-main {
+    /* Main Container */
+    .app-body {
       flex: 1;
       display: grid;
-      grid-template-columns: 260px 1fr 340px;
+      grid-template-columns: 200px 1fr 300px;
       overflow: hidden;
-      background: var(--bg-app);
     }
 
-    /* Left Sidebar */
-    aside.app-sidebar {
-      background: var(--sidebar-bg);
-      border-right: 1px solid var(--sidebar-border);
+    /* Clean, Minimal Sidebar */
+    aside.sidebar {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
       display: flex;
       flex-direction: column;
-      overflow-y: auto;
-      padding: 1.25rem 1rem;
-      gap: 1.5rem;
+      padding: 0.75rem;
+      gap: 0.25rem;
     }
 
-    .sidebar-group-title {
-      font-size: 0.68rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-muted);
-      margin-bottom: 0.75rem;
-    }
-
-    .field-row {
-      margin-bottom: 0.85rem;
-    }
-
-    .field-row label {
-      display: block;
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--text-main);
-      margin-bottom: 0.3rem;
-    }
-
-    .app-select {
-      width: 100%;
-      background: #ffffff;
-      border: 1px solid var(--border);
-      color: var(--text-main);
-      font-family: inherit;
-      font-size: 0.8rem;
-      padding: 0.45rem 0.6rem;
-      border-radius: 4px;
-      outline: none;
-      transition: border-color 0.15s ease;
-    }
-
-    .app-select:focus {
-      border-color: var(--border-focus);
-    }
-
-    .nav-list {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-
-    .nav-btn {
+    .nav-link {
       display: flex;
       align-items: center;
-      gap: 0.6rem;
-      padding: 0.5rem 0.65rem;
-      border-radius: 4px;
-      font-size: 0.8rem;
+      padding: 0.45rem 0.65rem;
+      border-radius: var(--radius);
+      font-size: 13px;
       font-weight: 500;
       color: var(--text-muted);
       cursor: pointer;
@@ -252,771 +166,682 @@
       background: transparent;
       width: 100%;
       text-align: left;
-      transition: all 0.12s ease;
+      transition: all 0.1s ease;
     }
 
-    .nav-btn:hover {
-      background: #e2e8f0;
-      color: var(--text-main);
+    .nav-link:hover {
+      background: var(--bg);
+      color: var(--text);
     }
 
-    .nav-btn.active {
-      background: #ffffff;
-      color: var(--text-main);
+    .nav-link.active {
+      background: var(--bg);
+      color: var(--text);
       font-weight: 600;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-      border: 1px solid var(--border);
     }
 
-    .sidebar-bottom {
+    .sidebar-footer {
       margin-top: auto;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
-      padding-top: 1rem;
-      border-top: 1px solid var(--border);
+      gap: 0.4rem;
     }
 
-    /* Center Content Workspace */
-    main.workspace-area {
-      background: var(--bg-surface);
+    .btn-quiet {
+      font-size: 11px;
+      color: var(--text-dim);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      text-align: left;
+      padding: 0.2rem 0.4rem;
+    }
+
+    .btn-quiet:hover {
+      color: var(--text-muted);
+    }
+
+    /* Workspace */
+    main.workspace {
+      background: var(--surface);
       display: flex;
       flex-direction: column;
       overflow: hidden;
       border-right: 1px solid var(--border);
     }
 
-    .workspace-top {
-      padding: 1.1rem 1.5rem;
+    /* Scope Bar & Actions Header */
+    .scope-bar {
+      padding: 0.75rem 1rem;
       border-bottom: 1px solid var(--border);
+      background: var(--bg);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      flex-shrink: 0;
-      background: #ffffff;
+      gap: 0.75rem;
+      flex-wrap: wrap;
     }
 
-    .workspace-heading h1 {
-      font-size: 1.05rem;
-      font-weight: 700;
-      letter-spacing: -0.01em;
-      color: var(--text-main);
+    .scope-selectors {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
     }
 
-    .hierarchy-crumbs {
+    .scope-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-right: 0.2rem;
+    }
+
+    .scope-select {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 12px;
+      padding: 0.35rem 0.55rem;
+      border-radius: var(--radius);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .scope-select:focus {
+      border-color: var(--border-focus);
+    }
+
+    .scope-sep {
+      color: var(--text-dim);
+      font-size: 12px;
+    }
+
+    .workspace-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .btn {
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 0.38rem 0.75rem;
+      border-radius: var(--radius);
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.1s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn-secondary {
+      background: var(--surface);
+      border-color: var(--border);
+      color: var(--text);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg);
+    }
+
+    /* Sub-header Precedence Line */
+    .precedence-line {
+      padding: 0.5rem 1rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      font-size: 12px;
+      color: var(--text-muted);
       display: flex;
       align-items: center;
       gap: 0.35rem;
-      margin-top: 0.35rem;
-      font-size: 0.72rem;
-      color: var(--text-muted);
-      font-family: var(--font-mono);
     }
 
-    .crumb-tag {
-      padding: 0.1rem 0.35rem;
-      border-radius: 3px;
-      border: 1px solid var(--border);
-      background: var(--bg-subtle);
-      font-weight: 600;
+    .precedence-chain {
+      color: var(--text);
+      font-weight: 500;
     }
 
-    .workspace-toolbar {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .btn-action {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      padding: 0.45rem 0.8rem;
-      font-size: 0.78rem;
-      font-weight: 600;
-      border-radius: 4px;
-      cursor: pointer;
-      font-family: inherit;
-      border: 1px solid transparent;
-      transition: all 0.12s ease;
-    }
-
-    .btn-action-primary {
-      background: var(--primary);
-      color: #ffffff;
-    }
-
-    .btn-action-primary:hover {
-      background: var(--primary-hover);
-    }
-
-    .btn-action-secondary {
-      background: #ffffff;
-      border-color: var(--border);
-      color: var(--text-main);
-    }
-
-    .btn-action-secondary:hover {
-      background: var(--bg-subtle);
-    }
-
-    .btn-action-subtle {
-      background: #ffffff;
-      border-color: #fca5a5;
-      color: #b91c1c;
-    }
-
-    .btn-action-subtle:hover {
-      background: #fef2f2;
-    }
-
-    /* Data Table */
-    .table-scroll-wrap {
+    /* Dense Data Table */
+    .table-wrap {
       flex: 1;
       overflow: auto;
     }
 
-    table.policy-grid {
+    table.dense-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.8rem;
+      font-size: 12px;
       text-align: left;
     }
 
-    table.policy-grid thead {
+    table.dense-table thead {
       position: sticky;
       inset-block-start: 0;
-      background: #f8fafc;
+      background: var(--bg);
       border-bottom: 1px solid var(--border);
       z-index: 10;
     }
 
-    table.policy-grid th {
-      padding: 0.7rem 1.25rem;
-      font-weight: 600;
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+    table.dense-table th {
+      padding: 0.55rem 1rem;
+      font-weight: 500;
+      font-size: 11px;
       color: var(--text-muted);
       border-bottom: 1px solid var(--border);
       white-space: nowrap;
     }
 
-    table.policy-grid td {
-      padding: 0.85rem 1.25rem;
+    table.dense-table td {
+      padding: 0.65rem 1rem;
       border-bottom: 1px solid var(--border);
       vertical-align: middle;
-      color: var(--text-main);
+      color: var(--text);
+      height: 44px;
     }
 
-    table.policy-grid tbody tr:hover {
-      background: #f8fafc;
+    table.dense-table tbody tr:hover {
+      background: var(--bg);
     }
 
-    .key-title {
+    .cell-key {
       font-family: var(--font-mono);
       font-weight: 600;
-      color: var(--text-main);
-      font-size: 0.8rem;
+      font-size: 12px;
     }
 
-    .key-subtext {
-      font-size: 0.72rem;
+    .cell-desc {
+      font-size: 11px;
       color: var(--text-muted);
-      margin-top: 0.2rem;
-      max-width: 320px;
-      line-height: 1.3;
+      margin-top: 2px;
     }
 
-    .val-strong {
+    .cell-val {
       font-family: var(--font-mono);
-      font-weight: 700;
-      font-size: 0.85rem;
+      font-weight: 600;
+      font-size: 12px;
     }
 
-    .scope-pill {
-      display: inline-flex;
-      align-items: center;
-      padding: 0.18rem 0.5rem;
-      border-radius: 4px;
-      font-family: var(--font-mono);
-      font-size: 0.68rem;
-      font-weight: 700;
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
+    .tier-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 0.15rem 0.45rem;
+      border-radius: var(--radius);
+      border: 1px solid transparent;
     }
 
-    .scope-pill.shift { background: var(--badge-shift-bg); color: var(--badge-shift); border: 1px solid var(--badge-shift-border); }
-    .scope-pill.office { background: var(--badge-office-bg); color: var(--badge-office); border: 1px solid var(--badge-office-border); }
-    .scope-pill.client { background: var(--badge-client-bg); color: var(--badge-client); border: 1px solid var(--badge-client-border); }
-    .scope-pill.global { background: var(--badge-global-bg); color: var(--badge-global); border: 1px solid var(--badge-global-border); }
-    .scope-pill.default { background: var(--badge-default-bg); color: var(--badge-default); border: 1px solid var(--badge-default-border); }
+    .tier-badge.shift { background: var(--tier-shift-bg); color: var(--tier-shift); border-color: var(--tier-shift-border); }
+    .tier-badge.office { background: var(--tier-office-bg); color: var(--tier-office); border-color: var(--tier-office-border); }
+    .tier-badge.client { background: var(--tier-client-bg); color: var(--tier-client); border-color: var(--tier-client-border); }
+    .tier-badge.global { background: var(--tier-global-bg); color: var(--tier-global); border-color: var(--tier-global-border); }
+    .tier-badge.default { background: var(--bg); color: var(--text-muted); border-color: var(--border); }
 
-    .btn-row-action {
+    .tier-overrides-hint {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+
+    .btn-cell {
       background: transparent;
       border: 1px solid var(--border);
-      padding: 0.25rem 0.5rem;
-      border-radius: 3px;
-      font-size: 0.72rem;
-      font-weight: 600;
+      font-size: 11px;
       color: var(--text-muted);
+      padding: 0.2rem 0.45rem;
+      border-radius: var(--radius);
       cursor: pointer;
-      font-family: inherit;
-      transition: all 0.1s ease;
     }
 
-    .btn-row-action:hover {
-      background: #f1f5f9;
-      color: var(--text-main);
-      border-color: #cbd5e1;
+    .btn-cell:hover {
+      background: var(--bg);
+      color: var(--text);
     }
 
-    /* Right SSE Log Stream */
+    /* Live Stream Log Panel */
     aside.stream-pane {
-      background: #ffffff;
+      background: var(--bg);
       display: flex;
       flex-direction: column;
       overflow: hidden;
     }
 
-    .stream-pane-header {
-      padding: 0.9rem 1.25rem;
+    .stream-pane-top {
+      padding: 0.75rem 1rem;
       border-bottom: 1px solid var(--border);
+      background: var(--surface);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: #f8fafc;
     }
 
-    .stream-pane-title {
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: var(--text-main);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+    .stream-pane-heading {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
     }
 
-    .stream-count-label {
-      font-family: var(--font-mono);
-      font-size: 0.7rem;
-      color: var(--text-muted);
-    }
-
-    .stream-events-scroll {
+    .stream-log-list {
       flex: 1;
       overflow-y: auto;
-      padding: 0.85rem;
+      padding: 0.75rem;
       display: flex;
       flex-direction: column;
-      gap: 0.6rem;
-      background: #f8fafc;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 11px;
     }
 
-    .stream-log-entry {
-      background: #ffffff;
+    .log-row {
+      background: var(--surface);
       border: 1px solid var(--border);
-      border-left: 3px solid var(--primary);
-      border-radius: 4px;
-      padding: 0.65rem 0.75rem;
-      font-size: 0.75rem;
+      border-radius: var(--radius);
+      padding: 0.55rem 0.65rem;
       display: flex;
       flex-direction: column;
-      gap: 0.35rem;
+      gap: 0.25rem;
     }
 
-    .stream-log-entry.canary-empty {
-      border-left-color: #94a3b8;
-      background: #fafafa;
-    }
-
-    .log-top {
+    .log-row-top {
       display: flex;
       align-items: center;
       justify-content: space-between;
-    }
-
-    .log-ver {
-      font-family: var(--font-mono);
-      font-weight: 700;
-      color: var(--primary);
-      font-size: 0.75rem;
-    }
-
-    .log-timestamp {
-      font-family: var(--font-mono);
-      font-size: 0.68rem;
       color: var(--text-muted);
     }
 
-    .log-scope {
-      font-family: var(--font-mono);
-      font-size: 0.68rem;
-      color: var(--text-muted);
-      background: #f1f5f9;
-      padding: 0.1rem 0.35rem;
-      border-radius: 3px;
-      align-self: flex-start;
+    .log-ver-step {
+      font-weight: 600;
+      color: var(--accent);
     }
 
-    .log-diff-box {
-      font-family: var(--font-mono);
-      font-size: 0.72rem;
-      background: #f1f5f9;
-      border-radius: 3px;
-      padding: 0.35rem 0.5rem;
-      color: #334155;
+    .log-diff-line {
+      color: var(--text);
+      word-break: break-all;
     }
 
-    /* Metrics Grid View */
-    .metrics-view-panel {
-      padding: 1.5rem;
+    .log-empty-muted {
+      color: var(--text-dim);
+      font-style: italic;
+    }
+
+    /* Metrics Panel */
+    .metrics-panel {
+      padding: 1.25rem;
       overflow-y: auto;
-      flex: 1;
       display: none;
+      flex: 1;
+      background: var(--bg);
     }
 
-    .metrics-cards-grid {
+    .metrics-cards {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.75rem;
     }
 
-    .kpi-card {
-      background: #ffffff;
+    .metric-box {
+      background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 1rem 1.25rem;
+      border-radius: var(--radius);
+      padding: 0.85rem 1rem;
     }
 
-    .kpi-title {
-      font-size: 0.7rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+    .metric-box-title {
+      font-size: 11px;
       color: var(--text-muted);
       margin-bottom: 0.35rem;
     }
 
-    .kpi-number {
+    .metric-box-val {
       font-family: var(--font-mono);
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--text-main);
-      font-variant-numeric: tabular-nums;
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: var(--text);
     }
 
-    .kpi-desc {
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      margin-top: 0.2rem;
-    }
-
-    /* Modal Dialogs */
-    dialog.app-dialog {
+    /* Accessible Native Dialogs */
+    dialog.modal {
       margin: auto;
       border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 0;
-      background: #ffffff;
-      max-width: 500px;
+      border-radius: var(--radius);
+      background: var(--surface);
+      max-width: 460px;
       width: 90vw;
-      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+      padding: 0;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
       outline: none;
     }
 
-    dialog.app-dialog::backdrop {
-      background: rgba(15, 23, 42, 0.5);
-      backdrop-filter: blur(1px);
+    dialog.modal::backdrop {
+      background: rgba(15, 23, 42, 0.4);
     }
 
-    .dialog-header {
-      padding: 1rem 1.25rem;
+    .modal-head {
+      padding: 0.85rem 1rem;
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
 
-    .dialog-header h2 {
-      font-size: 0.95rem;
-      font-weight: 700;
+    .modal-head h3 {
+      font-size: 13px;
+      font-weight: 600;
     }
 
-    .dialog-close-btn {
+    .modal-close {
       background: transparent;
       border: none;
-      font-size: 1.25rem;
-      color: var(--text-muted);
+      font-size: 16px;
       cursor: pointer;
+      color: var(--text-muted);
     }
 
-    .dialog-body {
-      padding: 1.25rem;
+    .modal-content {
+      padding: 1rem;
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      gap: 0.85rem;
     }
 
-    .dialog-footer {
-      padding: 0.85rem 1.25rem;
-      background: #f8fafc;
-      border-top: 1px solid var(--border);
-      display: flex;
-      justify-content: flex-end;
-      gap: 0.5rem;
-    }
-
-    .form-ctrl-group label {
+    .form-item label {
       display: block;
-      font-size: 0.75rem;
-      font-weight: 600;
-      margin-bottom: 0.35rem;
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 0.3rem;
     }
 
-    .form-ctrl-group input, .form-ctrl-group select {
+    .form-item input, .form-item select {
       width: 100%;
-      padding: 0.5rem 0.65rem;
+      padding: 0.45rem 0.6rem;
       font-family: inherit;
-      font-size: 0.82rem;
+      font-size: 12px;
       border: 1px solid var(--border);
-      border-radius: 4px;
+      border-radius: var(--radius);
       outline: none;
     }
 
-    .form-ctrl-group input:focus, .form-ctrl-group select:focus {
+    .form-item input:focus, .form-item select:focus {
       border-color: var(--border-focus);
     }
 
-    .field-hint {
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      margin-top: 0.25rem;
+    .modal-foot {
+      padding: 0.75rem 1rem;
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.4rem;
     }
 
     /* Toast */
-    .toast-tray {
+    .toast-box {
       position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 100;
+      bottom: 16px;
+      right: 16px;
+      z-index: 50;
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
+      gap: 0.4rem;
     }
 
-    .toast-msg {
-      background: #0f172a;
-      color: #ffffff;
-      padding: 0.65rem 0.95rem;
-      border-radius: 4px;
-      font-size: 0.78rem;
-      font-weight: 500;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      animation: fadeIn 0.15s ease;
+    .toast-item {
+      background: var(--text);
+      color: #fff;
+      padding: 0.55rem 0.85rem;
+      border-radius: var(--radius);
+      font-size: 12px;
     }
 
-    .toast-msg.error {
-      background: #7f1d1d;
-      border: 1px solid #b91c1c;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(4px); }
-      to { opacity: 1; transform: translateY(0); }
+    .toast-item.error {
+      background: var(--error-red);
     }
   </style>
 </head>
 <body>
 
-  <!-- Top Global Header -->
+  <!-- Quiet Header -->
   <header class="topbar">
-    <div class="brand-wrap">
-      <span class="brand-logo-badge">MOVEINSYNC</span>
-      <span class="brand-name">Fleet Policy Control Plane</span>
-      <span class="brand-divider">/</span>
-      <span class="brand-app-name">Live SSE Broadcaster</span>
+    <div class="topbar-left">
+      <span class="brand-mark">MoveInSync</span>
+      <span class="brand-sep">/</span>
+      <span class="brand-title">Policies</span>
     </div>
 
     <div class="topbar-right">
-      <div id="sseBadge" class="sse-indicator">
-        <span class="status-dot"></span>
-        <span id="sseText">CONNECTING</span>
+      <div class="live-status">
+        <span id="liveDot" class="live-dot"></span>
+        <span id="liveText">Live</span>
       </div>
-      <div class="version-pill" id="globalVersionLabel">V0</div>
-      <div class="role-tag">ROLE: ADMIN</div>
+      <div class="version-label" id="versionText">v0</div>
+      <div class="user-pill">admin</div>
     </div>
   </header>
 
-  <!-- Main 3-Column Layout -->
-  <div class="app-main">
+  <!-- Main 3-Column Body -->
+  <div class="app-body">
     
-    <!-- Left Sidebar -->
-    <aside class="app-sidebar">
-      <div>
-        <div class="sidebar-group-title">Scope Context</div>
-        
-        <div class="field-row">
-          <label for="tenantSelect">Client</label>
-          <select id="tenantSelect" class="app-select">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <button id="navPolicies" class="nav-link active" onclick="switchNav('policies')">Policies</button>
+      <button id="navMetrics" class="nav-link" onclick="switchNav('metrics')">Telemetry</button>
+
+      <div class="sidebar-footer">
+        <button class="btn-quiet" onclick="triggerValidationTest()">Simulate invalid payload (400)</button>
+        <button class="btn-quiet" onclick="seedDefaultPolicies()">Reset to standard policies</button>
+      </div>
+    </aside>
+
+    <!-- Workspace Area -->
+    <main class="workspace">
+      
+      <!-- Scope Bar -->
+      <div class="scope-bar">
+        <div class="scope-selectors">
+          <span class="scope-label">Scope:</span>
+          <select id="selClient" class="scope-select">
             <option value="Google">Google Fleet</option>
             <option value="Amazon">Amazon Fleet</option>
             <option value="Microsoft">Microsoft Fleet</option>
             <option value="Flipkart">Flipkart Fleet</option>
           </select>
-        </div>
-
-        <div class="field-row">
-          <label for="officeSelect">Office Campus</label>
-          <select id="officeSelect" class="app-select">
+          <span class="scope-sep">/</span>
+          <select id="selOffice" class="scope-select">
             <option value="BLR_CAMPUS">Bangalore (BLR-1)</option>
             <option value="HYD_CAMPUS">Hyderabad (HYD-1)</option>
             <option value="PA_CAMPUS">Palo Alto (PA-1)</option>
-            <option value="ALL">All Campuses</option>
+            <option value="ALL">All offices</option>
           </select>
-        </div>
-
-        <div class="field-row">
-          <label for="shiftSelect">Shift</label>
-          <select id="shiftSelect" class="app-select">
-            <option value="ALL">All Shifts</option>
+          <span class="scope-sep">/</span>
+          <select id="selShift" class="scope-select">
+            <option value="ALL">All shifts</option>
             <option value="MORNING">Morning (06:00)</option>
             <option value="GENERAL">General (09:00)</option>
-            <option value="NIGHT">Night Escort (21:00)</option>
+            <option value="NIGHT">Night escort (21:00)</option>
           </select>
         </div>
-      </div>
 
-      <div>
-        <div class="sidebar-group-title">Navigation</div>
-        <div class="nav-list">
-          <button id="navPolicies" class="nav-btn active" onclick="switchTab('policies')">
-            Policy Hierarchy Matrix
-          </button>
-          <button id="navMetrics" class="nav-btn" onclick="switchTab('metrics')">
-            System Telemetry &amp; Metrics
-          </button>
+        <div class="workspace-actions">
+          <button class="btn btn-secondary" onclick="refreshSnapshot()">Refresh</button>
+          <button class="btn btn-primary" onclick="openPublishModal()">Publish change</button>
         </div>
       </div>
 
-      <div class="sidebar-bottom">
-        <button id="btnSeed" class="btn-action btn-action-secondary" onclick="seedDefaultPolicies()" style="justify-content: center; width: 100%;">
-          Pre-seed Standard Policies
-        </button>
-      </div>
-    </aside>
-
-    <!-- Center Workspace -->
-    <main class="workspace-area">
-      
-      <!-- Policies Tab View -->
-      <div id="policiesTab" style="display: flex; flex-direction: column; flex: 1; overflow: hidden;">
-        <div class="workspace-top">
-          <div class="workspace-heading">
-            <h1>Tenant Policy Rules</h1>
-            <div class="hierarchy-crumbs">
-              <span>Precedence:</span>
-              <span class="crumb-tag" style="color: var(--badge-shift);">Shift</span> &rarr;
-              <span class="crumb-tag" style="color: var(--badge-office);">Office</span> &rarr;
-              <span class="crumb-tag" style="color: var(--badge-client);">Client</span> &rarr;
-              <span class="crumb-tag" style="color: var(--badge-global);">Global</span> &rarr;
-              <span class="crumb-tag" style="color: var(--badge-default);">Default</span>
-            </div>
-          </div>
-
-          <div class="workspace-toolbar">
-            <button class="btn-action btn-action-secondary" onclick="refreshSnapshot()">Refresh</button>
-            <button class="btn-action btn-action-subtle" onclick="triggerValidationTest()" title="Submits negative duration to show atomic HTTP 400 rejection">Simulate Invalid Payload (400)</button>
-            <button class="btn-action btn-action-primary" onclick="openPublishModal()">+ Publish Changeset</button>
-          </div>
-        </div>
-
-        <div class="table-scroll-wrap" role="region" aria-label="Policy Table">
-          <table class="policy-grid">
-            <thead>
-              <tr>
-                <th>Policy Key</th>
-                <th>Resolved Value</th>
-                <th>Winning Tier</th>
-                <th>Type</th>
-                <th>Validation Constraints</th>
-                <th style="text-align: right;">Action</th>
-              </tr>
-            </thead>
-            <tbody id="policyTableBody">
-              <tr>
-                <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 3rem;">
-                  Loading policy snapshot...
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+      <!-- Precedence Info Line -->
+      <div class="precedence-line">
+        <span>Precedence:</span>
+        <span class="precedence-chain">Shift › Office › Client › Global › Default</span>
       </div>
 
-      <!-- Metrics Tab View -->
-      <div id="metricsTab" class="metrics-view-panel">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-          <div>
-            <h2 style="font-size: 1.1rem; font-weight: 700;">System Telemetry</h2>
-            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">
-              Real-time counters exposed by <code>/api/v1/metrics</code>.
-            </p>
-          </div>
-          <button class="btn-action btn-action-secondary" onclick="fetchMetrics()">Poll Now</button>
-        </div>
+      <!-- Table View -->
+      <div id="policiesView" class="table-wrap">
+        <table class="dense-table">
+          <thead>
+            <tr>
+              <th>Policy key</th>
+              <th>Value</th>
+              <th>Winning tier</th>
+              <th>Type</th>
+              <th>Constraints</th>
+              <th style="text-align: right;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr>
+              <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                Loading policies...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-        <div class="metrics-cards-grid">
-          <div class="kpi-card">
-            <div class="kpi-title">Global Version</div>
-            <div id="mVersion" class="kpi-number">0</div>
-            <div class="kpi-desc">Monotonic commit sequence</div>
+      <!-- Telemetry View -->
+      <div id="metricsView" class="metrics-panel">
+        <div class="metrics-cards">
+          <div class="metric-box">
+            <div class="metric-box-title">Commit version</div>
+            <div id="mVersion" class="metric-box-val">0</div>
           </div>
-          <div class="kpi-card">
-            <div class="kpi-title">Active Subscribers</div>
-            <div id="mSubs" class="kpi-number">0</div>
-            <div class="kpi-desc">Connected SSE client streams</div>
+          <div class="metric-box">
+            <div class="metric-box-title">Active subscribers</div>
+            <div id="mSubs" class="metric-box-val">0</div>
           </div>
-          <div class="kpi-card">
-            <div class="kpi-title">Queue Depth</div>
-            <div id="mQueue" class="kpi-number">0</div>
-            <div class="kpi-desc">Total buffered events across fleet</div>
+          <div class="metric-box">
+            <div class="metric-box-title">Subscriber queue depth</div>
+            <div id="mQueue" class="metric-box-val">0</div>
           </div>
-          <div class="kpi-card">
-            <div class="kpi-title">Rejections (400)</div>
-            <div id="mRejections" class="kpi-number" style="color: var(--status-err);">0</div>
-            <div class="kpi-desc">Invalid changesets aborted atomically</div>
+          <div class="metric-box">
+            <div class="metric-box-title">Rejections (400)</div>
+            <div id="mRejections" class="metric-box-val" style="color: var(--error-red);">0</div>
           </div>
-          <div class="kpi-card">
-            <div class="kpi-title">Max Lag Observed</div>
-            <div id="mMaxLag" class="kpi-number">0</div>
-            <div class="kpi-desc">Highest delta sequence gap healed</div>
+          <div class="metric-box">
+            <div class="metric-box-title">Max lag observed</div>
+            <div id="mMaxLag" class="metric-box-val">0</div>
           </div>
-          <div class="kpi-card">
-            <div class="kpi-title">Catch-Up Requests</div>
-            <div id="mCatchups" class="kpi-number">0</div>
-            <div class="kpi-desc">REST /deltas?since_version= queries</div>
+          <div class="metric-box">
+            <div class="metric-box-title">Catch-up queries</div>
+            <div id="mCatchups" class="metric-box-val">0</div>
           </div>
-          <div class="kpi-card">
-            <div class="kpi-title">JVM Uptime</div>
-            <div id="mUptime" class="kpi-number">0s</div>
-            <div class="kpi-desc">Process runtime elapsed</div>
+          <div class="metric-box">
+            <div class="metric-box-title">JVM uptime</div>
+            <div id="mUptime" class="metric-box-val">0s</div>
           </div>
-          <div class="kpi-card">
-            <div class="kpi-title">Heap Memory</div>
-            <div id="mMemory" class="kpi-number">0 MB</div>
-            <div class="kpi-desc">Used process heap space</div>
+          <div class="metric-box">
+            <div class="metric-box-title">Heap memory</div>
+            <div id="mMemory" class="metric-box-val">0 MB</div>
           </div>
         </div>
       </div>
 
     </main>
 
-    <!-- Right Live SSE Stream Pane -->
+    <!-- Right Event Stream Log -->
     <aside class="stream-pane">
-      <div class="stream-pane-header">
-        <span class="stream-pane-title">Live SSE Event Stream</span>
-        <span id="streamCount" class="stream-count-label">0 events</span>
+      <div class="stream-pane-top">
+        <span class="stream-pane-heading">Live event stream</span>
+        <span id="eventCount" style="font-size: 11px; color: var(--text-dim);">0 events</span>
       </div>
-
-      <div id="streamLog" class="stream-events-scroll">
-        <div style="font-size: 0.75rem; color: var(--text-muted); text-align: center; padding: 2rem 1rem;">
-          Subscribed to live server broadcast stream...
-        </div>
+      <div id="logStream" class="stream-log-list">
+        <div class="log-empty-muted">Waiting for changes...</div>
       </div>
     </aside>
 
   </div>
 
-  <!-- Publish Changeset Modal -->
-  <dialog id="publishModal" class="app-dialog" aria-labelledby="publishModalTitle">
-    <div class="dialog-header">
-      <h2 id="publishModalTitle">Publish Configuration Changeset</h2>
-      <button class="dialog-close-btn" onclick="closePublishModal()" aria-label="Close">&times;</button>
+  <!-- Publish Modal -->
+  <dialog id="publishModal" class="modal">
+    <div class="modal-head">
+      <h3>Publish policy change</h3>
+      <button class="modal-close" onclick="closePublishModal()">&times;</button>
     </div>
-    <form id="publishForm" onsubmit="handlePublishSubmit(event)">
-      <div class="dialog-body">
-        
-        <div class="form-ctrl-group">
-          <label for="dlgKey">Policy Key</label>
-          <select id="dlgKey" required onchange="handleModalKeyChange()"></select>
-          <div id="dlgKeyDesc" class="field-hint"></div>
+    <form id="publishForm" onsubmit="handlePublish(event)">
+      <div class="modal-content">
+        <div class="form-item">
+          <label for="fKey">Key</label>
+          <select id="fKey" required onchange="handleKeyChange()"></select>
+          <div id="fKeyHint" style="font-size: 11px; color: var(--text-muted); margin-top: 2px;"></div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
-          <div class="form-ctrl-group">
-            <label for="dlgScope">Precedence Tier</label>
-            <select id="dlgScope" required onchange="handleModalScopeChange()">
-              <option value="OFFICE" selected>OFFICE (Specific Campus)</option>
-              <option value="CLIENT">CLIENT (Entire Fleet)</option>
-              <option value="SHIFT">SHIFT (Specific Shift)</option>
-              <option value="GLOBAL">GLOBAL (All Clients)</option>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem;">
+          <div class="form-item">
+            <label for="fScope">Scope</label>
+            <select id="fScope" required onchange="handleScopeChange()">
+              <option value="OFFICE" selected>Office</option>
+              <option value="CLIENT">Client</option>
+              <option value="SHIFT">Shift</option>
+              <option value="GLOBAL">Global</option>
             </select>
           </div>
-
-          <div class="form-ctrl-group" id="dlgOfficeGroup">
-            <label for="dlgOfficeId">Office Identifier</label>
-            <input type="text" id="dlgOfficeId" value="BLR_CAMPUS" required>
+          <div class="form-item" id="fOfficeGroup">
+            <label for="fOffice">Office</label>
+            <input type="text" id="fOffice" value="BLR_CAMPUS" required>
           </div>
         </div>
 
-        <div class="form-ctrl-group" id="dlgShiftGroup" style="display: none;">
-          <label for="dlgShiftId">Shift Identifier</label>
-          <input type="text" id="dlgShiftId" value="NIGHT">
+        <div class="form-item" id="fShiftGroup" style="display: none;">
+          <label for="fShift">Shift</label>
+          <input type="text" id="fShift" value="NIGHT">
         </div>
 
-        <div class="form-ctrl-group">
-          <label for="dlgValue">Override Value</label>
-          <input type="text" id="dlgValue" required placeholder="e.g. 30">
-          <div id="dlgBoundsHint" class="field-hint"></div>
+        <div class="form-item">
+          <label for="fVal">Value</label>
+          <input type="text" id="fVal" required placeholder="e.g. 30">
+          <div id="fValHint" style="font-size: 11px; color: var(--text-muted); margin-top: 2px;"></div>
         </div>
 
-        <div class="form-ctrl-group">
-          <label style="display: flex; align-items: center; gap: 0.45rem; cursor: pointer;">
-            <input type="checkbox" id="dlgCanaryCheck">
-            <span>Staged Canary Trial (target BLR-1 only)</span>
+        <div class="form-item">
+          <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; font-weight: normal;">
+            <input type="checkbox" id="fCanary">
+            <span>Canary trial (target BLR-1 only)</span>
           </label>
-          <div class="field-hint">Emits an empty delta to non-canary offices to advance their version counters without data bleed.</div>
         </div>
 
-        <div class="form-ctrl-group">
-          <label for="dlgReason">Audit Reason</label>
-          <input type="text" id="dlgReason" value="Adjusting dispatch cutoff window" required>
+        <div class="form-item">
+          <label for="fReason">Reason</label>
+          <input type="text" id="fReason" value="Operational adjustment" required>
         </div>
-
       </div>
-      <div class="dialog-footer">
-        <button type="button" class="btn-action btn-action-secondary" onclick="closePublishModal()">Cancel</button>
-        <button type="submit" id="btnSubmitChangeset" class="btn-action btn-action-primary">Commit &amp; Broadcast</button>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-secondary" onclick="closePublishModal()">Cancel</button>
+        <button type="submit" id="btnSubmit" class="btn btn-primary">Commit &amp; broadcast</button>
       </div>
     </form>
   </dialog>
 
-  <!-- Lineage Audit Modal -->
-  <dialog id="lineageModal" class="app-dialog" aria-labelledby="lineageModalTitle">
-    <div class="dialog-header">
-      <h2 id="lineageModalTitle">Resolution Lineage Trace</h2>
-      <button class="dialog-close-btn" onclick="closeLineageModal()" aria-label="Close">&times;</button>
+  <!-- Lineage Modal -->
+  <dialog id="lineageModal" class="modal">
+    <div class="modal-head">
+      <h3>Resolution trace</h3>
+      <button class="modal-close" onclick="closeLineageModal()">&times;</button>
     </div>
-    <div class="dialog-body">
-      <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">
-        Deterministic 4-tier evaluation for this key under active scope:
-      </p>
-      <div id="lineageSteps" style="display: flex; flex-direction: column; gap: 0.4rem; font-family: var(--font-mono); font-size: 0.75rem;"></div>
+    <div class="modal-content">
+      <div id="lineageList" style="display: flex; flex-direction: column; gap: 0.35rem; font-family: var(--font-mono); font-size: 11px;"></div>
     </div>
-    <div class="dialog-footer">
-      <button type="button" class="btn-action btn-action-secondary" onclick="closeLineageModal()">Close</button>
+    <div class="modal-foot">
+      <button type="button" class="btn btn-secondary" onclick="closeLineageModal()">Close</button>
     </div>
   </dialog>
 
-  <!-- Toast Center -->
-  <div id="toastTray" class="toast-tray"></div>
+  <div id="toastBox" class="toast-box"></div>
 
   <script>
     const API_KEY = "admin-root-key";
     let eventSource = null;
     let registeredDefinitions = {};
     let currentSnapshot = { version: 0, overrides: {}, definitions: {} };
-    let sseCount = 0;
+    let streamEventsCount = 0;
 
     window.addEventListener('DOMContentLoaded', async () => {
       await fetchDefinitions();
@@ -1028,248 +853,270 @@
       initSse();
       setInterval(fetchMetrics, 3500);
 
-      document.getElementById('tenantSelect').addEventListener('change', () => {
-        refreshSnapshot();
-        initSse();
-      });
-      document.getElementById('officeSelect').addEventListener('change', refreshSnapshot);
-      document.getElementById('shiftSelect').addEventListener('change', refreshSnapshot);
+      document.getElementById('selClient').addEventListener('change', () => { refreshSnapshot(); initSse(); });
+      document.getElementById('selOffice').addEventListener('change', refreshSnapshot);
+      document.getElementById('selShift').addEventListener('change', refreshSnapshot);
     });
 
-    function switchTab(tab) {
-      document.getElementById('policiesTab').style.display = tab === 'policies' ? 'flex' : 'none';
-      document.getElementById('metricsTab').style.display = tab === 'metrics' ? 'block' : 'none';
-      document.getElementById('navPolicies').classList.toggle('active', tab === 'policies');
-      document.getElementById('navMetrics').classList.toggle('active', tab === 'metrics');
-      if (tab === 'metrics') fetchMetrics();
+    function switchNav(view) {
+      document.getElementById('policiesView').style.display = view === 'policies' ? 'block' : 'none';
+      document.getElementById('metricsView').style.display = view === 'metrics' ? 'block' : 'none';
+      document.getElementById('navPolicies').classList.toggle('active', view === 'policies');
+      document.getElementById('navMetrics').classList.toggle('active', view === 'metrics');
+      if (view === 'metrics') fetchMetrics();
     }
 
     function showToast(msg, isErr = false) {
-      const tray = document.getElementById('toastTray');
-      const toast = document.createElement('div');
-      toast.className = `toast-msg ${isErr ? 'error' : ''}`;
-      toast.textContent = msg;
-      tray.appendChild(toast);
+      const box = document.getElementById('toastBox');
+      const item = document.createElement('div');
+      item.className = `toast-item ${isErr ? 'error' : ''}`;
+      item.textContent = msg;
+      box.appendChild(item);
       setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transition = 'opacity 0.2s';
-        setTimeout(() => toast.remove(), 200);
+        item.style.opacity = '0';
+        item.style.transition = 'opacity 0.2s';
+        setTimeout(() => item.remove(), 200);
       }, 3500);
     }
 
     async function fetchDefinitions() {
       try {
-        const res = await fetch('/api/v1/config/definitions', {
-          headers: { 'X-API-Key': API_KEY }
-        });
+        const res = await fetch('/api/v1/config/definitions', { headers: { 'X-API-Key': API_KEY } });
         if (res.ok) {
           registeredDefinitions = await res.json();
-          populateKeyDropdown();
+          populateKeys();
         }
       } catch (e) {
-        console.error("Definitions fetch error:", e);
+        console.error(e);
       }
     }
 
     async function refreshSnapshot() {
-      const client = document.getElementById('tenantSelect').value;
-      const office = document.getElementById('officeSelect').value;
+      const client = document.getElementById('selClient').value;
+      const office = document.getElementById('selOffice').value;
       const url = `/api/v1/config/snapshot?client_id=${encodeURIComponent(client)}${office !== 'ALL' ? '&office_id=' + encodeURIComponent(office) : ''}`;
-      
       try {
         const res = await fetch(url, { headers: { 'X-API-Key': API_KEY } });
         if (res.ok) {
           currentSnapshot = await res.json();
-          document.getElementById('globalVersionLabel').textContent = `V${currentSnapshot.version}`;
+          document.getElementById('versionText').textContent = `v${currentSnapshot.version}`;
           renderTable();
         }
       } catch (e) {
-        console.error("Snapshot fetch error:", e);
+        console.error(e);
       }
     }
 
+    // Resolves winning tier AND identifies what parent tier value was overridden
+    function resolveKeyHierarchy(key, client, office, shift) {
+      const o = currentSnapshot.overrides || {};
+      const def = (currentSnapshot.definitions && currentSnapshot.definitions[key]) || registeredDefinitions[key];
+
+      const shiftVal = (client && office && shift && o[`SHIFT:${client}/${office}/${shift}`]) ? o[`SHIFT:${client}/${office}/${shift}`][key] : undefined;
+      const officeVal = (client && office && o[`OFFICE:${client}/${office}`]) ? o[`OFFICE:${client}/${office}`][key] : undefined;
+      const clientVal = (client && o[`CLIENT:${client}`]) ? o[`CLIENT:${client}`][key] : undefined;
+      const globalVal = o['GLOBAL'] ? o['GLOBAL'][key] : undefined;
+      const defaultVal = def ? def.defaultValue : undefined;
+
+      if (shiftVal !== undefined) {
+        let parentHint = '';
+        if (officeVal !== undefined) parentHint = `overrides Office: ${formatSimple(officeVal)}`;
+        else if (clientVal !== undefined) parentHint = `overrides Client: ${formatSimple(clientVal)}`;
+        else if (globalVal !== undefined) parentHint = `overrides Global: ${formatSimple(globalVal)}`;
+        else if (defaultVal !== undefined) parentHint = `overrides Default: ${formatSimple(defaultVal)}`;
+        return { val: shiftVal, scope: 'shift', scopeLabel: `Shift: ${shift}`, hint: parentHint };
+      }
+
+      if (officeVal !== undefined) {
+        let parentHint = '';
+        if (clientVal !== undefined) parentHint = `overrides Client: ${formatSimple(clientVal)}`;
+        else if (globalVal !== undefined) parentHint = `overrides Global: ${formatSimple(globalVal)}`;
+        else if (defaultVal !== undefined) parentHint = `overrides Default: ${formatSimple(defaultVal)}`;
+        return { val: officeVal, scope: 'office', scopeLabel: `Office: ${office}`, hint: parentHint };
+      }
+
+      if (clientVal !== undefined) {
+        let parentHint = '';
+        if (globalVal !== undefined) parentHint = `overrides Global: ${formatSimple(globalVal)}`;
+        else if (defaultVal !== undefined) parentHint = `overrides Default: ${formatSimple(defaultVal)}`;
+        return { val: clientVal, scope: 'client', scopeLabel: `Client: ${client}`, hint: parentHint };
+      }
+
+      if (globalVal !== undefined) {
+        let parentHint = '';
+        if (defaultVal !== undefined) parentHint = `overrides Default: ${formatSimple(defaultVal)}`;
+        return { val: globalVal, scope: 'global', scopeLabel: 'Global', hint: parentHint };
+      }
+
+      if (defaultVal !== undefined) {
+        return { val: defaultVal, scope: 'default', scopeLabel: 'Default', hint: '' };
+      }
+
+      return { val: '—', scope: 'default', scopeLabel: 'Unset', hint: '' };
+    }
+
+    function formatSimple(v) {
+      if (typeof v === 'boolean') return v ? 'true' : 'false';
+      return String(v);
+    }
+
     function renderTable() {
-      const tbody = document.getElementById('policyTableBody');
-      const client = document.getElementById('tenantSelect').value;
-      const office = document.getElementById('officeSelect').value !== 'ALL' ? document.getElementById('officeSelect').value : null;
-      const shift = document.getElementById('shiftSelect').value !== 'ALL' ? document.getElementById('shiftSelect').value : null;
+      const tbody = document.getElementById('tableBody');
+      const client = document.getElementById('selClient').value;
+      const office = document.getElementById('selOffice').value !== 'ALL' ? document.getElementById('selOffice').value : null;
+      const shift = document.getElementById('selShift').value !== 'ALL' ? document.getElementById('selShift').value : null;
 
       const defs = currentSnapshot.definitions || registeredDefinitions || {};
       const keys = Object.keys(defs);
 
       if (keys.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 3rem;">No policies configured. Click "Pre-seed Standard Policies" below.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">No policies registered.</td></tr>`;
         return;
       }
 
       tbody.innerHTML = '';
-      for (const key of keys) {
-        const def = defs[key];
-        const res = resolveHierarchy(key, client, office, shift);
+      for (const k of keys) {
+        const def = defs[k];
+        const res = resolveKeyHierarchy(k, client, office, shift);
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>
-            <div class="key-title">${key}</div>
-            <div class="key-subtext">${def.description || ''}</div>
+            <div class="cell-key">${k}</div>
+            <div class="cell-desc">${def.description || ''}</div>
           </td>
           <td>
-            <span class="val-strong">${formatVal(res.val, def.type)}</span>
+            <span class="cell-val">${formatVal(res.val, def.type)}</span>
           </td>
           <td>
-            <span class="scope-pill ${res.scope.toLowerCase()}">${res.scopeLabel}</span>
+            <div><span class="tier-badge ${res.scope}">${res.scopeLabel}</span></div>
+            ${res.hint ? `<div class="tier-overrides-hint">${res.hint}</div>` : ''}
           </td>
-          <td>
-            <span style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted);">${def.type}</span>
-          </td>
-          <td>
-            <span style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted);">${formatConstraints(def.validationRule)}</span>
-          </td>
+          <td style="color: var(--text-muted);">${formatType(def.type)}</td>
+          <td style="color: var(--text-muted);">${formatBounds(def.validationRule)}</td>
           <td style="text-align: right;">
-            <button class="btn-row-action" onclick="openOverride('${key}')">Override</button>
-            <button class="btn-row-action" onclick="openLineage('${key}')">Lineage</button>
+            <button class="btn-cell" onclick="openOverride('${k}')">Override</button>
+            <button class="btn-cell" onclick="openLineage('${k}')">Lineage</button>
           </td>
         `;
         tbody.appendChild(tr);
       }
     }
 
-    function resolveHierarchy(key, client, office, shift) {
-      const o = currentSnapshot.overrides || {};
-
-      if (client && office && shift) {
-        const p = `SHIFT:${client}/${office}/${shift}`;
-        if (o[p] && o[p][key] !== undefined) return { val: o[p][key], scope: 'shift', scopeLabel: `SHIFT:${shift}` };
-      }
-      if (client && office) {
-        const p = `OFFICE:${client}/${office}`;
-        if (o[p] && o[p][key] !== undefined) return { val: o[p][key], scope: 'office', scopeLabel: `OFFICE:${office}` };
-      }
-      if (client) {
-        const p = `CLIENT:${client}`;
-        if (o[p] && o[p][key] !== undefined) return { val: o[p][key], scope: 'client', scopeLabel: `CLIENT:${client}` };
-      }
-      if (o['GLOBAL'] && o['GLOBAL'][key] !== undefined) {
-        return { val: o['GLOBAL'][key], scope: 'global', scopeLabel: 'GLOBAL' };
-      }
-      const def = (currentSnapshot.definitions && currentSnapshot.definitions[key]) || registeredDefinitions[key];
-      if (def && def.defaultValue !== undefined) {
-        return { val: def.defaultValue, scope: 'default', scopeLabel: 'DEFAULT' };
-      }
-      return { val: '—', scope: 'default', scopeLabel: 'UNSET' };
-    }
-
     function formatVal(v, type) {
       if (v === null || v === undefined) return '—';
-      if (type === 'DURATION_MINUTES') return `${v} min`;
-      if (typeof v === 'boolean') return v ? 'TRUE' : 'FALSE';
+      if (type === 'DURATION_MINUTES') return `${v}m`;
+      if (typeof v === 'boolean') return v ? 'true' : 'false';
       return String(v);
     }
 
-    function formatConstraints(r) {
+    function formatType(t) {
+      if (t === 'DURATION_MINUTES') return 'Duration';
+      if (t === 'BOOLEAN') return 'Boolean';
+      if (t === 'DOUBLE') return 'Decimal';
+      if (t === 'INTEGER') return 'Integer';
+      return 'String';
+    }
+
+    function formatBounds(r) {
       if (!r) return 'None';
       const c = [];
       if (r.minDurationMinutes !== null && r.minDurationMinutes !== undefined) c.push(`≥ ${r.minDurationMinutes}m`);
       if (r.maxDurationMinutes !== null && r.maxDurationMinutes !== undefined) c.push(`≤ ${r.maxDurationMinutes}m`);
       if (r.minNumber !== null && r.minNumber !== undefined) c.push(`≥ ${r.minNumber}`);
       if (r.maxNumber !== null && r.maxNumber !== undefined) c.push(`≤ ${r.maxNumber}`);
-      return c.length ? c.join(', ') : 'Standard';
+      return c.length ? c.join(', ') : 'None';
     }
 
-    // Real-time SSE with api_key query param for EventSource support
+    // SSE connection with api_key query param for authentication
     function initSse() {
       if (eventSource) eventSource.close();
-      const client = document.getElementById('tenantSelect').value;
+      const client = document.getElementById('selClient').value;
       const url = `/api/v1/config/stream?client_id=${encodeURIComponent(client)}&office_id=ALL&api_key=${encodeURIComponent(API_KEY)}`;
 
       eventSource = new EventSource(url);
-      const badge = document.getElementById('sseBadge');
-      const text = document.getElementById('sseText');
-      const dot = badge.querySelector('.status-dot');
+      const dot = document.getElementById('liveDot');
+      const text = document.getElementById('liveText');
 
       eventSource.onopen = () => {
-        badge.classList.remove('disconnected');
         dot.classList.remove('disconnected');
-        text.textContent = 'STREAM LIVE';
+        text.textContent = 'Live';
       };
 
       eventSource.onerror = () => {
-        badge.classList.add('disconnected');
         dot.classList.add('disconnected');
-        text.textContent = 'DISCONNECTED';
+        text.textContent = 'Offline';
       };
 
-      eventSource.addEventListener('delta', (ev) => {
+      eventSource.addEventListener('delta', (e) => {
         try {
-          const delta = JSON.parse(ev.data);
+          const delta = JSON.parse(e.data);
           handleDelta(delta);
-        } catch (e) {
-          console.error("Delta parse error:", e);
+        } catch (err) {
+          console.error(err);
         }
       });
     }
 
     function handleDelta(d) {
-      sseCount++;
-      document.getElementById('streamCount').textContent = `${sseCount} event${sseCount > 1 ? 's' : ''}`;
-      document.getElementById('globalVersionLabel').textContent = `V${d.version}`;
+      streamEventsCount++;
+      document.getElementById('eventCount').textContent = `${streamEventsCount} event${streamEventsCount > 1 ? 's' : ''}`;
+      document.getElementById('versionText').textContent = `v${d.version}`;
 
-      const log = document.getElementById('streamLog');
-      if (sseCount === 1) log.innerHTML = '';
+      const log = document.getElementById('logStream');
+      if (streamEventsCount === 1) log.innerHTML = '';
 
-      const entry = document.createElement('div');
-      entry.className = `stream-log-entry ${d.empty ? 'canary-empty' : ''}`;
+      const row = document.createElement('div');
+      row.className = 'log-row';
 
-      const t = new Date(d.timestamp || Date.now()).toLocaleTimeString();
-      const scope = d.scopeKey ? `${d.scopeKey.scope}${d.scopeKey.officeId ? ':' + d.scopeKey.officeId : ''}` : 'GLOBAL';
+      const time = new Date(d.timestamp || Date.now()).toTimeString().split(' ')[0];
+      const targetScope = d.scopeKey ? `${d.scopeKey.scope}${d.scopeKey.officeId ? ':' + d.scopeKey.officeId : ''}` : 'GLOBAL';
 
       let diff = '';
       if (d.empty) {
-        diff = `<div style="color: var(--text-muted); font-style: italic;">[Empty delta: Monotonic alignment for non-canary node]</div>`;
+        diff = `<span class="log-empty-muted">Empty delta (canary alignment)</span>`;
       } else if (d.updates) {
-        for (const [k, v] of Object.entries(d.updates)) {
-          diff += `<div><strong>${k}</strong> &rarr; ${v}</div>`;
-        }
+        diff = Object.entries(d.updates).map(([k, v]) => `${k} &rarr; <strong>${v}</strong>`).join(', ');
       }
 
-      entry.innerHTML = `
-        <div class="log-top">
-          <span class="log-ver">VERSION ${d.version}</span>
-          <span class="log-timestamp">${t}</span>
+      row.innerHTML = `
+        <div class="log-row-top">
+          <span class="log-ver-step">v${d.version}</span>
+          <span>${time}</span>
         </div>
-        <span class="log-scope">${scope}</span>
-        <div class="log-diff-box">${diff}</div>
+        <div class="log-diff-line">${diff}</div>
+        <div style="font-size: 10px; color: var(--text-dim);">${targetScope}</div>
       `;
 
-      log.insertBefore(entry, log.firstChild);
+      log.insertBefore(row, log.firstChild);
       refreshSnapshot();
     }
 
-    function populateKeyDropdown() {
-      const sel = document.getElementById('dlgKey');
+    function populateKeys() {
+      const sel = document.getElementById('fKey');
       sel.innerHTML = '';
       for (const [k, def] of Object.entries(registeredDefinitions)) {
         const o = document.createElement('option');
         o.value = k;
-        o.textContent = `${k} (${def.type})`;
+        o.textContent = k;
         sel.appendChild(o);
       }
-      handleModalKeyChange();
+      handleKeyChange();
     }
 
-    function handleModalKeyChange() {
-      const key = document.getElementById('dlgKey').value;
-      const def = registeredDefinitions[key];
+    function handleKeyChange() {
+      const k = document.getElementById('fKey').value;
+      const def = registeredDefinitions[k];
       if (def) {
-        document.getElementById('dlgKeyDesc').textContent = def.description || '';
-        document.getElementById('dlgBoundsHint').textContent = `Bounds: ${formatConstraints(def.validationRule)} (Default: ${def.defaultValue})`;
+        document.getElementById('fKeyHint').textContent = def.description || '';
+        document.getElementById('fValHint').textContent = `Constraints: ${formatBounds(def.validationRule)} (Default: ${def.defaultValue})`;
       }
     }
 
-    function handleModalScopeChange() {
-      const sc = document.getElementById('dlgScope').value;
-      document.getElementById('dlgOfficeGroup').style.display = (sc === 'OFFICE' || sc === 'SHIFT') ? 'block' : 'none';
-      document.getElementById('dlgShiftGroup').style.display = (sc === 'SHIFT') ? 'block' : 'none';
+    function handleScopeChange() {
+      const sc = document.getElementById('fScope').value;
+      document.getElementById('fOfficeGroup').style.display = (sc === 'OFFICE' || sc === 'SHIFT') ? 'block' : 'none';
+      document.getElementById('fShiftGroup').style.display = (sc === 'SHIFT') ? 'block' : 'none';
     }
 
     function openPublishModal() {
@@ -1277,8 +1124,8 @@
     }
 
     function openOverride(k) {
-      document.getElementById('dlgKey').value = k;
-      handleModalKeyChange();
+      document.getElementById('fKey').value = k;
+      handleKeyChange();
       document.getElementById('publishModal').showModal();
     }
 
@@ -1286,20 +1133,19 @@
       document.getElementById('publishModal').close();
     }
 
-    async function handlePublishSubmit(e) {
+    async function handlePublish(e) {
       e.preventDefault();
-      const btn = document.getElementById('btnSubmitChangeset');
+      const btn = document.getElementById('btnSubmit');
       btn.disabled = true;
-      btn.textContent = 'Committing...';
 
-      const key = document.getElementById('dlgKey').value;
-      const raw = document.getElementById('dlgValue').value.trim();
-      const scope = document.getElementById('dlgScope').value;
-      const office = document.getElementById('dlgOfficeId').value.trim();
-      const shift = document.getElementById('dlgShiftId').value.trim();
-      const client = document.getElementById('tenantSelect').value;
-      const canary = document.getElementById('dlgCanaryCheck').checked;
-      const reason = document.getElementById('dlgReason').value.trim();
+      const key = document.getElementById('fKey').value;
+      const raw = document.getElementById('fVal').value.trim();
+      const scope = document.getElementById('fScope').value;
+      const office = document.getElementById('fOffice').value.trim();
+      const shift = document.getElementById('fShift').value.trim();
+      const client = document.getElementById('selClient').value;
+      const canary = document.getElementById('fCanary').checked;
+      const reason = document.getElementById('fReason').value.trim();
 
       const def = registeredDefinitions[key];
       let val = raw;
@@ -1328,31 +1174,32 @@
           headers: { 'Content-Type': 'application/json', 'X-API-Key': API_KEY },
           body: JSON.stringify(payload)
         });
+
         if (res.status === 201) {
           const c = await res.json();
-          showToast(`Committed V${c.version} to WAL and broadcast.`);
+          showToast(`Committed v${c.version} to SQLite WAL.`);
           closePublishModal();
         } else {
           const err = await res.json();
           showToast(`Rejection (${res.status}): ${err.message || 'Validation error'}`, true);
         }
       } catch (err) {
-        showToast(`Request failed: ${err.message}`, true);
+        showToast(`Error: ${err.message}`, true);
       } finally {
         btn.disabled = false;
-        btn.textContent = 'Commit & Broadcast';
       }
     }
 
     async function triggerValidationTest() {
-      const client = document.getElementById('tenantSelect').value;
+      const client = document.getElementById('selClient').value;
       const payload = {
         scopeKey: { scope: 'CLIENT', clientId: client },
         stagedOffices: [],
         updates: { booking_cutoff_minutes: -30 },
         author: 'test-runner',
-        reason: 'Fault injection test'
+        reason: 'Negative duration validation check'
       };
+
       try {
         const res = await fetch('/api/v1/config/changeset', {
           method: 'POST',
@@ -1361,23 +1208,20 @@
         });
         const err = await res.json();
         if (res.status === 400) {
-          showToast(`HTTP 400 Rejection Verified: ${err.message}`, true);
+          showToast(`HTTP 400 Bad Request: ${err.message}`, true);
         }
       } catch (e) {
-        showToast(`Error: ${e.message}`, true);
+        showToast(e.message, true);
       }
     }
 
     async function seedDefaultPolicies(silent = false) {
-      const btn = document.getElementById('btnSeed');
-      if (btn) btn.disabled = true;
-
       const seeds = [
         {
           key: 'booking_cutoff_minutes',
           type: 'DURATION_MINUTES',
           defaultValue: 45,
-          description: 'Cutoff window for shift cab bookings prior to dispatch generation',
+          description: 'Cutoff window for shift cab bookings',
           validationRule: { minDurationMinutes: 0, maxDurationMinutes: 1440 }
         },
         {
@@ -1418,7 +1262,6 @@
         });
       }
 
-      // Pre-seed an office override for Bangalore
       await fetch('/api/v1/config/changeset', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-API-Key': API_KEY },
@@ -1427,56 +1270,55 @@
           stagedOffices: [],
           updates: { booking_cutoff_minutes: 30 },
           author: 'ops-lead',
-          reason: 'Bangalore traffic optimization'
+          reason: 'Bangalore traffic adjustment'
         })
       });
 
       await fetchDefinitions();
       await refreshSnapshot();
-      if (!silent) showToast('Standard MoveInSync fleet policies seeded.');
-      if (btn) btn.disabled = false;
+      if (!silent) showToast('Reset to standard policies.');
     }
 
-    function openLineage(key) {
-      const client = document.getElementById('tenantSelect').value;
-      const office = document.getElementById('officeSelect').value !== 'ALL' ? document.getElementById('officeSelect').value : 'BLR_CAMPUS';
-      const shift = document.getElementById('shiftSelect').value !== 'ALL' ? document.getElementById('shiftSelect').value : null;
+    function openLineage(k) {
+      const client = document.getElementById('selClient').value;
+      const office = document.getElementById('selOffice').value !== 'ALL' ? document.getElementById('selOffice').value : 'BLR_CAMPUS';
+      const shift = document.getElementById('selShift').value !== 'ALL' ? document.getElementById('selShift').value : null;
 
       const o = currentSnapshot.overrides || {};
-      const def = (currentSnapshot.definitions && currentSnapshot.definitions[key]) || registeredDefinitions[key];
+      const def = (currentSnapshot.definitions && currentSnapshot.definitions[k]) || registeredDefinitions[k];
 
       const steps = [
-        { scope: 'SHIFT', path: `SHIFT:${client}/${office}/${shift}`, val: shift && o[`SHIFT:${client}/${office}/${shift}`] ? o[`SHIFT:${client}/${office}/${shift}`][key] : null },
-        { scope: 'OFFICE', path: `OFFICE:${client}/${office}`, val: o[`OFFICE:${client}/${office}`] ? o[`OFFICE:${client}/${office}`][key] : null },
-        { scope: 'CLIENT', path: `CLIENT:${client}`, val: o[`CLIENT:${client}`] ? o[`CLIENT:${client}`][key] : null },
-        { scope: 'GLOBAL', path: 'GLOBAL', val: o['GLOBAL'] ? o['GLOBAL'][key] : null },
-        { scope: 'DEFAULT', path: 'SettingDefinition', val: def ? def.defaultValue : null }
+        { scope: 'Shift', path: `SHIFT:${client}/${office}/${shift}`, val: shift && o[`SHIFT:${client}/${office}/${shift}`] ? o[`SHIFT:${client}/${office}/${shift}`][k] : null },
+        { scope: 'Office', path: `OFFICE:${client}/${office}`, val: o[`OFFICE:${client}/${office}`] ? o[`OFFICE:${client}/${office}`][k] : null },
+        { scope: 'Client', path: `CLIENT:${client}`, val: o[`CLIENT:${client}`] ? o[`CLIENT:${client}`][k] : null },
+        { scope: 'Global', path: 'GLOBAL', val: o['GLOBAL'] ? o['GLOBAL'][k] : null },
+        { scope: 'Default', path: 'SettingDefinition', val: def ? def.defaultValue : null }
       ];
 
-      const cont = document.getElementById('lineageSteps');
+      const cont = document.getElementById('lineageList');
       cont.innerHTML = '';
       let won = false;
 
       for (const s of steps) {
         const div = document.createElement('div');
-        div.style.padding = '0.45rem 0.65rem';
-        div.style.borderRadius = '4px';
+        div.style.padding = '0.4rem 0.55rem';
+        div.style.borderRadius = 'var(--radius)';
         div.style.border = '1px solid var(--border)';
         div.style.display = 'flex';
         div.style.justifyContent = 'space-between';
 
         if (s.val !== null && s.val !== undefined && !won) {
-          div.style.background = '#ecfdf5';
-          div.style.borderColor = '#10b981';
-          div.innerHTML = `<span><strong>[WINNER] ${s.scope}</strong> (${s.path})</span><span>Value: <strong>${s.val}</strong></span>`;
+          div.style.background = '#f0fdf4';
+          div.style.borderColor = '#bbf7d0';
+          div.innerHTML = `<span><strong>[Active] ${s.scope}</strong> (${s.path})</span><span>${s.val}</span>`;
           won = true;
         } else if (s.val !== null && s.val !== undefined && won) {
           div.style.opacity = '0.5';
           div.style.textDecoration = 'line-through';
-          div.innerHTML = `<span>[OVERRIDDEN] ${s.scope} (${s.path})</span><span>Value: ${s.val}</span>`;
+          div.innerHTML = `<span>${s.scope} (${s.path})</span><span>${s.val}</span>`;
         } else {
           div.style.opacity = '0.35';
-          div.innerHTML = `<span>[NOT SET] ${s.scope}</span><span>—</span>`;
+          div.innerHTML = `<span>${s.scope}</span><span>—</span>`;
         }
         cont.appendChild(div);
       }
@@ -1503,7 +1345,7 @@
           document.getElementById('mMemory').textContent = `${m.jvm_memory_used_mb || 0} MB`;
         }
       } catch (e) {
-        console.error("Metrics poll error:", e);
+        console.error(e);
       }
     }
   </script>
