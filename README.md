@@ -251,7 +251,29 @@ docker compose up --build
 
 ---
 
-## 8. Trade-offs & Architecture Limitations
+## 8. Time & Space Complexity Analysis
+
+| Operation / Path | Time Complexity | Auxiliary Space | Bottleneck / Scaling Boundary |
+|---|---|---|---|
+| **Local 4-Tier Read (`client.resolve`)** | $\mathcal{O}(1)$ (bounded $\le 5$ lookups) | $\mathcal{O}(1)$ | Pure in-memory hash bucket lookup; zero locks, zero allocations. |
+| **Changeset Validation (`POST /changeset`)** | $\mathcal{O}(K)$ ($K$ keys in payload) | $\mathcal{O}(K)$ | CPU-bound rule evaluation; scales linearly with changeset size. |
+| **Single-Writer Commit (`SQLite WAL fsync`)** | $\mathcal{O}(K + \text{fsync})$ | $\mathcal{O}(K)$ | Disk I/O sync latency (~500–1,000 writes/sec hardware limit). |
+| **Server SSE Broadcast (`SseBroadcaster`)** | $\mathcal{O}(S \cdot K)$ ($S$ subscribers) | $\mathcal{O}(S)$ | Single-node socket/memory limits (C10K boundary ~5k–10k clients). |
+| **Client Delta Ingestion (`ConfigSnapshot`)** | $\mathcal{O}(N + K)$ ($N$ total overrides) | $\mathcal{O}(N + K)$ | Immutable snapshot map copy; garbage collection if $N > 50\text{k}$. |
+
+### Detailed Algorithmic Breakdown:
+- **Read Path ($\mathcal{O}(1)$ Time, $\mathcal{O}(1)$ Space):** The lookup strictly follows `SHIFT -> OFFICE -> CLIENT -> GLOBAL -> Default`. Each scope tier is a direct hash map lookup (`Map<String, Map<String, Object>>`). Because hierarchy depth is fixed at 4 scopes plus 1 default lookup, execution time is constant ($\mathcal{O}(1)$) and lock-free via `AtomicReference`.
+- **Write Path ($\mathcal{O}(K)$ Time, $\mathcal{O}(K)$ Space):** Validation processes $K$ keys against registered `SettingDefinition` constraints in $\mathcal{O}(K)$ time. Monotonic version increment under `ReentrantLock` writer mutex is $\mathcal{O}(1)$. Writing to SQLite WAL is $\mathcal{O}(K)$ payload serialization plus 1 fsync call before returning HTTP 201.
+- **Client Delta Ingestion ($\mathcal{O}(N + K)$ Time, $\mathcal{O}(S \cdot K)$ Memory):** Incoming deltas clone existing scope maps and insert new overrides in $\mathcal{O}(N + K)$ time before swapping the `AtomicReference` pointer in $\mathcal{O}(1)$ time. Client heap space is bounded to $\mathcal{O}(S \cdot K)$ where $S$ is active scopes and $K$ is keys per scope (< 500 KB for typical fleets).
+
+### Where the System Stops Scaling:
+1. **Write Throughput Bottleneck:** The serialized SQLite single-writer pattern caps write throughput to physical disk sync latency (~500–1,000 writes/sec). Multi-region scaling would require sharding by tenant or migrating to distributed consensus (e.g., CockroachDB / Raft).
+2. **SSE Fan-Out & File Descriptors (C10K Boundary):** In-process `ArrayBlockingQueue` per client is bounded by JVM heap and OS file descriptors (~5,000–10,000 connections). Beyond this, an external message broker (Kafka or Redis Streams) with stateless SSE edge nodes is needed.
+3. **Client Memory Footprint at High Key Volumes:** Since client-side delta application reconstructs an unmodifiable copy of the scope map, datasets exceeding 50,000 keys would incur noticeable GC allocation pauses during frequent updates.
+
+---
+
+## 9. Trade-offs & Architecture Limitations
 
 1. **Global Monotonic Versions vs Per-Tenant Versioning:**
    - *Design Choice:* The server uses a single monotonically increasing version sequence guarded by a reentrant writer lock. This makes total order reasoning and gap detection trivial.
@@ -263,7 +285,7 @@ docker compose up --build
    - *Capacity:* Capacity depends on file descriptors, blocking SDK reader threads, dispatch threads, and heap. The test targets 500 reconnecting clients; 10,000+ subscribers have not been demonstrated.
    - *Multi-Node Clustering:* To scale horizontally across multiple instances, an external message broker (e.g., Redis Pub/Sub or Kafka) would fan out changesets across servers.
 
-## 9. Submitted Dossier and Implementation Follow-up
+## 10. Submitted Dossier and Implementation Follow-up
 
 The previously submitted PDF has been removed from this repository and distribution ZIP; the already-submitted external copy cannot be changed. Follow-up commits add Bearer-header support and the typed SDK call shown in its concurrency example:
 
