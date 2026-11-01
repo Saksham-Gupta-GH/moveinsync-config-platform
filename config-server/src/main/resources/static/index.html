@@ -3,43 +3,48 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MoveInSync Policies</title>
+  <title>MoveInSync Fleet Configuration Engine</title>
   <style>
     :root {
-      --bg: #f8fafc;
+      --bg: #f9fafb;
       --surface: #ffffff;
-      --border: #e2e8f0;
-      --border-subtle: #f1f5f9;
+      --surface-subtle: #f3f4f6;
+      --border: #e5e7eb;
+      --border-strong: #d1d5db;
       --border-focus: #0284c7;
 
-      --text: #0f172a;
-      --text-muted: #64748b;
-      --text-dim: #94a3b8;
+      --text: #111827;
+      --text-secondary: #4b5563;
+      --text-muted: #6b7280;
+      --text-dim: #9ca3af;
 
+      --primary: #0f172a;
+      --primary-hover: #1e293b;
       --accent: #0284c7;
       --accent-hover: #0369a1;
 
-      --live-green: #10b981;
-      --error-red: #ef4444;
+      --green: #10b981;
+      --green-bg: #ecfdf5;
+      --green-border: #a7f3d0;
 
-      --tier-office: #0284c7;
-      --tier-office-bg: #f0f9ff;
-      --tier-office-border: #bae6fd;
+      --red: #ef4444;
+      --red-bg: #fef2f2;
+      --red-border: #fecaca;
 
-      --tier-shift: #7c3aed;
-      --tier-shift-bg: #f5f3ff;
-      --tier-shift-border: #ddd6fe;
+      --amber: #d97706;
+      --amber-bg: #fffbeb;
+      --amber-border: #fde68a;
 
-      --tier-client: #d97706;
-      --tier-client-bg: #fffbeb;
-      --tier-client-border: #fde68a;
+      --blue: #2563eb;
+      --blue-bg: #eff6ff;
+      --blue-border: #bfdbfe;
 
-      --tier-global: #475569;
-      --tier-global-bg: #f8fafc;
-      --tier-global-border: #cbd5e1;
+      --purple: #7c3aed;
+      --purple-bg: #f5f3ff;
+      --purple-border: #ddd6fe;
 
-      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", "Helvetica Neue", Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace;
       
       --radius: 6px;
     }
@@ -54,213 +59,188 @@
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      -webkit-font-smoothing: antialiased;
       font-size: 13px;
-      line-height: 1.4;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* Quiet, Minimalist Topbar */
-    header.topbar {
-      height: 48px;
+    /* Top Navigation Bar */
+    header.navbar {
+      height: 52px;
       background: var(--surface);
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 1rem;
+      padding: 0 1.25rem;
       flex-shrink: 0;
-      z-index: 20;
+      z-index: 30;
     }
 
-    .topbar-left {
+    .nav-brand-group {
       display: flex;
       align-items: center;
-      gap: 0.6rem;
+      gap: 0.75rem;
     }
 
-    .brand-mark {
+    .brand-badge {
       font-weight: 700;
-      font-size: 13px;
-      color: #e11d48;
-      letter-spacing: -0.01em;
-    }
-
-    .brand-sep {
-      color: var(--text-dim);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      color: #fff;
+      background: #e11d48;
+      padding: 0.2rem 0.5rem;
+      border-radius: var(--radius);
     }
 
     .brand-title {
       font-size: 13px;
-      font-weight: 500;
-      color: var(--text-muted);
+      font-weight: 600;
+      color: var(--text);
     }
 
-    .topbar-right {
+    .nav-tabs-center {
       display: flex;
       align-items: center;
-      gap: 1.25rem;
+      background: var(--surface-subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2px;
+      gap: 2px;
     }
 
-    .live-status {
+    .nav-tab-btn {
+      background: transparent;
+      border: none;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      padding: 0.3rem 0.75rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.12s ease;
+    }
+
+    .nav-tab-btn:hover {
+      color: var(--text);
+    }
+
+    .nav-tab-btn.active {
+      background: var(--surface);
+      color: var(--text);
+      font-weight: 600;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+    }
+
+    .nav-right-cluster {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .sse-status {
       display: inline-flex;
       align-items: center;
-      gap: 0.4rem;
+      gap: 0.45rem;
       font-size: 12px;
       color: var(--text-muted);
+      font-weight: 500;
     }
 
-    .live-dot {
+    .status-dot {
       width: 7px;
       height: 7px;
       border-radius: 50%;
-      background: var(--live-green);
+      background: var(--green);
     }
 
-    .live-dot.disconnected {
-      background: var(--error-red);
+    .status-dot.disconnected {
+      background: var(--red);
     }
 
-    .version-label {
+    .version-indicator {
       font-family: var(--font-mono);
       font-size: 12px;
       color: var(--text-muted);
+      background: var(--surface-subtle);
+      border: 1px solid var(--border);
+      padding: 0.15rem 0.5rem;
+      border-radius: var(--radius);
     }
 
     .user-pill {
       font-size: 12px;
-      color: var(--text-muted);
-      padding: 0.2rem 0.5rem;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      background: var(--bg);
-    }
-
-    /* Main Container */
-    .app-body {
-      flex: 1;
-      display: grid;
-      grid-template-columns: 200px 1fr 300px;
-      overflow: hidden;
-    }
-
-    /* Clean, Minimal Sidebar */
-    aside.sidebar {
-      background: var(--surface);
-      border-right: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      padding: 0.75rem;
-      gap: 0.25rem;
-    }
-
-    .nav-link {
-      display: flex;
-      align-items: center;
-      padding: 0.45rem 0.65rem;
-      border-radius: var(--radius);
-      font-size: 13px;
       font-weight: 500;
-      color: var(--text-muted);
-      cursor: pointer;
-      border: none;
-      background: transparent;
-      width: 100%;
-      text-align: left;
-      transition: all 0.1s ease;
-    }
-
-    .nav-link:hover {
-      background: var(--bg);
-      color: var(--text);
-    }
-
-    .nav-link.active {
-      background: var(--bg);
-      color: var(--text);
-      font-weight: 600;
-    }
-
-    .sidebar-footer {
-      margin-top: auto;
-      padding-top: 0.75rem;
-      border-top: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-    }
-
-    .btn-quiet {
-      font-size: 11px;
-      color: var(--text-dim);
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      text-align: left;
-      padding: 0.2rem 0.4rem;
-    }
-
-    .btn-quiet:hover {
-      color: var(--text-muted);
-    }
-
-    /* Workspace */
-    main.workspace {
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      padding: 0.18rem 0.55rem;
+      border-radius: var(--radius);
       background: var(--surface);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      border-right: 1px solid var(--border);
     }
 
-    /* Scope Bar & Actions Header */
-    .scope-bar {
-      padding: 0.75rem 1rem;
+    /* Sub-header Filter & Scope Toolbar */
+    .toolbar-subnav {
+      background: var(--surface);
       border-bottom: 1px solid var(--border);
-      background: var(--bg);
+      padding: 0.65rem 1.25rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 0.75rem;
+      gap: 1rem;
       flex-wrap: wrap;
+      flex-shrink: 0;
     }
 
-    .scope-selectors {
+    .scope-controls-row {
       display: flex;
       align-items: center;
-      gap: 0.4rem;
-    }
-
-    .scope-label {
+      gap: 0.5rem;
       font-size: 12px;
-      color: var(--text-muted);
-      margin-right: 0.2rem;
     }
 
-    .scope-select {
+    .scope-controls-row span.label {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .dropdown-control {
       background: var(--surface);
-      border: 1px solid var(--border);
+      border: 1px solid var(--border-strong);
       color: var(--text);
       font-family: inherit;
       font-size: 12px;
-      padding: 0.35rem 0.55rem;
+      font-weight: 500;
+      padding: 0.35rem 0.65rem;
       border-radius: var(--radius);
       outline: none;
       cursor: pointer;
     }
 
-    .scope-select:focus {
+    .dropdown-control:focus {
       border-color: var(--border-focus);
     }
 
-    .scope-sep {
-      color: var(--text-dim);
-      font-size: 12px;
-    }
-
-    .workspace-actions {
+    .precedence-legend {
       display: flex;
       align-items: center;
-      gap: 0.4rem;
+      gap: 0.35rem;
+      font-size: 12px;
+      color: var(--text-muted);
+      border-left: 1px solid var(--border);
+      padding-left: 0.75rem;
+      margin-left: 0.25rem;
+    }
+
+    .precedence-legend strong {
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    .actions-cluster {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
     }
 
     .btn {
@@ -271,10 +251,10 @@
       border-radius: var(--radius);
       border: 1px solid transparent;
       cursor: pointer;
-      transition: all 0.1s ease;
       display: inline-flex;
       align-items: center;
       gap: 0.35rem;
+      transition: all 0.1s ease;
     }
 
     .btn-primary {
@@ -288,45 +268,51 @@
 
     .btn-secondary {
       background: var(--surface);
-      border-color: var(--border);
+      border-color: var(--border-strong);
       color: var(--text);
     }
 
     .btn-secondary:hover {
-      background: var(--bg);
+      background: var(--surface-subtle);
     }
 
-    /* Sub-header Precedence Line */
-    .precedence-line {
-      padding: 0.5rem 1rem;
-      border-bottom: 1px solid var(--border);
-      background: var(--surface);
-      font-size: 12px;
+    .btn-quiet {
+      background: transparent;
+      border-color: transparent;
       color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
+      font-size: 11px;
     }
 
-    .precedence-chain {
+    .btn-quiet:hover {
       color: var(--text);
-      font-weight: 500;
+      background: var(--surface-subtle);
     }
 
-    /* Dense Data Table */
-    .table-wrap {
+    /* Main Dual-Pane Workspace */
+    .main-workspace {
       flex: 1;
-      overflow: auto;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      overflow: hidden;
+      background: var(--surface);
     }
 
-    table.dense-table {
+    /* Policies Table Container */
+    .table-view-container {
+      overflow-y: auto;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+    }
+
+    table.data-table {
       width: 100%;
       border-collapse: collapse;
       font-size: 12px;
       text-align: left;
     }
 
-    table.dense-table thead {
+    table.data-table thead {
       position: sticky;
       inset-block-start: 0;
       background: var(--bg);
@@ -334,90 +320,96 @@
       z-index: 10;
     }
 
-    table.dense-table th {
-      padding: 0.55rem 1rem;
-      font-weight: 500;
+    table.data-table th {
+      padding: 0.55rem 1.25rem;
+      font-weight: 600;
       font-size: 11px;
       color: var(--text-muted);
       border-bottom: 1px solid var(--border);
       white-space: nowrap;
     }
 
-    table.dense-table td {
-      padding: 0.65rem 1rem;
+    table.data-table td {
+      padding: 0.65rem 1.25rem;
       border-bottom: 1px solid var(--border);
       vertical-align: middle;
       color: var(--text);
-      height: 44px;
+      height: 48px;
     }
 
-    table.dense-table tbody tr:hover {
+    table.data-table tbody tr:hover {
       background: var(--bg);
     }
 
-    .cell-key {
+    .key-name {
       font-family: var(--font-mono);
       font-weight: 600;
       font-size: 12px;
+      color: var(--text);
     }
 
-    .cell-desc {
+    .key-subline {
       font-size: 11px;
       color: var(--text-muted);
       margin-top: 2px;
+      line-height: 1.3;
     }
 
-    .cell-val {
+    .val-text {
       font-family: var(--font-mono);
       font-weight: 600;
       font-size: 12px;
+      color: var(--text);
     }
 
-    .tier-badge {
+    .tier-tag {
       display: inline-block;
       font-size: 11px;
-      font-weight: 500;
+      font-weight: 600;
       padding: 0.15rem 0.45rem;
       border-radius: var(--radius);
       border: 1px solid transparent;
     }
 
-    .tier-badge.shift { background: var(--tier-shift-bg); color: var(--tier-shift); border-color: var(--tier-shift-border); }
-    .tier-badge.office { background: var(--tier-office-bg); color: var(--tier-office); border-color: var(--tier-office-border); }
-    .tier-badge.client { background: var(--tier-client-bg); color: var(--tier-client); border-color: var(--tier-client-border); }
-    .tier-badge.global { background: var(--tier-global-bg); color: var(--tier-global); border-color: var(--tier-global-border); }
-    .tier-badge.default { background: var(--bg); color: var(--text-muted); border-color: var(--border); }
+    .tier-tag.shift { background: var(--purple-bg); color: var(--purple); border-color: var(--purple-border); }
+    .tier-tag.office { background: var(--blue-bg); color: var(--blue); border-color: var(--blue-border); }
+    .tier-tag.client { background: var(--amber-bg); color: var(--amber); border-color: var(--amber-border); }
+    .tier-tag.global { background: var(--surface-subtle); color: var(--text-secondary); border-color: var(--border-strong); }
+    .tier-tag.default { background: var(--bg); color: var(--text-muted); border-color: var(--border); }
 
-    .tier-overrides-hint {
+    .lineage-hint {
       font-size: 11px;
       color: var(--text-dim);
       margin-top: 2px;
     }
 
-    .btn-cell {
+    .btn-table-action {
       background: transparent;
-      border: 1px solid var(--border);
+      border: 1px solid var(--border-strong);
       font-size: 11px;
-      color: var(--text-muted);
-      padding: 0.2rem 0.45rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      padding: 0.22rem 0.5rem;
       border-radius: var(--radius);
       cursor: pointer;
+      transition: all 0.1s ease;
     }
 
-    .btn-cell:hover {
-      background: var(--bg);
+    .btn-table-action:hover {
+      background: var(--surface-subtle);
       color: var(--text);
+      border-color: var(--border-focus);
     }
 
-    /* Live Stream Log Panel */
-    aside.stream-pane {
+    /* Live Event Stream Sidebar */
+    aside.stream-sidebar {
       background: var(--bg);
       display: flex;
       flex-direction: column;
       overflow: hidden;
     }
 
-    .stream-pane-top {
+    .stream-header {
       padding: 0.75rem 1rem;
       border-bottom: 1px solid var(--border);
       background: var(--surface);
@@ -426,13 +418,19 @@
       justify-content: space-between;
     }
 
-    .stream-pane-heading {
+    .stream-title {
       font-size: 12px;
       font-weight: 600;
       color: var(--text);
     }
 
-    .stream-log-list {
+    .stream-counter-muted {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .stream-scroll-log {
       flex: 1;
       overflow-y: auto;
       padding: 0.75rem;
@@ -443,405 +441,468 @@
       font-size: 11px;
     }
 
-    .log-row {
+    .stream-card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 0.55rem 0.65rem;
+      padding: 0.6rem 0.75rem;
       display: flex;
       flex-direction: column;
       gap: 0.25rem;
+      animation: fadeIn 0.15s ease;
     }
 
-    .log-row-top {
+    .stream-card-top {
       display: flex;
       align-items: center;
       justify-content: space-between;
       color: var(--text-muted);
     }
 
-    .log-ver-step {
-      font-weight: 600;
+    .stream-ver {
+      font-weight: 700;
       color: var(--accent);
     }
 
-    .log-diff-line {
+    .stream-diff-content {
       color: var(--text);
       word-break: break-all;
     }
 
-    .log-empty-muted {
+    .stream-scope-target {
+      font-size: 10px;
       color: var(--text-dim);
-      font-style: italic;
     }
 
-    /* Metrics Panel */
-    .metrics-panel {
-      padding: 1.25rem;
+    /* Telemetry View (Replaces table when tab is active) */
+    .telemetry-container {
+      flex: 1;
+      padding: 1.5rem;
       overflow-y: auto;
       display: none;
-      flex: 1;
       background: var(--bg);
     }
 
-    .metrics-cards {
+    .telemetry-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 0.75rem;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.85rem;
+      margin-bottom: 1.5rem;
     }
 
-    .metric-box {
+    .stat-card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 0.85rem 1rem;
+      padding: 1rem 1.15rem;
     }
 
-    .metric-box-title {
+    .stat-label {
       font-size: 11px;
+      font-weight: 500;
       color: var(--text-muted);
-      margin-bottom: 0.35rem;
+      margin-bottom: 0.4rem;
     }
 
-    .metric-box-val {
+    .stat-val {
       font-family: var(--font-mono);
-      font-size: 1.35rem;
-      font-weight: 600;
+      font-size: 1.45rem;
+      font-weight: 700;
       color: var(--text);
+      font-variant-numeric: tabular-nums;
     }
 
-    /* Accessible Native Dialogs */
-    dialog.modal {
-      margin: auto;
+    .stat-desc {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 0.25rem;
+    }
+
+    .telemetry-banner {
+      background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    /* Accessible Native Dialog Modal */
+    dialog.app-dialog {
+      margin: auto;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius);
       background: var(--surface);
-      max-width: 460px;
+      max-width: 480px;
       width: 90vw;
       padding: 0;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
       outline: none;
     }
 
-    dialog.modal::backdrop {
-      background: rgba(15, 23, 42, 0.4);
+    dialog.app-dialog::backdrop {
+      background: rgba(15, 23, 42, 0.45);
+      backdrop-filter: blur(1px);
     }
 
-    .modal-head {
-      padding: 0.85rem 1rem;
+    .dialog-header {
+      padding: 0.85rem 1.15rem;
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
 
-    .modal-head h3 {
+    .dialog-header h3 {
       font-size: 13px;
       font-weight: 600;
     }
 
-    .modal-close {
+    .dialog-close {
       background: transparent;
       border: none;
       font-size: 16px;
-      cursor: pointer;
       color: var(--text-muted);
+      cursor: pointer;
     }
 
-    .modal-content {
-      padding: 1rem;
+    .dialog-body {
+      padding: 1.15rem;
       display: flex;
       flex-direction: column;
-      gap: 0.85rem;
+      gap: 0.9rem;
     }
 
-    .form-item label {
+    .form-group label {
       display: block;
       font-size: 12px;
       font-weight: 500;
       margin-bottom: 0.3rem;
     }
 
-    .form-item input, .form-item select {
+    .form-group input, .form-group select {
       width: 100%;
-      padding: 0.45rem 0.6rem;
+      padding: 0.45rem 0.65rem;
       font-family: inherit;
       font-size: 12px;
-      border: 1px solid var(--border);
+      border: 1px solid var(--border-strong);
       border-radius: var(--radius);
       outline: none;
     }
 
-    .form-item input:focus, .form-item select:focus {
+    .form-group input:focus, .form-group select:focus {
       border-color: var(--border-focus);
     }
 
-    .modal-foot {
-      padding: 0.75rem 1rem;
+    .form-hint {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    .dialog-footer {
+      padding: 0.75rem 1.15rem;
       background: var(--bg);
       border-top: 1px solid var(--border);
       display: flex;
       justify-content: flex-end;
-      gap: 0.4rem;
+      gap: 0.5rem;
     }
 
-    /* Toast */
-    .toast-box {
+    /* Toast Notification Tray */
+    .toast-tray {
       position: fixed;
-      bottom: 16px;
-      right: 16px;
-      z-index: 50;
+      bottom: 20px;
+      right: 20px;
+      z-index: 100;
       display: flex;
       flex-direction: column;
-      gap: 0.4rem;
+      gap: 0.5rem;
     }
 
-    .toast-item {
+    .toast-card {
       background: var(--text);
       color: #fff;
-      padding: 0.55rem 0.85rem;
+      padding: 0.65rem 1rem;
       border-radius: var(--radius);
       font-size: 12px;
+      max-width: 450px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+      animation: fadeIn 0.15s ease;
     }
 
-    .toast-item.error {
-      background: var(--error-red);
+    .toast-card.success {
+      background: #065f46;
+      border: 1px solid var(--green);
+    }
+
+    .toast-card.test-simulation {
+      background: #1e293b;
+      border: 1px solid #38bdf8;
+      color: #f8fafc;
+    }
+
+    .toast-card.error {
+      background: #7f1d1d;
+      border: 1px solid var(--red);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
 
-  <!-- Quiet Header -->
-  <header class="topbar">
-    <div class="topbar-left">
-      <span class="brand-mark">MoveInSync</span>
-      <span class="brand-sep">/</span>
-      <span class="brand-title">Policies</span>
+  <!-- Top Global Header -->
+  <header class="navbar">
+    <div class="nav-brand-group">
+      <span class="brand-badge">MOVEINSYNC</span>
+      <span class="brand-title">Fleet Policy Engine</span>
     </div>
 
-    <div class="topbar-right">
-      <div class="live-status">
-        <span id="liveDot" class="live-dot"></span>
-        <span id="liveText">Live</span>
+    <!-- Center Navigation Tabs -->
+    <div class="nav-tabs-center">
+      <button id="tabBtnPolicies" class="nav-tab-btn active" onclick="switchMainTab('policies')">Policies &amp; Hierarchy</button>
+      <button id="tabBtnTelemetry" class="nav-tab-btn" onclick="switchMainTab('telemetry')">Cluster Telemetry</button>
+    </div>
+
+    <!-- Right Status Cluster -->
+    <div class="nav-right-cluster">
+      <div class="sse-status">
+        <span id="sseDot" class="status-dot"></span>
+        <span id="sseStatusLabel">Live (SSE)</span>
       </div>
-      <div class="version-label" id="versionText">v0</div>
+      <div id="topVersionBadge" class="version-indicator">v0 committed</div>
       <div class="user-pill">admin</div>
     </div>
   </header>
 
-  <!-- Main 3-Column Body -->
-  <div class="app-body">
+  <!-- Filter & Precedence Subnav -->
+  <div class="toolbar-subnav">
+    <div class="scope-controls-row">
+      <span class="label">Scope:</span>
+      <select id="selClient" class="dropdown-control">
+        <option value="Google">Google Fleet</option>
+        <option value="Amazon">Amazon Fleet</option>
+        <option value="Microsoft">Microsoft Fleet</option>
+        <option value="Flipkart">Flipkart Fleet</option>
+      </select>
+      <span>/</span>
+      <select id="selOffice" class="dropdown-control">
+        <option value="BLR_CAMPUS">Bangalore (BLR-1)</option>
+        <option value="HYD_CAMPUS">Hyderabad (HYD-1)</option>
+        <option value="PA_CAMPUS">Palo Alto (PA-1)</option>
+        <option value="ALL">All campuses</option>
+      </select>
+      <span>/</span>
+      <select id="selShift" class="dropdown-control">
+        <option value="ALL">All shifts</option>
+        <option value="MORNING">Morning (06:00)</option>
+        <option value="GENERAL">General (09:00)</option>
+        <option value="NIGHT">Night escort (21:00)</option>
+      </select>
+
+      <div class="precedence-legend">
+        <span>Order:</span>
+        <strong>Shift › Office › Client › Global › Default</strong>
+      </div>
+    </div>
+
+    <div class="actions-cluster">
+      <button class="btn btn-quiet" onclick="triggerValidationTest()" title="Injects a negative cutoff to verify atomic rejection">Simulate Invalid Cutoff (400)</button>
+      <button class="btn btn-secondary" onclick="refreshSnapshot()">Refresh</button>
+      <button class="btn btn-primary" onclick="openPublishModal()">+ Publish Changeset</button>
+    </div>
+  </div>
+
+  <!-- Main Dual-Pane Workspace -->
+  <div class="main-workspace">
     
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <button id="navPolicies" class="nav-link active" onclick="switchNav('policies')">Policies</button>
-      <button id="navMetrics" class="nav-link" onclick="switchNav('metrics')">Telemetry</button>
+    <!-- Left Pane: Policies Table View -->
+    <div id="policiesPane" class="table-view-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Policy key</th>
+            <th>Effective value</th>
+            <th>Winning tier &amp; lineage</th>
+            <th>Type</th>
+            <th>Constraints</th>
+            <th style="text-align: right;">Action</th>
+          </tr>
+        </thead>
+        <tbody id="policyTableBody">
+          <tr>
+            <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 3rem;">
+              Loading policy graph...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-      <div class="sidebar-footer">
-        <button class="btn-quiet" onclick="triggerValidationTest()">Simulate invalid payload (400)</button>
-        <button class="btn-quiet" onclick="seedDefaultPolicies()">Reset to standard policies</button>
-      </div>
-    </aside>
-
-    <!-- Workspace Area -->
-    <main class="workspace">
-      
-      <!-- Scope Bar -->
-      <div class="scope-bar">
-        <div class="scope-selectors">
-          <span class="scope-label">Scope:</span>
-          <select id="selClient" class="scope-select">
-            <option value="Google">Google Fleet</option>
-            <option value="Amazon">Amazon Fleet</option>
-            <option value="Microsoft">Microsoft Fleet</option>
-            <option value="Flipkart">Flipkart Fleet</option>
-          </select>
-          <span class="scope-sep">/</span>
-          <select id="selOffice" class="scope-select">
-            <option value="BLR_CAMPUS">Bangalore (BLR-1)</option>
-            <option value="HYD_CAMPUS">Hyderabad (HYD-1)</option>
-            <option value="PA_CAMPUS">Palo Alto (PA-1)</option>
-            <option value="ALL">All offices</option>
-          </select>
-          <span class="scope-sep">/</span>
-          <select id="selShift" class="scope-select">
-            <option value="ALL">All shifts</option>
-            <option value="MORNING">Morning (06:00)</option>
-            <option value="GENERAL">General (09:00)</option>
-            <option value="NIGHT">Night escort (21:00)</option>
-          </select>
+    <!-- Left Pane Alternative: Cluster Telemetry View -->
+    <div id="telemetryPane" class="telemetry-container">
+      <div class="telemetry-grid">
+        <div class="stat-card">
+          <div class="stat-label">Global Version</div>
+          <div id="mVersion" class="stat-val">0</div>
+          <div class="stat-desc">Monotonic commit sequence</div>
         </div>
-
-        <div class="workspace-actions">
-          <button class="btn btn-secondary" onclick="refreshSnapshot()">Refresh</button>
-          <button class="btn btn-primary" onclick="openPublishModal()">Publish change</button>
+        <div class="stat-card">
+          <div class="stat-label">Active SSE Subscribers</div>
+          <div id="mSubs" class="stat-val">0</div>
+          <div class="stat-desc">Connected microservice streams</div>
         </div>
-      </div>
-
-      <!-- Precedence Info Line -->
-      <div class="precedence-line">
-        <span>Precedence:</span>
-        <span class="precedence-chain">Shift › Office › Client › Global › Default</span>
-      </div>
-
-      <!-- Table View -->
-      <div id="policiesView" class="table-wrap">
-        <table class="dense-table">
-          <thead>
-            <tr>
-              <th>Policy key</th>
-              <th>Value</th>
-              <th>Winning tier</th>
-              <th>Type</th>
-              <th>Constraints</th>
-              <th style="text-align: right;">Action</th>
-            </tr>
-          </thead>
-          <tbody id="tableBody">
-            <tr>
-              <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">
-                Loading policies...
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Telemetry View -->
-      <div id="metricsView" class="metrics-panel">
-        <div class="metrics-cards">
-          <div class="metric-box">
-            <div class="metric-box-title">Commit version</div>
-            <div id="mVersion" class="metric-box-val">0</div>
-          </div>
-          <div class="metric-box">
-            <div class="metric-box-title">Active subscribers</div>
-            <div id="mSubs" class="metric-box-val">0</div>
-          </div>
-          <div class="metric-box">
-            <div class="metric-box-title">Subscriber queue depth</div>
-            <div id="mQueue" class="metric-box-val">0</div>
-          </div>
-          <div class="metric-box">
-            <div class="metric-box-title">Rejections (400)</div>
-            <div id="mRejections" class="metric-box-val" style="color: var(--error-red);">0</div>
-          </div>
-          <div class="metric-box">
-            <div class="metric-box-title">Max lag observed</div>
-            <div id="mMaxLag" class="metric-box-val">0</div>
-          </div>
-          <div class="metric-box">
-            <div class="metric-box-title">Catch-up queries</div>
-            <div id="mCatchups" class="metric-box-val">0</div>
-          </div>
-          <div class="metric-box">
-            <div class="metric-box-title">JVM uptime</div>
-            <div id="mUptime" class="metric-box-val">0s</div>
-          </div>
-          <div class="metric-box">
-            <div class="metric-box-title">Heap memory</div>
-            <div id="mMemory" class="metric-box-val">0 MB</div>
-          </div>
+        <div class="stat-card">
+          <div class="stat-label">Subscriber Queue Depth</div>
+          <div id="mQueue" class="stat-val">0</div>
+          <div class="stat-desc">Buffered frames across fleet</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Validation Rejections (400)</div>
+          <div id="mRejections" class="stat-val" style="color: var(--red);">0</div>
+          <div class="stat-desc">Atomic compound rollbacks</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Max Lag Seen</div>
+          <div id="mMaxLag" class="stat-val">0</div>
+          <div class="stat-desc">Highest delta gap caught by poller</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">REST Catch-Up Queries</div>
+          <div id="mCatchups" class="stat-val">0</div>
+          <div class="stat-desc">Missing delta range replays</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">JVM Uptime</div>
+          <div id="mUptime" class="stat-val">0s</div>
+          <div class="stat-desc">Server runtime elapsed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Heap Memory</div>
+          <div id="mMemory" class="stat-val">0 MB</div>
+          <div class="stat-desc">Active process memory usage</div>
         </div>
       </div>
 
-    </main>
-
-    <!-- Right Event Stream Log -->
-    <aside class="stream-pane">
-      <div class="stream-pane-top">
-        <span class="stream-pane-heading">Live event stream</span>
-        <span id="eventCount" style="font-size: 11px; color: var(--text-dim);">0 events</span>
+      <div class="telemetry-banner">
+        <strong style="color: var(--text);">Durability &amp; Delivery Engine Status</strong>
+        <div>Storage: <code>SQLite WAL mode</code> with <code>PRAGMA synchronous = FULL</code> (durably fsynced before HTTP 201 ACK).</div>
+        <div>Transport: Unidirectional Server-Sent Events (SSE) with bounded per-client queues and full decorrelated jitter reconnect backoff.</div>
       </div>
-      <div id="logStream" class="stream-log-list">
-        <div class="log-empty-muted">Waiting for changes...</div>
+    </div>
+
+    <!-- Right Pane: Live SSE Event Stream -->
+    <aside class="stream-sidebar">
+      <div class="stream-header">
+        <span class="stream-title">Live event stream</span>
+        <span id="streamCounterText" class="stream-counter-muted">0 events</span>
+      </div>
+      <div id="streamScrollArea" class="stream-scroll-log">
+        <div style="font-size: 11px; color: var(--text-dim); text-align: center; padding: 2rem 1rem;">
+          Waiting for live changesets...
+        </div>
       </div>
     </aside>
 
   </div>
 
-  <!-- Publish Modal -->
-  <dialog id="publishModal" class="modal">
-    <div class="modal-head">
-      <h3>Publish policy change</h3>
-      <button class="modal-close" onclick="closePublishModal()">&times;</button>
+  <!-- Publish Changeset Modal Dialog -->
+  <dialog id="publishModal" class="app-dialog" aria-labelledby="publishTitle">
+    <div class="dialog-header">
+      <h3 id="publishTitle">Publish Configuration Changeset</h3>
+      <button class="dialog-close" onclick="closePublishModal()" aria-label="Close">&times;</button>
     </div>
-    <form id="publishForm" onsubmit="handlePublish(event)">
-      <div class="modal-content">
-        <div class="form-item">
-          <label for="fKey">Key</label>
-          <select id="fKey" required onchange="handleKeyChange()"></select>
-          <div id="fKeyHint" style="font-size: 11px; color: var(--text-muted); margin-top: 2px;"></div>
+    <form id="publishForm" onsubmit="handlePublishSubmit(event)">
+      <div class="dialog-body">
+        
+        <div class="form-group">
+          <label for="dlgKey">Policy Key</label>
+          <select id="dlgKey" required onchange="handleModalKeyChange()"></select>
+          <div id="dlgKeyDesc" class="form-hint"></div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem;">
-          <div class="form-item">
-            <label for="fScope">Scope</label>
-            <select id="fScope" required onchange="handleScopeChange()">
-              <option value="OFFICE" selected>Office</option>
-              <option value="CLIENT">Client</option>
-              <option value="SHIFT">Shift</option>
-              <option value="GLOBAL">Global</option>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label for="dlgScope">Precedence Tier</label>
+            <select id="dlgScope" required onchange="handleModalScopeChange()">
+              <option value="OFFICE" selected>Office (Campus override)</option>
+              <option value="CLIENT">Client (Entire tenant fleet)</option>
+              <option value="SHIFT">Shift (Specific shift only)</option>
+              <option value="GLOBAL">Global (All clients)</option>
             </select>
           </div>
-          <div class="form-item" id="fOfficeGroup">
-            <label for="fOffice">Office</label>
-            <input type="text" id="fOffice" value="BLR_CAMPUS" required>
+
+          <div class="form-group" id="dlgOfficeGroup">
+            <label for="dlgOfficeId">Office Identifier</label>
+            <input type="text" id="dlgOfficeId" value="BLR_CAMPUS" required>
           </div>
         </div>
 
-        <div class="form-item" id="fShiftGroup" style="display: none;">
-          <label for="fShift">Shift</label>
-          <input type="text" id="fShift" value="NIGHT">
+        <div class="form-group" id="dlgShiftGroup" style="display: none;">
+          <label for="dlgShiftId">Shift Identifier</label>
+          <input type="text" id="dlgShiftId" value="NIGHT">
         </div>
 
-        <div class="form-item">
-          <label for="fVal">Value</label>
-          <input type="text" id="fVal" required placeholder="e.g. 30">
-          <div id="fValHint" style="font-size: 11px; color: var(--text-muted); margin-top: 2px;"></div>
+        <div class="form-group">
+          <label for="dlgValue">Override Value</label>
+          <input type="text" id="dlgValue" required placeholder="e.g. 30">
+          <div id="dlgBoundsHint" class="form-hint"></div>
         </div>
 
-        <div class="form-item">
-          <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; font-weight: normal;">
-            <input type="checkbox" id="fCanary">
-            <span>Canary trial (target BLR-1 only)</span>
+        <div class="form-group">
+          <label style="display: flex; align-items: center; gap: 0.45rem; cursor: pointer; font-weight: normal;">
+            <input type="checkbox" id="dlgCanaryCheck">
+            <span>Staged canary rollout (target BLR-1 only)</span>
           </label>
+          <div class="form-hint">Emits an empty delta to non-canary offices to advance monotonic version alignment with zero false gap storms.</div>
         </div>
 
-        <div class="form-item">
-          <label for="fReason">Reason</label>
-          <input type="text" id="fReason" value="Operational adjustment" required>
+        <div class="form-group">
+          <label for="dlgReason">Audit Reason</label>
+          <input type="text" id="dlgReason" value="Adjusting dispatch booking cutoff" required>
         </div>
+
       </div>
-      <div class="modal-foot">
+      <div class="dialog-footer">
         <button type="button" class="btn btn-secondary" onclick="closePublishModal()">Cancel</button>
-        <button type="submit" id="btnSubmit" class="btn btn-primary">Commit &amp; broadcast</button>
+        <button type="submit" id="btnSubmitChangeset" class="btn btn-primary">Commit &amp; Broadcast</button>
       </div>
     </form>
   </dialog>
 
-  <!-- Lineage Modal -->
-  <dialog id="lineageModal" class="modal">
-    <div class="modal-head">
-      <h3>Resolution trace</h3>
-      <button class="modal-close" onclick="closeLineageModal()">&times;</button>
+  <!-- Lineage Audit Modal Dialog -->
+  <dialog id="lineageModal" class="app-dialog" aria-labelledby="lineageTitle">
+    <div class="dialog-header">
+      <h3 id="lineageTitle">Resolution Lineage Trace</h3>
+      <button class="dialog-close" onclick="closeLineageModal()" aria-label="Close">&times;</button>
     </div>
-    <div class="modal-content">
-      <div id="lineageList" style="display: flex; flex-direction: column; gap: 0.35rem; font-family: var(--font-mono); font-size: 11px;"></div>
+    <div class="dialog-body">
+      <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 0.5rem;">
+        Deterministic 4-tier evaluation for this key under active scope:
+      </p>
+      <div id="lineageStepsList" style="display: flex; flex-direction: column; gap: 0.35rem; font-family: var(--font-mono); font-size: 11px;"></div>
     </div>
-    <div class="modal-foot">
+    <div class="dialog-footer">
       <button type="button" class="btn btn-secondary" onclick="closeLineageModal()">Close</button>
     </div>
   </dialog>
 
-  <div id="toastBox" class="toast-box"></div>
+  <!-- Toast Container -->
+  <div id="toastTray" class="toast-tray"></div>
 
   <script>
     const API_KEY = "admin-root-key";
     let eventSource = null;
     let registeredDefinitions = {};
     let currentSnapshot = { version: 0, overrides: {}, definitions: {} };
-    let streamEventsCount = 0;
+    let sseEventsReceived = 0;
 
     window.addEventListener('DOMContentLoaded', async () => {
       await fetchDefinitions();
@@ -858,25 +919,25 @@
       document.getElementById('selShift').addEventListener('change', refreshSnapshot);
     });
 
-    function switchNav(view) {
-      document.getElementById('policiesView').style.display = view === 'policies' ? 'block' : 'none';
-      document.getElementById('metricsView').style.display = view === 'metrics' ? 'block' : 'none';
-      document.getElementById('navPolicies').classList.toggle('active', view === 'policies');
-      document.getElementById('navMetrics').classList.toggle('active', view === 'metrics');
-      if (view === 'metrics') fetchMetrics();
+    function switchMainTab(tab) {
+      document.getElementById('policiesPane').style.display = tab === 'policies' ? 'flex' : 'none';
+      document.getElementById('telemetryPane').style.display = tab === 'telemetry' ? 'block' : 'none';
+      document.getElementById('tabBtnPolicies').classList.toggle('active', tab === 'policies');
+      document.getElementById('tabBtnTelemetry').classList.toggle('active', tab === 'telemetry');
+      if (tab === 'telemetry') fetchMetrics();
     }
 
-    function showToast(msg, isErr = false) {
-      const box = document.getElementById('toastBox');
-      const item = document.createElement('div');
-      item.className = `toast-item ${isErr ? 'error' : ''}`;
-      item.textContent = msg;
-      box.appendChild(item);
+    function showToast(msg, type = 'info') {
+      const tray = document.getElementById('toastTray');
+      const toast = document.createElement('div');
+      toast.className = `toast-card ${type}`;
+      toast.textContent = msg;
+      tray.appendChild(toast);
       setTimeout(() => {
-        item.style.opacity = '0';
-        item.style.transition = 'opacity 0.2s';
-        setTimeout(() => item.remove(), 200);
-      }, 3500);
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.2s';
+        setTimeout(() => toast.remove(), 200);
+      }, 4000);
     }
 
     async function fetchDefinitions() {
@@ -884,7 +945,7 @@
         const res = await fetch('/api/v1/config/definitions', { headers: { 'X-API-Key': API_KEY } });
         if (res.ok) {
           registeredDefinitions = await res.json();
-          populateKeys();
+          populateKeyDropdown();
         }
       } catch (e) {
         console.error(e);
@@ -899,7 +960,7 @@
         const res = await fetch(url, { headers: { 'X-API-Key': API_KEY } });
         if (res.ok) {
           currentSnapshot = await res.json();
-          document.getElementById('versionText').textContent = `v${currentSnapshot.version}`;
+          document.getElementById('topVersionBadge').textContent = `v${currentSnapshot.version} committed`;
           renderTable();
         }
       } catch (e) {
@@ -920,31 +981,31 @@
 
       if (shiftVal !== undefined) {
         let parentHint = '';
-        if (officeVal !== undefined) parentHint = `overrides Office: ${formatSimple(officeVal)}`;
-        else if (clientVal !== undefined) parentHint = `overrides Client: ${formatSimple(clientVal)}`;
-        else if (globalVal !== undefined) parentHint = `overrides Global: ${formatSimple(globalVal)}`;
-        else if (defaultVal !== undefined) parentHint = `overrides Default: ${formatSimple(defaultVal)}`;
-        return { val: shiftVal, scope: 'shift', scopeLabel: `Shift: ${shift}`, hint: parentHint };
+        if (officeVal !== undefined) parentHint = `overrides Office: ${formatVal(officeVal, def?.type)}`;
+        else if (clientVal !== undefined) parentHint = `overrides Client: ${formatVal(clientVal, def?.type)}`;
+        else if (globalVal !== undefined) parentHint = `overrides Global: ${formatVal(globalVal, def?.type)}`;
+        else if (defaultVal !== undefined) parentHint = `overrides Default: ${formatVal(defaultVal, def?.type)}`;
+        return { val: shiftVal, scope: 'shift', scopeLabel: `Shift (${shift})`, hint: parentHint };
       }
 
       if (officeVal !== undefined) {
         let parentHint = '';
-        if (clientVal !== undefined) parentHint = `overrides Client: ${formatSimple(clientVal)}`;
-        else if (globalVal !== undefined) parentHint = `overrides Global: ${formatSimple(globalVal)}`;
-        else if (defaultVal !== undefined) parentHint = `overrides Default: ${formatSimple(defaultVal)}`;
-        return { val: officeVal, scope: 'office', scopeLabel: `Office: ${office}`, hint: parentHint };
+        if (clientVal !== undefined) parentHint = `overrides Client: ${formatVal(clientVal, def?.type)}`;
+        else if (globalVal !== undefined) parentHint = `overrides Global: ${formatVal(globalVal, def?.type)}`;
+        else if (defaultVal !== undefined) parentHint = `overrides Default: ${formatVal(defaultVal, def?.type)}`;
+        return { val: officeVal, scope: 'office', scopeLabel: `Office (${office})`, hint: parentHint };
       }
 
       if (clientVal !== undefined) {
         let parentHint = '';
-        if (globalVal !== undefined) parentHint = `overrides Global: ${formatSimple(globalVal)}`;
-        else if (defaultVal !== undefined) parentHint = `overrides Default: ${formatSimple(defaultVal)}`;
-        return { val: clientVal, scope: 'client', scopeLabel: `Client: ${client}`, hint: parentHint };
+        if (globalVal !== undefined) parentHint = `overrides Global: ${formatVal(globalVal, def?.type)}`;
+        else if (defaultVal !== undefined) parentHint = `overrides Default: ${formatVal(defaultVal, def?.type)}`;
+        return { val: clientVal, scope: 'client', scopeLabel: `Client (${client})`, hint: parentHint };
       }
 
       if (globalVal !== undefined) {
         let parentHint = '';
-        if (defaultVal !== undefined) parentHint = `overrides Default: ${formatSimple(defaultVal)}`;
+        if (defaultVal !== undefined) parentHint = `overrides Default: ${formatVal(defaultVal, def?.type)}`;
         return { val: globalVal, scope: 'global', scopeLabel: 'Global', hint: parentHint };
       }
 
@@ -955,13 +1016,8 @@
       return { val: '—', scope: 'default', scopeLabel: 'Unset', hint: '' };
     }
 
-    function formatSimple(v) {
-      if (typeof v === 'boolean') return v ? 'true' : 'false';
-      return String(v);
-    }
-
     function renderTable() {
-      const tbody = document.getElementById('tableBody');
+      const tbody = document.getElementById('policyTableBody');
       const client = document.getElementById('selClient').value;
       const office = document.getElementById('selOffice').value !== 'ALL' ? document.getElementById('selOffice').value : null;
       const shift = document.getElementById('selShift').value !== 'ALL' ? document.getElementById('selShift').value : null;
@@ -970,7 +1026,7 @@
       const keys = Object.keys(defs);
 
       if (keys.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">No policies registered.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 3rem;">No policies configured. Click "Reset to standard policies" to populate.</td></tr>`;
         return;
       }
 
@@ -982,21 +1038,21 @@
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>
-            <div class="cell-key">${k}</div>
-            <div class="cell-desc">${def.description || ''}</div>
+            <div class="key-name">${k}</div>
+            <div class="key-subline">${def.description || ''}</div>
           </td>
           <td>
-            <span class="cell-val">${formatVal(res.val, def.type)}</span>
+            <span class="val-text">${formatVal(res.val, def.type)}</span>
           </td>
           <td>
-            <div><span class="tier-badge ${res.scope}">${res.scopeLabel}</span></div>
-            ${res.hint ? `<div class="tier-overrides-hint">${res.hint}</div>` : ''}
+            <div><span class="tier-tag ${res.scope}">${res.scopeLabel}</span></div>
+            ${res.hint ? `<div class="lineage-hint">${res.hint}</div>` : ''}
           </td>
-          <td style="color: var(--text-muted);">${formatType(def.type)}</td>
-          <td style="color: var(--text-muted);">${formatBounds(def.validationRule)}</td>
+          <td style="color: var(--text-secondary);">${formatType(def.type)}</td>
+          <td style="color: var(--text-muted);">${formatConstraints(def.validationRule)}</td>
           <td style="text-align: right;">
-            <button class="btn-cell" onclick="openOverride('${k}')">Override</button>
-            <button class="btn-cell" onclick="openLineage('${k}')">Lineage</button>
+            <button class="btn-table-action" onclick="openOverride('${k}')">Override</button>
+            <button class="btn-table-action" onclick="openLineage('${k}')">Lineage</button>
           </td>
         `;
         tbody.appendChild(tr);
@@ -1018,7 +1074,7 @@
       return 'String';
     }
 
-    function formatBounds(r) {
+    function formatConstraints(r) {
       if (!r) return 'None';
       const c = [];
       if (r.minDurationMinutes !== null && r.minDurationMinutes !== undefined) c.push(`≥ ${r.minDurationMinutes}m`);
@@ -1035,12 +1091,12 @@
       const url = `/api/v1/config/stream?client_id=${encodeURIComponent(client)}&office_id=ALL&api_key=${encodeURIComponent(API_KEY)}`;
 
       eventSource = new EventSource(url);
-      const dot = document.getElementById('liveDot');
-      const text = document.getElementById('liveText');
+      const dot = document.getElementById('sseDot');
+      const text = document.getElementById('sseStatusLabel');
 
       eventSource.onopen = () => {
         dot.classList.remove('disconnected');
-        text.textContent = 'Live';
+        text.textContent = 'Live (SSE)';
       };
 
       eventSource.onerror = () => {
@@ -1059,41 +1115,43 @@
     }
 
     function handleDelta(d) {
-      streamEventsCount++;
-      document.getElementById('eventCount').textContent = `${streamEventsCount} event${streamEventsCount > 1 ? 's' : ''}`;
-      document.getElementById('versionText').textContent = `v${d.version}`;
+      sseEventsReceived++;
+      document.getElementById('streamCounterText').textContent = `${sseEventsReceived} event${sseEventsReceived > 1 ? 's' : ''}`;
+      document.getElementById('topVersionBadge').textContent = `v${d.version} committed`;
 
-      const log = document.getElementById('logStream');
-      if (streamEventsCount === 1) log.innerHTML = '';
+      const log = document.getElementById('streamScrollArea');
+      if (sseEventsReceived === 1) log.innerHTML = '';
 
-      const row = document.createElement('div');
-      row.className = 'log-row';
+      const card = document.createElement('div');
+      card.className = 'stream-card';
 
       const time = new Date(d.timestamp || Date.now()).toTimeString().split(' ')[0];
       const targetScope = d.scopeKey ? `${d.scopeKey.scope}${d.scopeKey.officeId ? ':' + d.scopeKey.officeId : ''}` : 'GLOBAL';
 
       let diff = '';
       if (d.empty) {
-        diff = `<span class="log-empty-muted">Empty delta (canary alignment)</span>`;
-      } else if (d.updates) {
-        diff = Object.entries(d.updates).map(([k, v]) => `${k} &rarr; <strong>${v}</strong>`).join(', ');
+        diff = `<span style="color: var(--text-dim); font-style: italic;">[Empty delta: Monotonic alignment for non-canary node]</span>`;
+      } else if (d.updates && Object.keys(d.updates).length > 0) {
+        diff = Object.entries(d.updates).map(([k, v]) => `<strong>${k}</strong> &rarr; ${v}`).join(', ');
+      } else {
+        diff = `<span style="color: var(--text-muted);">Changeset applied</span>`;
       }
 
-      row.innerHTML = `
-        <div class="log-row-top">
-          <span class="log-ver-step">v${d.version}</span>
+      card.innerHTML = `
+        <div class="stream-card-top">
+          <span class="stream-ver">v${d.version}</span>
           <span>${time}</span>
         </div>
-        <div class="log-diff-line">${diff}</div>
-        <div style="font-size: 10px; color: var(--text-dim);">${targetScope}</div>
+        <div class="stream-diff-content">${diff}</div>
+        <div class="stream-scope-target">${targetScope}</div>
       `;
 
-      log.insertBefore(row, log.firstChild);
+      log.insertBefore(card, log.firstChild);
       refreshSnapshot();
     }
 
-    function populateKeys() {
-      const sel = document.getElementById('fKey');
+    function populateKeyDropdown() {
+      const sel = document.getElementById('dlgKey');
       sel.innerHTML = '';
       for (const [k, def] of Object.entries(registeredDefinitions)) {
         const o = document.createElement('option');
@@ -1101,22 +1159,22 @@
         o.textContent = k;
         sel.appendChild(o);
       }
-      handleKeyChange();
+      handleModalKeyChange();
     }
 
-    function handleKeyChange() {
-      const k = document.getElementById('fKey').value;
+    function handleModalKeyChange() {
+      const k = document.getElementById('dlgKey').value;
       const def = registeredDefinitions[k];
       if (def) {
-        document.getElementById('fKeyHint').textContent = def.description || '';
-        document.getElementById('fValHint').textContent = `Constraints: ${formatBounds(def.validationRule)} (Default: ${def.defaultValue})`;
+        document.getElementById('dlgKeyDesc').textContent = def.description || '';
+        document.getElementById('dlgBoundsHint').textContent = `Constraints: ${formatConstraints(def.validationRule)} (Default: ${def.defaultValue})`;
       }
     }
 
-    function handleScopeChange() {
-      const sc = document.getElementById('fScope').value;
-      document.getElementById('fOfficeGroup').style.display = (sc === 'OFFICE' || sc === 'SHIFT') ? 'block' : 'none';
-      document.getElementById('fShiftGroup').style.display = (sc === 'SHIFT') ? 'block' : 'none';
+    function handleModalScopeChange() {
+      const sc = document.getElementById('dlgScope').value;
+      document.getElementById('dlgOfficeGroup').style.display = (sc === 'OFFICE' || sc === 'SHIFT') ? 'block' : 'none';
+      document.getElementById('dlgShiftGroup').style.display = (sc === 'SHIFT') ? 'block' : 'none';
     }
 
     function openPublishModal() {
@@ -1124,8 +1182,8 @@
     }
 
     function openOverride(k) {
-      document.getElementById('fKey').value = k;
-      handleKeyChange();
+      document.getElementById('dlgKey').value = k;
+      handleModalKeyChange();
       document.getElementById('publishModal').showModal();
     }
 
@@ -1133,19 +1191,19 @@
       document.getElementById('publishModal').close();
     }
 
-    async function handlePublish(e) {
+    async function handlePublishSubmit(e) {
       e.preventDefault();
-      const btn = document.getElementById('btnSubmit');
+      const btn = document.getElementById('btnSubmitChangeset');
       btn.disabled = true;
 
-      const key = document.getElementById('fKey').value;
-      const raw = document.getElementById('fVal').value.trim();
-      const scope = document.getElementById('fScope').value;
-      const office = document.getElementById('fOffice').value.trim();
-      const shift = document.getElementById('fShift').value.trim();
+      const key = document.getElementById('dlgKey').value;
+      const raw = document.getElementById('dlgValue').value.trim();
+      const scope = document.getElementById('dlgScope').value;
+      const office = document.getElementById('dlgOfficeId').value.trim();
+      const shift = document.getElementById('dlgShiftId').value.trim();
       const client = document.getElementById('selClient').value;
-      const canary = document.getElementById('fCanary').checked;
-      const reason = document.getElementById('fReason').value.trim();
+      const canary = document.getElementById('dlgCanaryCheck').checked;
+      const reason = document.getElementById('dlgReason').value.trim();
 
       const def = registeredDefinitions[key];
       let val = raw;
@@ -1177,19 +1235,20 @@
 
         if (res.status === 201) {
           const c = await res.json();
-          showToast(`Committed v${c.version} to SQLite WAL.`);
+          showToast(`Committed v${c.version} to SQLite WAL and broadcast.`, 'success');
           closePublishModal();
         } else {
           const err = await res.json();
-          showToast(`Rejection (${res.status}): ${err.message || 'Validation error'}`, true);
+          showToast(`Validation rejection (${res.status}): ${err.message || 'Error'}`, 'error');
         }
       } catch (err) {
-        showToast(`Error: ${err.message}`, true);
+        showToast(`Request failed: ${err.message}`, 'error');
       } finally {
         btn.disabled = false;
       }
     }
 
+    // Explicitly labeled Simulation Test
     async function triggerValidationTest() {
       const client = document.getElementById('selClient').value;
       const payload = {
@@ -1197,7 +1256,7 @@
         stagedOffices: [],
         updates: { booking_cutoff_minutes: -30 },
         author: 'test-runner',
-        reason: 'Negative duration validation check'
+        reason: 'Fault injection simulation: negative duration constraint check'
       };
 
       try {
@@ -1208,10 +1267,10 @@
         });
         const err = await res.json();
         if (res.status === 400) {
-          showToast(`HTTP 400 Bad Request: ${err.message}`, true);
+          showToast(`[Simulation Verification] Server rejected invalid payload (-30 min) with HTTP 400 Bad Request. Database state protected.`, 'test-simulation');
         }
       } catch (e) {
-        showToast(e.message, true);
+        showToast(`Error: ${e.message}`, 'error');
       }
     }
 
@@ -1221,28 +1280,28 @@
           key: 'booking_cutoff_minutes',
           type: 'DURATION_MINUTES',
           defaultValue: 45,
-          description: 'Cutoff window for shift cab bookings',
+          description: 'Cutoff window for shift cab bookings prior to dispatch roster generation',
           validationRule: { minDurationMinutes: 0, maxDurationMinutes: 1440 }
         },
         {
           key: 'night_escort_required',
           type: 'BOOLEAN',
           defaultValue: true,
-          description: 'Security guard accompaniment for female employee night drops',
+          description: 'Security guard accompaniment for female employee night drops (20:00 - 06:00)',
           validationRule: {}
         },
         {
           key: 'max_route_deviation_km',
           type: 'DOUBLE',
           defaultValue: 5.0,
-          description: 'Maximum allowable detour distance from shortest path',
+          description: 'Maximum permitted geographic detour distance from optimized shortest path',
           validationRule: { minNumber: 0.0, maxNumber: 50.0 }
         },
         {
           key: 'panic_response_timeout_sec',
           type: 'INTEGER',
           defaultValue: 60,
-          description: 'Time window for Central Transport Command to acknowledge SOS',
+          description: 'Time window for Central Transport Command to acknowledge mobile SOS alert',
           validationRule: { minNumber: 10, maxNumber: 600 }
         },
         {
@@ -1270,13 +1329,13 @@
           stagedOffices: [],
           updates: { booking_cutoff_minutes: 30 },
           author: 'ops-lead',
-          reason: 'Bangalore traffic adjustment'
+          reason: 'Bangalore traffic optimization'
         })
       });
 
       await fetchDefinitions();
       await refreshSnapshot();
-      if (!silent) showToast('Reset to standard policies.');
+      if (!silent) showToast('Reset to standard MoveInSync policies.', 'success');
     }
 
     function openLineage(k) {
@@ -1295,22 +1354,22 @@
         { scope: 'Default', path: 'SettingDefinition', val: def ? def.defaultValue : null }
       ];
 
-      const cont = document.getElementById('lineageList');
+      const cont = document.getElementById('lineageStepsList');
       cont.innerHTML = '';
       let won = false;
 
       for (const s of steps) {
         const div = document.createElement('div');
-        div.style.padding = '0.4rem 0.55rem';
+        div.style.padding = '0.45rem 0.65rem';
         div.style.borderRadius = 'var(--radius)';
         div.style.border = '1px solid var(--border)';
         div.style.display = 'flex';
         div.style.justifyContent = 'space-between';
 
         if (s.val !== null && s.val !== undefined && !won) {
-          div.style.background = '#f0fdf4';
-          div.style.borderColor = '#bbf7d0';
-          div.innerHTML = `<span><strong>[Active] ${s.scope}</strong> (${s.path})</span><span>${s.val}</span>`;
+          div.style.background = 'var(--green-bg)';
+          div.style.borderColor = 'var(--green-border)';
+          div.innerHTML = `<span><strong style="color: var(--green);">[Active] ${s.scope}</strong> (${s.path})</span><span style="font-weight: 700;">${s.val}</span>`;
           won = true;
         } else if (s.val !== null && s.val !== undefined && won) {
           div.style.opacity = '0.5';
