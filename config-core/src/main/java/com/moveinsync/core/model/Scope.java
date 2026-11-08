@@ -5,6 +5,7 @@ package com.moveinsync.core.model;
  * Precedence order (highest to lowest): SHIFT -> OFFICE -> CLIENT -> GLOBAL
  */
 public enum Scope {
+    DEFAULT(0),
     GLOBAL(1),
     CLIENT(2),
     OFFICE(3),

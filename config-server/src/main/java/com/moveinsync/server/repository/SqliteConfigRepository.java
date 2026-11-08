@@ -64,9 +64,23 @@ public class SqliteConfigRepository {
                     updates_json TEXT NOT NULL,
                     author TEXT NOT NULL,
                     reason TEXT NOT NULL,
-                    created_at TEXT NOT NULL
+                    created_at TEXT NOT NULL,
+                    replacement_overrides_json TEXT
                 );
             """);
+
+            // Existing installations may have been created before atomic rollback events existed.
+            boolean hasReplacementColumn = false;
+            try (ResultSet columns = stmt.executeQuery("PRAGMA table_info(changesets);")) {
+                while (columns.next()) {
+                    if ("replacement_overrides_json".equals(columns.getString("name"))) {
+                        hasReplacementColumn = true;
+                    }
+                }
+            }
+            if (!hasReplacementColumn) {
+                stmt.execute("ALTER TABLE changesets ADD COLUMN replacement_overrides_json TEXT;");
+            }
 
             stmt.execute("""
                 CREATE TABLE IF NOT EXISTS effective_overrides (
@@ -157,8 +171,8 @@ public class SqliteConfigRepository {
 
                 // 1. Insert changeset
                 try (PreparedStatement ps = conn.prepareStatement("""
-                    INSERT INTO changesets (version, id, scope_path, staged_offices, updates_json, author, reason, created_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+                    INSERT INTO changesets (version, id, scope_path, staged_offices, updates_json, author, reason, created_at, replacement_overrides_json)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
                 """)) {
                     ps.setLong(1, cs.version());
                     ps.setString(2, cs.id());
@@ -168,6 +182,7 @@ public class SqliteConfigRepository {
                     ps.setString(6, cs.author());
                     ps.setString(7, cs.reason());
                     ps.setString(8, cs.timestamp().toString());
+                    ps.setString(9, cs.replacementOverrides() == null ? null : mapper.writeValueAsString(cs.replacementOverrides()));
                     ps.executeUpdate();
                 }
 
@@ -198,6 +213,59 @@ public class SqliteConfigRepository {
                     ps.executeBatch();
                 }
 
+                conn.commit();
+            } catch (Exception e) {
+                conn.rollback();
+                throw new RuntimeException("Transaction rolled back for changeset V" + cs.version(), e);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            writerLock.unlock();
+        }
+    }
+
+    /** Commits a rollback snapshot under one version and one SQLite transaction. */
+    public void saveRollbackChangeSet(ChangeSet cs) {
+        if (cs.replacementOverrides() == null) {
+            throw new IllegalArgumentException("Rollback requires replacement overrides");
+        }
+        writerLock.lock();
+        try (Connection conn = dataSource.getConnection()) {
+            conn.setAutoCommit(false);
+            try {
+                try (PreparedStatement ps = conn.prepareStatement("""
+                    INSERT INTO changesets (version, id, scope_path, staged_offices, updates_json, author, reason, created_at, replacement_overrides_json)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+                """)) {
+                    ps.setLong(1, cs.version());
+                    ps.setString(2, cs.id());
+                    ps.setString(3, cs.scopeKey().toPath());
+                    ps.setString(4, mapper.writeValueAsString(cs.stagedOffices()));
+                    ps.setString(5, mapper.writeValueAsString(cs.updates()));
+                    ps.setString(6, cs.author());
+                    ps.setString(7, cs.reason());
+                    ps.setString(8, cs.timestamp().toString());
+                    ps.setString(9, mapper.writeValueAsString(cs.replacementOverrides()));
+                    ps.executeUpdate();
+                }
+                try (Statement delete = conn.createStatement()) {
+                    delete.executeUpdate("DELETE FROM effective_overrides;");
+                }
+                try (PreparedStatement insert = conn.prepareStatement("""
+                    INSERT INTO effective_overrides (scope_path, key, value_json, version) VALUES (?, ?, ?, ?);
+                """)) {
+                    for (var scope : cs.replacementOverrides().entrySet()) {
+                        for (var entry : scope.getValue().entrySet()) {
+                            insert.setString(1, scope.getKey());
+                            insert.setString(2, entry.getKey());
+                            insert.setString(3, mapper.writeValueAsString(entry.getValue()));
+                            insert.setLong(4, cs.version());
+                            insert.addBatch();
+                        }
+                    }
+                    insert.executeBatch();
+                }
                 conn.commit();
             } catch (Exception e) {
                 conn.rollback();
@@ -246,11 +314,15 @@ public class SqliteConfigRepository {
                     Instant ts = Instant.parse(rs.getString("created_at"));
 
                     ConfigScopeKey scopeKey = parseScopePath(scopePath);
-                    list.add(new ChangeSet(id, ver, scopeKey, staged, updates, author, reason, ts));
+                    String replacementJson = rs.getString("replacement_overrides_json");
+                    Map<String, Map<String, Object>> replacements = replacementJson == null ? null
+                            : mapper.readValue(replacementJson, new TypeReference<>() {});
+                    list.add(new ChangeSet(id, ver, scopeKey, staged, updates, author, reason, ts, replacements));
                 }
             }
         } catch (Exception e) {
             log.log(Level.WARNING, "Failed to query changesets since V" + sinceVersion + ": " + e.getMessage(), e);
+            throw new RuntimeException("Database error querying changesets", e);
         }
         return list;
     }
@@ -269,7 +341,10 @@ public class SqliteConfigRepository {
                     String reason = rs.getString("reason");
                     Instant ts = Instant.parse(rs.getString("created_at"));
 
-                    return Optional.of(new ChangeSet(id, ver, parseScopePath(scopePath), staged, updates, author, reason, ts));
+                    String replacementJson = rs.getString("replacement_overrides_json");
+                    Map<String, Map<String, Object>> replacements = replacementJson == null ? null
+                            : mapper.readValue(replacementJson, new TypeReference<>() {});
+                    return Optional.of(new ChangeSet(id, ver, parseScopePath(scopePath), staged, updates, author, reason, ts, replacements));
                 }
             }
         } catch (Exception e) {
@@ -284,6 +359,7 @@ public class SqliteConfigRepository {
         Scope scope = Scope.valueOf(parts[0]);
         String[] subParts = parts[1].split("/");
         return switch (scope) {
+            case DEFAULT -> throw new IllegalArgumentException("DEFAULT is not an override scope");
             case GLOBAL -> ConfigScopeKey.global();
             case CLIENT -> ConfigScopeKey.client(subParts[0]);
             case OFFICE -> ConfigScopeKey.office(subParts[0], subParts[1]);

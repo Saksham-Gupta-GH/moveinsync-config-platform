@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Map;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -55,6 +56,65 @@ class RollbackDiffTest {
         // Effective value is now back to 100
         var snapshot = configService.getSnapshot("Google", "BLR-1");
         assertThat(snapshot.resolve("max_ride_time_mins", "Google", "BLR-1", null)).contains(100);
+    }
+
+    @Test
+    @DisplayName("Rollback removes later overrides across scopes in one version and restores inheritance")
+    void shouldRollbackMultipleScopesAtomically() {
+        String key = "rollback_inheritance_" + java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 8);
+        configService.registerDefinition(new SettingDefinition(
+                key, SettingType.NUMBER, 60, "Rollback inheritance", ValidationRule.none()));
+        configService.publishChangeSet(ConfigScopeKey.client("Google"), null,
+                Map.of(key, 70), "admin", "Baseline client value");
+        long targetVersion = configService.getLatestVersion();
+
+        configService.publishChangeSet(ConfigScopeKey.office("Google", "BLR-1"), null,
+                Map.of(key, 30), "admin", "Later office override");
+        configService.publishChangeSet(ConfigScopeKey.client("Amazon"), null,
+                Map.of(key, 55), "admin", "Later tenant override");
+        long beforeRollback = configService.getLatestVersion();
+
+        var preview = configService.rollback(targetVersion, true, "admin");
+        assertThat(preview.diff().get("OFFICE:Google/BLR-1")).containsEntry(key, null);
+        assertThat(preview.diff().get("CLIENT:Amazon")).containsEntry(key, null);
+        assertThat(configService.getLatestVersion()).isEqualTo(beforeRollback);
+
+        var result = configService.rollback(targetVersion, false, "admin");
+        assertThat(result.committedVersion()).isEqualTo(beforeRollback + 1);
+        assertThat(configService.getLatestVersion()).isEqualTo(beforeRollback + 1);
+        assertThat(configService.getSnapshot("Google", "BLR-1")
+                .resolve(key, "Google", "BLR-1", null)).contains(70);
+        assertThat(configService.getSnapshot("Amazon", "BLR-1")
+                .resolve(key, "Amazon", "BLR-1", null)).contains(60);
+        assertThat(configService.getSnapshot("Google", "BLR-1").overrides()
+                .getOrDefault("OFFICE:Google/BLR-1", Map.of())).doesNotContainKey(key);
+
+        var googleDelta = configService.getDeltas("Google", "BLR-1", beforeRollback).get(0);
+        assertThat(googleDelta.replacementOverrides()).containsKey("CLIENT:Google");
+        assertThat(googleDelta.replacementOverrides()).doesNotContainKey("CLIENT:Amazon");
+    }
+
+    @Test
+    @DisplayName("Historical rollback replays canary promotion and earlier rollback events")
+    void shouldRestoreVersionsAroundCanaryPromotion() {
+        String key = "rollback_canary_" + java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 8);
+        configService.registerDefinition(new SettingDefinition(
+                key, SettingType.BOOLEAN, false, "Rollback canary history", ValidationRule.none()));
+        var canary = configService.publishChangeSet(ConfigScopeKey.client("Google"),
+                List.of("BLR-1"), Map.of(key, true), "admin", "Stage canary");
+        var promoted = configService.promoteChangeSet(canary.id(), "admin");
+
+        configService.rollback(canary.version(), false, "admin");
+        assertThat(configService.getSnapshot("Google", "BLR-1")
+                .resolve(key, "Google", "BLR-1", null)).contains(true);
+        assertThat(configService.getSnapshot("Google", "HYD-1")
+                .resolve(key, "Google", "HYD-1", null)).contains(false);
+
+        configService.rollback(promoted.version(), false, "admin");
+        assertThat(configService.getSnapshot("Google", "BLR-1")
+                .resolve(key, "Google", "BLR-1", null)).contains(true);
+        assertThat(configService.getSnapshot("Google", "HYD-1")
+                .resolve(key, "Google", "HYD-1", null)).contains(true);
     }
 }
 

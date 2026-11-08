@@ -17,6 +17,9 @@ public record ConfigScopeKey(
     @JsonCreator
     public ConfigScopeKey {
         Objects.requireNonNull(scope, "scope cannot be null");
+        if (scope == Scope.DEFAULT) {
+            throw new IllegalArgumentException("DEFAULT is a fallback, not an override scope");
+        }
     }
 
     public static ConfigScopeKey global() {
@@ -46,6 +49,7 @@ public record ConfigScopeKey(
      */
     public String toPath() {
         return switch (scope) {
+            case DEFAULT -> throw new IllegalStateException("DEFAULT is not an override scope");
             case GLOBAL -> "GLOBAL";
             case CLIENT -> "CLIENT:" + clientId;
             case OFFICE -> "OFFICE:" + clientId + "/" + officeId;

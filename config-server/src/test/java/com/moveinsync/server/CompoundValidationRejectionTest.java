@@ -50,5 +50,17 @@ class CompoundValidationRejectionTest {
         var snapshot = configService.getSnapshot("Google", "BLR-1");
         assertThat(snapshot.resolve("valid_key", "Google", "BLR-1", null)).contains(10);
     }
+
+    @Test
+    @DisplayName("An invalid definition default is rejected before it becomes readable")
+    void shouldRejectInvalidDefinitionDefault() {
+        String key = "invalid_default_cutoff";
+        var invalid = new SettingDefinition(key, SettingType.DURATION_MINUTES, -30,
+                "Invalid default", ValidationRule.durationRange(0, 180));
+        assertThatThrownBy(() -> configService.registerDefinition(invalid))
+                .isInstanceOf(ValidationException.class)
+                .hasMessageContaining("cannot be negative");
+        assertThat(configService.getDefinitions()).doesNotContainKey(key);
+    }
 }
 

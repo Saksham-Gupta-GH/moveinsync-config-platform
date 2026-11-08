@@ -9,6 +9,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -83,14 +84,24 @@ public class SseBroadcaster {
     public void broadcast(Delta delta) {
         for (SubscriberSession session : subscribers.values()) {
             boolean matchesTenant = isTenantInScope(delta, session.clientId());
-            if (!matchesTenant) {
+            if (!matchesTenant && delta.replacementOverrides() == null) {
                 // Tenant isolation: completely skip subscribers from different corporate clients
                 continue;
             }
 
             boolean matchesOffice = isOfficeInScope(delta, session.officeId());
             Delta deltaToSend;
-            if (matchesOffice) {
+            if (delta.replacementOverrides() != null) {
+                Map<String, Map<String, Object>> filtered = new java.util.HashMap<>();
+                for (var entry : delta.replacementOverrides().entrySet()) {
+                    String path = entry.getKey();
+                    if (isScopeVisibleToClient(path, session.clientId())) {
+                        filtered.put(path, entry.getValue());
+                    }
+                }
+                deltaToSend = new Delta(delta.version(), ConfigScopeKey.global(), List.of(), Map.of(), false,
+                        delta.timestamp(), filtered);
+            } else if (matchesOffice) {
                 deltaToSend = delta;
             } else {
                 // Contiguous progression: send empty delta with GLOBAL scope to prevent leaking staged office names
@@ -110,6 +121,14 @@ public class SseBroadcaster {
             // Asynchronously drain pending deltas to the client emitter with per-subscriber serialization
             dispatchExecutor.submit(() -> sendPending(session));
         }
+    }
+
+    private boolean isScopeVisibleToClient(String path, String clientId) {
+        if ("GLOBAL".equalsIgnoreCase(path)) return true;
+        String[] parts = path.split(":", 2);
+        if (parts.length != 2 || !(parts[0].equals("CLIENT") || parts[0].equals("OFFICE")
+                || parts[0].equals("SHIFT"))) return false;
+        return parts[1].split("/", 2)[0].equalsIgnoreCase(clientId);
     }
 
     private boolean isTenantInScope(Delta delta, String subscriberClientId) {

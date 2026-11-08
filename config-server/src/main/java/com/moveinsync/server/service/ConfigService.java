@@ -43,6 +43,7 @@ public class ConfigService {
     }
 
     public void registerDefinition(SettingDefinition def) {
+        SettingValidator.validate(def, def.defaultValue());
         repository.saveDefinition(def);
     }
 
@@ -143,94 +144,103 @@ public class ConfigService {
      * Rollback to a previous target version with unified diff preview.
      */
     public RollbackDiffResponse rollback(long targetVersion, boolean dryRun, String author) {
-        long currentVersion = repository.getLatestVersion();
-        if (targetVersion >= currentVersion) {
-            throw new IllegalArgumentException("Target version (" + targetVersion + ") must be less than current version (" + currentVersion + ")");
+        repository.getWriterLock().lock();
+        try {
+            long currentVersion = repository.getLatestVersion();
+            if (targetVersion < 0 || targetVersion >= currentVersion) {
+                throw new IllegalArgumentException("Target version must be between 0 and " + (currentVersion - 1));
+            }
+
+            Map<String, Map<String, Object>> currentOverrides = repository.getAllOverrides();
+            Map<String, Map<String, Object>> targetOverrides = reconstructStateAtVersion(targetVersion);
+            Map<String, Map<String, Object>> diff = computeDiff(currentOverrides, targetOverrides);
+            if (dryRun) {
+                return new RollbackDiffResponse(currentVersion, targetVersion, true, diff, null);
+            }
+
+            long committedVersion = currentVersion + 1;
+            Instant now = Instant.now();
+            ChangeSet cs = new ChangeSet(UUID.randomUUID().toString(), committedVersion,
+                    ConfigScopeKey.global(), List.of(), Map.of(), author,
+                    "Rollback to V" + targetVersion, now, targetOverrides);
+            repository.saveRollbackChangeSet(cs);
+            sseBroadcaster.broadcast(new Delta(committedVersion, ConfigScopeKey.global(),
+                    List.of(), Map.of(), false, now, targetOverrides));
+            return new RollbackDiffResponse(currentVersion, targetVersion, false, diff, committedVersion);
+        } finally {
+            repository.getWriterLock().unlock();
         }
-
-        // Compute state at target version vs current state
-        Map<String, Map<String, Object>> currentOverrides = repository.getAllOverrides();
-        Map<String, Map<String, Object>> targetOverrides = reconstructStateAtVersion(targetVersion);
-
-        Map<String, Map<String, Object>> diff = computeDiff(currentOverrides, targetOverrides);
-
-        if (dryRun) {
-            return new RollbackDiffResponse(currentVersion, targetVersion, true, diff, null);
-        }
-
-        // Apply inverted changes under new forward version
-        Long newCommittedVersion = null;
-        for (Map.Entry<String, Map<String, Object>> entry : diff.entrySet()) {
-            ConfigScopeKey scopeKey = parseScopePath(entry.getKey());
-            ChangeSet cs = publishChangeSet(scopeKey, Collections.emptyList(), entry.getValue(), author, "Rollback to V" + targetVersion);
-            newCommittedVersion = cs.version();
-        }
-
-        return new RollbackDiffResponse(currentVersion, targetVersion, false, diff, newCommittedVersion);
     }
 
     private Map<String, Map<String, Object>> reconstructStateAtVersion(long targetVersion) {
         Map<String, Map<String, Object>> state = new HashMap<>();
+        Map<String, Map<String, Long>> writtenAt = new HashMap<>();
+        Map<String, ChangeSet> byId = new HashMap<>();
         List<ChangeSet> all = repository.getChangeSetsSince(0);
         for (ChangeSet cs : all) {
-            if (cs.version() <= targetVersion) {
-                Map<String, Object> scopeMap = state.computeIfAbsent(cs.scopeKey().toPath(), k -> new HashMap<>());
-                scopeMap.putAll(cs.updates());
+            if (cs.version() > targetVersion) break;
+            if (cs.replacementOverrides() != null) {
+                state.clear();
+                writtenAt.clear();
+                cs.replacementOverrides().forEach((path, values) -> {
+                    state.put(path, new HashMap<>(values));
+                    Map<String, Long> versions = new HashMap<>();
+                    values.keySet().forEach(key -> versions.put(key, cs.version()));
+                    writtenAt.put(path, versions);
+                });
+            } else {
+                String promotedId = "Promoted from canary changeset ";
+                if (cs.reason().startsWith(promotedId)) {
+                    ChangeSet canary = byId.get(cs.reason().substring(promotedId.length()));
+                    if (canary != null && canary.scopeKey().clientId() != null) {
+                        for (String office : canary.stagedOffices()) {
+                            String path = ConfigScopeKey.office(canary.scopeKey().clientId(), office).toPath();
+                            Map<String, Object> values = state.get(path);
+                            Map<String, Long> versions = writtenAt.get(path);
+                            if (values != null && versions != null) {
+                                for (String key : canary.updates().keySet()) {
+                                    if (Objects.equals(versions.get(key), canary.version())) {
+                                        values.remove(key);
+                                        versions.remove(key);
+                                    }
+                                }
+                                if (values.isEmpty()) state.remove(path);
+                            }
+                        }
+                    }
+                }
+                List<String> paths = cs.stagedOffices().isEmpty() ? List.of(cs.scopeKey().toPath())
+                        : cs.stagedOffices().stream()
+                            .map(office -> ConfigScopeKey.office(cs.scopeKey().clientId(), office).toPath()).toList();
+                for (String path : paths) {
+                    state.computeIfAbsent(path, ignored -> new HashMap<>()).putAll(cs.updates());
+                    Map<String, Long> versions = writtenAt.computeIfAbsent(path, ignored -> new HashMap<>());
+                    cs.updates().keySet().forEach(key -> versions.put(key, cs.version()));
+                }
             }
+            byId.put(cs.id(), cs);
         }
         return state;
     }
 
     private Map<String, Map<String, Object>> computeDiff(Map<String, Map<String, Object>> current, Map<String, Map<String, Object>> target) {
         Map<String, Map<String, Object>> diff = new HashMap<>();
-        Map<String, SettingDefinition> defs = repository.getAllDefinitions();
-
-        // 1. Process target scopes and compare with current
-        for (Map.Entry<String, Map<String, Object>> targetScope : target.entrySet()) {
-            String path = targetScope.getKey();
-            Map<String, Object> targetMap = targetScope.getValue();
-            Map<String, Object> currentMap = current.getOrDefault(path, Collections.emptyMap());
-
-            Map<String, Object> scopeDiff = new HashMap<>();
-            for (Map.Entry<String, Object> valEntry : targetMap.entrySet()) {
-                Object curVal = currentMap.get(valEntry.getKey());
-                if (!Objects.equals(curVal, valEntry.getValue())) {
-                    scopeDiff.put(valEntry.getKey(), valEntry.getValue());
+        Set<String> paths = new HashSet<>(current.keySet());
+        paths.addAll(target.keySet());
+        for (String path : paths) {
+            Map<String, Object> before = current.getOrDefault(path, Map.of());
+            Map<String, Object> after = target.getOrDefault(path, Map.of());
+            Set<String> keys = new HashSet<>(before.keySet());
+            keys.addAll(after.keySet());
+            Map<String, Object> changes = new HashMap<>();
+            for (String key : keys) {
+                if (before.containsKey(key) != after.containsKey(key)
+                        || !Objects.equals(before.get(key), after.get(key))) {
+                    changes.put(key, after.get(key)); // null means the override is removed.
                 }
             }
-
-            // Keys added in current but not present at target version: reset to definition default
-            for (String curKey : currentMap.keySet()) {
-                if (!targetMap.containsKey(curKey)) {
-                    SettingDefinition def = defs.get(curKey);
-                    if (def != null && def.defaultValue() != null) {
-                        scopeDiff.put(curKey, def.defaultValue());
-                    }
-                }
-            }
-
-            if (!scopeDiff.isEmpty()) {
-                diff.put(path, scopeDiff);
-            }
+            if (!changes.isEmpty()) diff.put(path, changes);
         }
-
-        // 2. Scopes that exist in current but were not created yet at target version
-        for (Map.Entry<String, Map<String, Object>> curScope : current.entrySet()) {
-            String path = curScope.getKey();
-            if (!target.containsKey(path)) {
-                Map<String, Object> scopeDiff = new HashMap<>();
-                for (String curKey : curScope.getValue().keySet()) {
-                    SettingDefinition def = defs.get(curKey);
-                    if (def != null && def.defaultValue() != null) {
-                        scopeDiff.put(curKey, def.defaultValue());
-                    }
-                }
-                if (!scopeDiff.isEmpty()) {
-                    diff.put(path, scopeDiff);
-                }
-            }
-        }
-
         return diff;
     }
 
@@ -239,18 +249,26 @@ public class ConfigService {
      * Prevents cross-tenant data leakage (e.g. Google cannot see Amazon's overrides).
      */
     public ConfigSnapshot getSnapshot(String clientId, String officeId) {
-        long ver = repository.getLatestVersion();
-        Map<String, SettingDefinition> defs = repository.getAllDefinitions();
-        Map<String, Map<String, Object>> allOverrides = repository.getAllOverrides();
+        repository.getWriterLock().lock();
+        try {
+            long ver = repository.getLatestVersion();
+            Map<String, SettingDefinition> defs = repository.getAllDefinitions();
+            Map<String, Map<String, Object>> allOverrides = repository.getAllOverrides();
+            return new ConfigSnapshot(ver, defs, filterOverridesForClient(allOverrides, clientId));
+        } finally {
+            repository.getWriterLock().unlock();
+        }
+    }
 
-        Map<String, Map<String, Object>> filteredOverrides = new HashMap<>();
-        for (Map.Entry<String, Map<String, Object>> entry : allOverrides.entrySet()) {
-            String scopePath = entry.getKey();
-            if (isScopeAllowedForClient(scopePath, clientId)) {
-                filteredOverrides.put(scopePath, entry.getValue());
+    private Map<String, Map<String, Object>> filterOverridesForClient(
+            Map<String, Map<String, Object>> overrides, String clientId) {
+        Map<String, Map<String, Object>> filtered = new HashMap<>();
+        for (var entry : overrides.entrySet()) {
+            if (isScopeAllowedForClient(entry.getKey(), clientId)) {
+                filtered.put(entry.getKey(), entry.getValue());
             }
         }
-        return new ConfigSnapshot(ver, defs, filteredOverrides);
+        return filtered;
     }
 
     private boolean isScopeAllowedForClient(String scopePath, String clientId) {
@@ -278,6 +296,11 @@ public class ConfigService {
         List<ChangeSet> changes = repository.getChangeSetsSince(sinceVersion);
         List<Delta> deltas = new ArrayList<>();
         for (ChangeSet cs : changes) {
+            if (cs.replacementOverrides() != null) {
+                deltas.add(new Delta(cs.version(), ConfigScopeKey.global(), List.of(), Map.of(), false,
+                        cs.timestamp(), filterOverridesForClient(cs.replacementOverrides(), clientId)));
+                continue;
+            }
             boolean isTenantMatch = isTenantInScope(cs, clientId);
             boolean isOfficeMatch = isOfficeInScope(cs, officeId);
 
@@ -332,16 +355,4 @@ public class ConfigService {
         errorRequestsTotal.incrementAndGet();
     }
 
-    private ConfigScopeKey parseScopePath(String path) {
-        if ("GLOBAL".equalsIgnoreCase(path)) return ConfigScopeKey.global();
-        String[] parts = path.split(":", 2);
-        Scope scope = Scope.valueOf(parts[0]);
-        String[] subParts = parts[1].split("/");
-        return switch (scope) {
-            case GLOBAL -> ConfigScopeKey.global();
-            case CLIENT -> ConfigScopeKey.client(subParts[0]);
-            case OFFICE -> ConfigScopeKey.office(subParts[0], subParts[1]);
-            case SHIFT -> ConfigScopeKey.shift(subParts[0], subParts[1], subParts[2]);
-        };
-    }
 }

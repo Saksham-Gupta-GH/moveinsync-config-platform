@@ -72,5 +72,27 @@ class ConfigClientTest {
         assertThat(loaded.get().version()).isEqualTo(42L);
         assertThat(loaded.get().resolve("escort_required", "Google", "BLR-1", null)).contains(true);
     }
+
+    @Test
+    @DisplayName("Rollback replacement removes obsolete overrides in one client snapshot")
+    void shouldApplyRollbackReplacementAtomically() throws Exception {
+        try (MoveInSyncConfigClient client = new MoveInSyncConfigClient(
+                "http://localhost:8080", "Google", "BLR-1", "test-key", tempDir)) {
+            client.handleDelta(new Delta(1L, ConfigScopeKey.client("Google"),
+                    Map.of("cutoff", 60)));
+            client.handleDelta(new Delta(2L, ConfigScopeKey.office("Google", "BLR-1"),
+                    Map.of("cutoff", 30)));
+            assertThat(client.get("cutoff")).contains(30);
+
+            Delta rollback = new Delta(3L, ConfigScopeKey.global(), java.util.List.of(),
+                    Map.of(), false, null, Map.of("CLIENT:Google", Map.of("cutoff", 60)));
+            var mapper = new com.fasterxml.jackson.databind.ObjectMapper()
+                    .registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule());
+            client.handleDelta(mapper.readValue(mapper.writeValueAsString(rollback), Delta.class));
+            assertThat(client.getCurrentVersion()).isEqualTo(3L);
+            assertThat(client.get("cutoff")).contains(60);
+            assertThat(client.getSnapshot().overrides()).doesNotContainKey("OFFICE:Google/BLR-1");
+        }
+    }
 }
 

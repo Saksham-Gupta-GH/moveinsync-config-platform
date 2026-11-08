@@ -87,19 +87,19 @@ public record ConfigSnapshot(
         Object g = getValue(ConfigScopeKey.global().toPath(), key);
         if (g != null) {
             hierarchy.put(Scope.GLOBAL, g);
-        } else {
-            SettingDefinition def = definitions.get(key);
-            if (def != null && def.defaultValue() != null) {
-                hierarchy.put(Scope.GLOBAL, def.defaultValue());
-            }
+        }
+        SettingDefinition def = definitions.get(key);
+        if (def != null && def.defaultValue() != null) {
+            hierarchy.put(Scope.DEFAULT, def.defaultValue());
         }
 
         if (hierarchy.containsKey(Scope.SHIFT)) return new Explanation(key, hierarchy.get(Scope.SHIFT), Scope.SHIFT, hierarchy);
         if (hierarchy.containsKey(Scope.OFFICE)) return new Explanation(key, hierarchy.get(Scope.OFFICE), Scope.OFFICE, hierarchy);
         if (hierarchy.containsKey(Scope.CLIENT)) return new Explanation(key, hierarchy.get(Scope.CLIENT), Scope.CLIENT, hierarchy);
         if (hierarchy.containsKey(Scope.GLOBAL)) return new Explanation(key, hierarchy.get(Scope.GLOBAL), Scope.GLOBAL, hierarchy);
+        if (hierarchy.containsKey(Scope.DEFAULT)) return new Explanation(key, hierarchy.get(Scope.DEFAULT), Scope.DEFAULT, hierarchy);
 
-        return new Explanation(key, null, Scope.GLOBAL, hierarchy);
+        return new Explanation(key, null, null, hierarchy);
     }
 
     private Object getValue(String scopePath, String key) {

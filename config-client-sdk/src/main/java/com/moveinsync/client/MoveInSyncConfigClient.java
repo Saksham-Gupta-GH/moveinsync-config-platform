@@ -159,7 +159,10 @@ public class MoveInSyncConfigClient implements AutoCloseable {
         // Strictly contiguous progression (v == current + 1)
         if (delta.version() == currentVer + 1) {
             ConfigSnapshot updated;
-            if (delta.empty() || delta.changes().isEmpty()) {
+            if (delta.replacementOverrides() != null) {
+                updated = new ConfigSnapshot(delta.version(), snapshotRef.get().definitions(),
+                        delta.replacementOverrides());
+            } else if (delta.empty() || delta.changes().isEmpty()) {
                 updated = snapshotRef.get().withVersion(delta.version());
             } else {
                 updated = snapshotRef.get().applyDelta(delta.version(), delta.scopeKey(), delta.changes());

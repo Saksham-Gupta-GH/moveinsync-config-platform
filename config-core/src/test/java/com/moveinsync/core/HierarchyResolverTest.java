@@ -41,7 +41,7 @@ class HierarchyResolverTest {
 
         Explanation exp = resolver.explain("booking_cutoff_mins", "Google", "BLR-1", "NIGHT");
         assertThat(exp.effectiveValue()).isEqualTo(60);
-        assertThat(exp.resolvedFrom()).isEqualTo(Scope.GLOBAL);
+        assertThat(exp.resolvedFrom()).isEqualTo(Scope.DEFAULT);
     }
 
     @Test
@@ -55,7 +55,7 @@ class HierarchyResolverTest {
         Explanation exp = resolver.explain("booking_cutoff_mins", "Google", "BLR-1", "NIGHT");
         assertThat(exp.effectiveValue()).isEqualTo(45);
         assertThat(exp.resolvedFrom()).isEqualTo(Scope.CLIENT);
-        assertThat(exp.hierarchy()).containsEntry(Scope.GLOBAL, 60);
+        assertThat(exp.hierarchy()).containsEntry(Scope.DEFAULT, 60);
         assertThat(exp.hierarchy()).containsEntry(Scope.CLIENT, 45);
     }
 
@@ -98,7 +98,16 @@ class HierarchyResolverTest {
         assertThat(exp.hierarchy()).containsEntry(Scope.SHIFT, 15);
         assertThat(exp.hierarchy()).containsEntry(Scope.OFFICE, 30);
         assertThat(exp.hierarchy()).containsEntry(Scope.CLIENT, 45);
-        assertThat(exp.hierarchy()).containsEntry(Scope.GLOBAL, 60);
+        assertThat(exp.hierarchy()).containsEntry(Scope.DEFAULT, 60);
+    }
+
+    @Test
+    @DisplayName("Explain distinguishes a global override from the definition default")
+    void globalOverrideHasDistinctSource() {
+        resolver.setOverride(ConfigScopeKey.global(), "booking_cutoff_mins", 50);
+        Explanation exp = resolver.explain("booking_cutoff_mins", "Google", "BLR-1", null);
+        assertThat(exp.resolvedFrom()).isEqualTo(Scope.GLOBAL);
+        assertThat(exp.hierarchy()).containsEntry(Scope.GLOBAL, 50).containsEntry(Scope.DEFAULT, 60);
     }
 
     @Test

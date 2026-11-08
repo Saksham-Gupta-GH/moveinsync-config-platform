@@ -88,5 +88,25 @@ class StagedRolloutAndPromoteTest {
         assertThat(postPromoteSnapshot.resolve("staged_feature_flag", "Google", "HYD-1", null).orElse(null))
                 .isEqualTo(false);
     }
+
+    @Test
+    @DisplayName("A canary targets two chosen offices and excludes other offices")
+    void shouldStageToTwoOffices() {
+        String key = "two_office_canary_flag";
+        configService.registerDefinition(new SettingDefinition(
+                key, SettingType.BOOLEAN, false, "Two office canary", ValidationRule.none()));
+        long before = configService.getLatestVersion();
+        configService.publishChangeSet(ConfigScopeKey.client("Google"),
+                List.of("BLR-1", "PUNE-1"), Map.of(key, true), "admin", "Two office canary");
+
+        for (String office : List.of("BLR-1", "PUNE-1")) {
+            assertThat(configService.getSnapshot("Google", office)
+                    .resolve(key, "Google", office, null)).contains(true);
+            assertThat(configService.getDeltas("Google", office, before).get(0).empty()).isFalse();
+        }
+        assertThat(configService.getSnapshot("Google", "HYD-1")
+                .resolve(key, "Google", "HYD-1", null)).contains(false);
+        assertThat(configService.getDeltas("Google", "HYD-1", before).get(0).empty()).isTrue();
+    }
 }
 

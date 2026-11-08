@@ -105,15 +105,14 @@ public class HierarchyResolver {
             if (val != null) hierarchy.put(Scope.CLIENT, val);
         }
 
-        // Populate Global override or Default
+        // Keep the definition default separate from a configurable GLOBAL override.
         Object globalVal = getValueAtScope(ConfigScopeKey.global(), key);
         if (globalVal != null) {
             hierarchy.put(Scope.GLOBAL, globalVal);
-        } else {
-            SettingDefinition def = definitions.get(key);
-            if (def != null && def.defaultValue() != null) {
-                hierarchy.put(Scope.GLOBAL, def.defaultValue());
-            }
+        }
+        SettingDefinition def = definitions.get(key);
+        if (def != null && def.defaultValue() != null) {
+            hierarchy.put(Scope.DEFAULT, def.defaultValue());
         }
 
         // Determine effective value and source
@@ -125,9 +124,11 @@ public class HierarchyResolver {
             return new Explanation(key, hierarchy.get(Scope.CLIENT), Scope.CLIENT, hierarchy);
         } else if (hierarchy.containsKey(Scope.GLOBAL)) {
             return new Explanation(key, hierarchy.get(Scope.GLOBAL), Scope.GLOBAL, hierarchy);
+        } else if (hierarchy.containsKey(Scope.DEFAULT)) {
+            return new Explanation(key, hierarchy.get(Scope.DEFAULT), Scope.DEFAULT, hierarchy);
         }
 
-        return new Explanation(key, null, Scope.GLOBAL, hierarchy);
+        return new Explanation(key, null, null, hierarchy);
     }
 
     private Object getValueAtScope(ConfigScopeKey scopeKey, String key) {
