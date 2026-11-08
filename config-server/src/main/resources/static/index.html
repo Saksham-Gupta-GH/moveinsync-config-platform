@@ -1216,8 +1216,13 @@
         </div>
 
         <div class="google-form-group">
-          <label for="dlgValue">New value</label>
+          <label id="dlgValueLabel" for="dlgValue">New value</label>
           <input type="text" id="dlgValue" class="google-form-input" required placeholder="e.g. 30">
+          <select id="dlgBooleanValue" class="google-form-select" aria-label="New Boolean value" hidden disabled>
+            <option value="" selected disabled>Select a value</option>
+            <option value="true">Enabled (true)</option>
+            <option value="false">Disabled (false)</option>
+          </select>
           <div id="dlgBoundsHint" class="google-form-hint"></div>
         </div>
 
@@ -1562,6 +1567,18 @@
     function handleModalKeyChange() {
       const k = document.getElementById('dlgKey').value;
       const def = registeredDefinitions[k];
+      const textValue = document.getElementById('dlgValue');
+      const booleanValue = document.getElementById('dlgBooleanValue');
+      const isBoolean = def?.type === 'BOOLEAN';
+      document.getElementById('dlgValueLabel').htmlFor = isBoolean ? 'dlgBooleanValue' : 'dlgValue';
+      textValue.hidden = isBoolean;
+      textValue.disabled = isBoolean;
+      textValue.required = !isBoolean;
+      booleanValue.hidden = !isBoolean;
+      booleanValue.disabled = !isBoolean;
+      booleanValue.required = isBoolean;
+      textValue.value = '';
+      booleanValue.value = '';
       if (def) {
         document.getElementById('dlgKeyDesc').textContent = def.description || '';
         document.getElementById('dlgBoundsHint').textContent = `Constraints: ${formatConstraints(def.validationRule)} (Default: ${def.defaultValue})`;
@@ -1594,7 +1611,11 @@
       document.getElementById('dlgReason').value = '';
       const resolved = resolveKeyHierarchy(k, document.getElementById('selClient').value,
         office === 'ALL' ? null : office, document.getElementById('selShift').value === 'ALL' ? null : document.getElementById('selShift').value);
-      document.getElementById('dlgValue').value = Array.isArray(resolved.val) ? resolved.val.join(', ') : String(resolved.val);
+      if (registeredDefinitions[k]?.type === 'BOOLEAN') {
+        document.getElementById('dlgBooleanValue').value = typeof resolved.val === 'boolean' ? String(resolved.val) : '';
+      } else {
+        document.getElementById('dlgValue').value = Array.isArray(resolved.val) ? resolved.val.join(', ') : String(resolved.val);
+      }
       handleModalScopeChange();
       document.getElementById('publishModal').showModal();
     }
@@ -1606,10 +1627,16 @@
     async function handlePublishSubmit(e) {
       e.preventDefault();
       const btn = document.getElementById('btnSubmitChangeset');
-      btn.disabled = true;
-
       const key = document.getElementById('dlgKey').value;
-      const raw = document.getElementById('dlgValue').value.trim();
+      const def = registeredDefinitions[key];
+      const raw = (def?.type === 'BOOLEAN'
+        ? document.getElementById('dlgBooleanValue').value
+        : document.getElementById('dlgValue').value).trim();
+      if (def?.type === 'BOOLEAN' && raw !== 'true' && raw !== 'false') {
+        showToast('Choose Enabled or Disabled before publishing.', 'error');
+        return;
+      }
+      btn.disabled = true;
       const scope = document.getElementById('dlgScope').value;
       const office = document.getElementById('dlgOfficeId').value.trim();
       const shift = document.getElementById('dlgShiftId').value.trim();
@@ -1617,13 +1644,12 @@
       const canary = document.getElementById('dlgCanaryCheck').checked;
       const reason = document.getElementById('dlgReason').value.trim();
 
-      const def = registeredDefinitions[key];
       let val = raw;
       if (def) {
         if (def.type === 'DURATION_MINUTES' || def.type === 'INTEGER') val = parseInt(raw, 10);
         else if (def.type === 'DOUBLE' || def.type === 'NUMBER') val = Number(raw);
         else if (def.type === 'STRING_LIST') val = raw.split(',').map(s => s.trim()).filter(Boolean);
-        else if (def.type === 'BOOLEAN') val = (raw.toLowerCase() === 'true' || raw === '1');
+        else if (def.type === 'BOOLEAN') val = raw === 'true';
       }
 
       const payload = {
