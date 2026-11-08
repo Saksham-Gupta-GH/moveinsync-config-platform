@@ -976,7 +976,7 @@
         </svg>
         <span>GitHub</span>
       </a>
-      <div class="account-badge" title="Role: Administrator">A</div>
+      <button class="btn-pill btn-pill-secondary" onclick="logoutDashboard()" title="End dashboard session">Sign out</button>
     </div>
   </header>
 
@@ -984,7 +984,7 @@
   <div class="app-content-container">
     <div class="workspace-heading">
       <div><h1>Policy management</h1><p>Review the rules applied to each office and shift.</p></div>
-      <small>Demo workspace · Administrator</small>
+      <small>Policy workspace · Signed in</small>
     </div>
 
     <!-- Active Scope Toolbar Strip -->
@@ -1002,11 +1002,11 @@
           <option value="BLR_CAMPUS">Bangalore (BLR-1)</option>
           <option value="HYD_CAMPUS">Hyderabad (HYD-1)</option>
           <option value="PA_CAMPUS">Palo Alto (PA-1)</option>
-          <option value="ALL">All Campuses</option>
+          <option value="ALL">Client base (no campus)</option>
         </select>
         <span style="color: var(--text-muted); font-size: 13px;">/</span>
         <select id="selShift" class="google-input-select" aria-label="Shift">
-          <option value="ALL">All Shifts</option>
+          <option value="ALL">Office base (no shift)</option>
           <option value="MORNING">Morning (06:00)</option>
           <option value="GENERAL">General (09:00)</option>
           <option value="NIGHT">Night Escort (21:00)</option>
@@ -1043,7 +1043,7 @@
             <div class="card-eyebrow">CONFIGURATION MATRIX</div>
             <div class="card-main-title">Policies</div>
             <div class="card-subtitle">
-              Effective values for the selected location. Office and shift rules take priority over client defaults.
+              <span id="viewScopeDescription">Effective values for the selected location.</span>
             </div>
           </div>
           <input id="policySearch" class="search-input" type="search" placeholder="Search policies…" aria-label="Search policies" oninput="renderTable()">
@@ -1178,6 +1178,21 @@
 
   </div>
 
+  <dialog id="authModal" class="google-dialog" aria-labelledby="authTitle">
+    <div class="dialog-top-bar"><h3 id="authTitle">Sign in to policy management</h3></div>
+    <form id="authForm" onsubmit="loginDashboard(event)">
+      <div class="dialog-body-content">
+        <p>Enter your administrator or operator API key. It is kept in server session memory and is not stored in this page.</p>
+        <div class="google-form-group">
+          <label for="authKey">API key</label>
+          <input id="authKey" class="google-form-input" type="password" autocomplete="off" required>
+        </div>
+        <div id="authError" class="google-form-hint" role="alert"></div>
+      </div>
+      <div class="dialog-foot-bar"><button class="btn-pill btn-pill-primary" type="submit">Sign in</button></div>
+    </form>
+  </dialog>
+
   <!-- Publish Changeset Modal Dialog -->
   <dialog id="publishModal" class="google-dialog" aria-labelledby="dlgTitle">
     <div class="dialog-top-bar">
@@ -1269,17 +1284,14 @@
   <div id="toastTray" class="toast-tray" role="status" aria-live="polite"></div>
 
   <script>
-    const API_KEY = "admin-secret-key";
     let eventSource = null;
     let registeredDefinitions = {};
     let currentSnapshot = { version: 0, overrides: {}, definitions: {} };
     let sseEventsReceived = 0;
+    let metricsTimer = null;
+    let dashboardReady = false;
 
     window.addEventListener('DOMContentLoaded', async () => {
-      await fetchDefinitions();
-      await refreshSnapshot();
-      setInterval(fetchMetrics, 3500);
-
       document.getElementById('selClient').addEventListener('change', () => { refreshSnapshot(); initSse(); });
       document.getElementById('selOffice').addEventListener('change', () => { syncViewShiftAvailability(); refreshSnapshot(); });
       document.getElementById('selShift').addEventListener('change', refreshSnapshot);
@@ -1287,12 +1299,45 @@
       document.getElementById('dlgShiftId').addEventListener('input', updateScopeImpact);
       document.getElementById('dlgCanaryCheck').addEventListener('change', updateScopeImpact);
       syncViewShiftAvailability();
+      const session = await fetch('/api/v1/auth/me');
+      if (session.ok) await startDashboard();
+      else document.getElementById('authModal').showModal();
     });
 
-    // Connect SSE streaming after full page load finishes so browser stops tab spinner
-    window.addEventListener('load', () => {
-      setTimeout(initSse, 250);
-    });
+    async function loginDashboard(event) {
+      event.preventDefault();
+      const keyInput = document.getElementById('authKey');
+      const response = await fetch('/api/v1/auth/login', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ apiKey: keyInput.value })
+      });
+      keyInput.value = '';
+      if (!response.ok) {
+        document.getElementById('authError').textContent = 'Invalid administrator or operator key.';
+        return;
+      }
+      document.getElementById('authError').textContent = '';
+      document.getElementById('authModal').close();
+      await startDashboard();
+    }
+
+    async function startDashboard() {
+      dashboardReady = true;
+      await fetchDefinitions();
+      await refreshSnapshot();
+      fetchMetrics();
+      if (metricsTimer) clearInterval(metricsTimer);
+      metricsTimer = setInterval(fetchMetrics, 3500);
+      initSse();
+    }
+
+    async function logoutDashboard() {
+      if (eventSource) eventSource.close();
+      if (metricsTimer) clearInterval(metricsTimer);
+      dashboardReady = false;
+      await fetch('/api/v1/auth/logout', { method: 'POST' });
+      document.getElementById('authModal').showModal();
+    }
 
     function switchNavTab(tab) {
       document.getElementById('policiesView').style.display = tab === 'policies' ? 'grid' : 'none';
@@ -1317,7 +1362,7 @@
 
     async function fetchDefinitions() {
       try {
-        const res = await fetch('/api/v1/config/definitions', { headers: { 'X-API-Key': API_KEY } });
+        const res = await fetch('/api/v1/config/definitions');
         if (res.ok) {
           registeredDefinitions = await res.json();
           populateKeyDropdown();
@@ -1330,9 +1375,15 @@
     async function refreshSnapshot() {
       const client = document.getElementById('selClient').value;
       const office = document.getElementById('selOffice').value;
+      const shift = document.getElementById('selShift').value;
+      document.getElementById('viewScopeDescription').textContent = office === 'ALL'
+        ? 'Client base value before campus and shift overrides. Select a campus to inspect its effective value.'
+        : shift === 'ALL'
+          ? 'Office base value before shift overrides. Select a shift to inspect its effective value.'
+          : 'Effective value for this exact client, campus, and shift.';
       const url = `/api/v1/config/snapshot?client_id=${encodeURIComponent(client)}${office !== 'ALL' ? '&office_id=' + encodeURIComponent(office) : ''}`;
       try {
-        const res = await fetch(url, { headers: { 'X-API-Key': API_KEY } });
+        const res = await fetch(url);
         if (!res.ok) throw new Error(`Request failed (${res.status})`);
         if (res.ok) {
           currentSnapshot = await res.json();
@@ -1438,11 +1489,11 @@
             <span class="val-highlight">${escapeHtml(formatVal(res.val, def.type))}</span>
           </td>
           <td>
-            <div><span class="tier-badge-clean ${res.scope}">${res.scopeLabel}</span></div>
-            ${res.hint ? `<div class="overridden-hint-text">${res.hint}</div>` : ''}
+            <div><span class="tier-badge-clean ${res.scope}">${escapeHtml(res.scopeLabel)}</span></div>
+            ${res.hint ? `<div class="overridden-hint-text">${escapeHtml(res.hint)}</div>` : ''}
           </td>
-          <td style="color: var(--text-secondary); font-size: 12px;">${formatType(def.type)}</td>
-          <td style="color: var(--text-muted); font-size: 12px;">${formatConstraints(def.validationRule)}</td>
+          <td style="color: var(--text-secondary); font-size: 12px;">${escapeHtml(formatType(def.type))}</td>
+          <td style="color: var(--text-muted); font-size: 12px;">${escapeHtml(formatConstraints(def.validationRule))}</td>
           <td style="text-align: right; white-space: nowrap;">
             <button class="btn-row-action" data-action="edit">Edit</button>
             <button class="btn-row-action" data-action="explain">Why this value?</button>
@@ -1486,7 +1537,7 @@
     function initSse() {
       if (eventSource) eventSource.close();
       const client = document.getElementById('selClient').value;
-      const url = `/api/v1/config/stream?client_id=${encodeURIComponent(client)}&office_id=ALL&api_key=${encodeURIComponent(API_KEY)}`;
+      const url = `/api/v1/config/stream?client_id=${encodeURIComponent(client)}&office_id=ALL`;
 
       eventSource = new EventSource(url);
       const dot = document.getElementById('liveDot');
@@ -1538,19 +1589,19 @@
       let diff = '';
       if (d.empty) {
         diff = `<span style="color: var(--text-muted); font-style: italic;">[Empty delta: Monotonic alignment for non-canary node]</span>`;
-      } else if (d.updates && Object.keys(d.updates).length > 0) {
-        diff = Object.entries(d.updates).map(([k, v]) => `<strong>${k}</strong> &rarr; ${v}`).join(', ');
+      } else if (d.changes && Object.keys(d.changes).length > 0) {
+        diff = Object.entries(d.changes).map(([k, v]) => `<strong>${escapeHtml(k)}</strong> &rarr; ${escapeHtml(Array.isArray(v) ? v.join(', ') : v)}`).join(', ');
       } else {
         diff = `<span style="color: var(--text-muted);">Changeset applied</span>`;
       }
 
       card.innerHTML = `
         <div class="stream-event-top">
-          <span class="stream-event-ver">v${d.version}<span class="event-state" style="${d.empty ? 'color:var(--text-secondary)' : ''}">${d.empty ? 'Version synced' : staged ? 'Staged rollout' : 'Update received'}</span></span>
+          <span class="stream-event-ver">v${escapeHtml(d.version)}<span class="event-state" style="${d.empty ? 'color:var(--text-secondary)' : ''}">${d.empty ? 'Version synced' : staged ? 'Staged rollout' : 'Update received'}</span></span>
           <span>${time}</span>
         </div>
         <div class="stream-diff-line">${diff}</div>
-        <div class="stream-scope-badge">${targetScope}</div>
+        <div class="stream-scope-badge">${escapeHtml(targetScope)}</div>
       `;
 
       log.insertBefore(card, log.firstChild);
@@ -1712,7 +1763,7 @@
       try {
         const res = await fetch('/api/v1/config/changeset', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-API-Key': API_KEY },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
 
@@ -1745,7 +1796,7 @@
       try {
         const res = await fetch('/api/v1/config/changeset', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-API-Key': API_KEY },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
         const err = await res.json();
@@ -1799,14 +1850,14 @@
       for (const d of seeds) {
         await fetch('/api/v1/config/definitions', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-API-Key': API_KEY },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(d)
         });
       }
 
       await fetch('/api/v1/config/changeset', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-API-Key': API_KEY },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           scopeKey: { scope: 'OFFICE', clientId: 'Google', officeId: 'BLR_CAMPUS' },
           stagedOffices: [],
@@ -1823,15 +1874,15 @@
 
     function openLineage(k) {
       const client = document.getElementById('selClient').value;
-      const office = document.getElementById('selOffice').value !== 'ALL' ? document.getElementById('selOffice').value : 'BLR_CAMPUS';
-      const shift = document.getElementById('selShift').value !== 'ALL' ? document.getElementById('selShift').value : null;
+      const office = document.getElementById('selOffice').value !== 'ALL' ? document.getElementById('selOffice').value : null;
+      const shift = office && document.getElementById('selShift').value !== 'ALL' ? document.getElementById('selShift').value : null;
 
       const o = currentSnapshot.overrides || {};
       const def = (currentSnapshot.definitions && currentSnapshot.definitions[k]) || registeredDefinitions[k];
 
       const steps = [
-        { scope: 'Shift', path: `SHIFT:${client}/${office}/${shift}`, val: shift && o[`SHIFT:${client}/${office}/${shift}`] ? o[`SHIFT:${client}/${office}/${shift}`][k] : null },
-        { scope: 'Office', path: `OFFICE:${client}/${office}`, val: o[`OFFICE:${client}/${office}`] ? o[`OFFICE:${client}/${office}`][k] : null },
+        ...(shift ? [{ scope: 'Shift', path: `SHIFT:${client}/${office}/${shift}`, val: o[`SHIFT:${client}/${office}/${shift}`]?.[k] }] : []),
+        ...(office ? [{ scope: 'Office', path: `OFFICE:${client}/${office}`, val: o[`OFFICE:${client}/${office}`]?.[k] }] : []),
         { scope: 'Client', path: `CLIENT:${client}`, val: o[`CLIENT:${client}`] ? o[`CLIENT:${client}`][k] : null },
         { scope: 'Global', path: 'GLOBAL', val: o['GLOBAL'] ? o['GLOBAL'][k] : null },
         { scope: 'Default', path: 'SettingDefinition', val: def ? def.defaultValue : null }
@@ -1849,19 +1900,24 @@
         div.style.display = 'flex';
         div.style.justifyContent = 'space-between';
 
+        const label = document.createElement('span');
+        const value = document.createElement('span');
+        label.textContent = `${s.scope} (${s.path})`;
+        value.textContent = s.val === null || s.val === undefined ? '—' : formatVal(s.val, def?.type);
         if (s.val !== null && s.val !== undefined && !won) {
           div.style.background = 'var(--google-green-bg)';
           div.style.borderColor = 'var(--google-green-border)';
-          div.innerHTML = `<span><strong style="color: var(--google-green);">[Active] ${s.scope}</strong> (${s.path})</span><span style="font-weight: 700;">${s.val}</span>`;
+          label.textContent = `[Active] ${s.scope} (${s.path})`;
+          label.style.color = 'var(--google-green)';
+          value.style.fontWeight = '700';
           won = true;
         } else if (s.val !== null && s.val !== undefined && won) {
           div.style.opacity = '0.5';
           div.style.textDecoration = 'line-through';
-          div.innerHTML = `<span>${s.scope} (${s.path})</span><span>${s.val}</span>`;
         } else {
           div.style.opacity = '0.35';
-          div.innerHTML = `<span>${s.scope}</span><span>—</span>`;
         }
+        div.append(label, value);
         cont.appendChild(div);
       }
 
@@ -1874,7 +1930,7 @@
 
     async function fetchMetrics() {
       try {
-        const res = await fetch('/api/v1/metrics', { headers: { 'X-API-Key': API_KEY } });
+        const res = await fetch('/api/v1/metrics');
         if (res.ok) {
           const m = await res.json();
           document.getElementById('quickVersion').textContent = m.config_current_version || 0;

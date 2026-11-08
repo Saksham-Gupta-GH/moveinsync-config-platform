@@ -122,7 +122,7 @@ Measures time from immediately before publishing (including commit and fsync) to
 
 ## 4. Automated Test Verification Suite
 
-The current reactor suite passes **36/36 tests** (13 core, 3 SDK, 20 server). The [8 November 2026 Maven log](docs/test-run-2026-11-08.txt) is the unedited output of `./mvnw test --batch-mode`; CI also uploads Surefire reports. The older [2 November benchmark run](docs/test-run.log) remains available for the measurements in Section 3.
+The current reactor suite passes **37/37 tests** (13 core, 3 SDK, 21 server). The [latest 8 November 2026 Maven log](docs/test-run-2026-11-08-auth.txt) is the unedited output of `./mvnw test --batch-mode`; CI also uploads Surefire reports. The [earlier 8 November run](docs/test-run-2026-11-08.txt) supplies the measurements in Section 3, and the older [2 November benchmark run](docs/test-run.log) remains available.
 
 Coverage includes hierarchy precedence and default lineage, strict type validation, multi-key atomicity, two-office canary rollout and promotion, one-version rollback across scopes with inherited-value restoration, tenant isolation, out-of-order delta recovery, 50-reader atomic snapshots, 200-client propagation, 500-client reconnects, and process-kill recovery. Rollback tests also replay earlier canary and promotion versions. These are assessment-scale tests; the measurements are not universal latency guarantees.
 
@@ -130,7 +130,7 @@ Coverage includes hierarchy precedence and default lineage, strict type validati
 
 ## 5. Security, RBAC & Tenant Isolation
 
-Authentication accepts `Authorization: Bearer <key>` as described in the PDF, or the original `X-API-Key` header. Both use the same opaque credentials and RBAC rules. These are not JWTs. Conflicting headers are rejected. Keys can be set dynamically via environment variables (`MOVEINSYNC_ADMIN_KEY`, `MOVEINSYNC_OPERATOR_KEY`, `MOVEINSYNC_GOOGLE_KEY`, `MOVEINSYNC_AMAZON_KEY`), with developer defaults for local testing:
+Authentication accepts `Authorization: Bearer <key>` as described in the PDF, or the original `X-API-Key` header. Both use the same opaque credentials and RBAC rules. These are not JWTs. Conflicting headers are rejected. Browser users enter an administrator or operator key once and receive a two-hour HttpOnly, SameSite=Strict session cookie. Keys are supplied via environment variables (`MOVEINSYNC_ADMIN_KEY`, `MOVEINSYNC_OPERATOR_KEY`, `MOVEINSYNC_GOOGLE_KEY`, `MOVEINSYNC_AMAZON_KEY`); the listed demo defaults require `MOVEINSYNC_ALLOW_DEMO_KEYS=true` for local use and are refused in the `prod` profile:
 
 | Role | Permissions | Environment Variable / Default Key |
 |---|---|---|
@@ -220,9 +220,9 @@ curl -s -H "X-API-Key: admin-secret-key" http://localhost:8080/api/v1/metrics
 The platform is deployed and running live on Azure Cloud VM with Let's Encrypt SSL & Nginx reverse proxying:
 - **Interactive Web Dashboard (HTTPS):** [https://20-219-130-205.sslip.io/moveinsync/](https://20-219-130-205.sslip.io/moveinsync/)
 - **Actuator Health Endpoint:** [https://20-219-130-205.sslip.io/moveinsync/actuator/health](https://20-219-130-205.sslip.io/moveinsync/actuator/health)
-- **Live SSE Event Stream:** `https://20-219-130-205.sslip.io/moveinsync/api/v1/config/stream?client_id=Google&office_id=ALL&api_key=google-service-key`
-- **Fallback HTTP (Direct IP):** [http://20.219.130.205/moveinsync/](http://20.219.130.205/moveinsync/)
-- **Demo API Keys:** `admin-secret-key` (Admin), `operator-secret-key` (Operator), `google-service-key` (Employee/Tenant Read-Only)
+- **Live SSE Event Stream:** The signed-in dashboard connects to `/api/v1/config/stream?client_id=Google&office_id=ALL` using its browser session. Service clients can use the `X-API-Key` header.
+- **Dashboard sign-in:** Enter the server's administrator or operator key. The dashboard uses a short-lived, HttpOnly browser session; no key is embedded in the page or SSE URL.
+- **Production credentials:** Start the server with `SPRING_PROFILES_ACTIVE=prod` and unique `MOVEINSYNC_ADMIN_KEY`, `MOVEINSYNC_OPERATOR_KEY`, `MOVEINSYNC_GOOGLE_KEY`, and `MOVEINSYNC_AMAZON_KEY` values of at least 24 characters. The server refuses predictable demo keys in this profile. Rotate previously published keys before redeploying.
 
 ### Running the Suite Locally
 ```bash
@@ -242,6 +242,7 @@ Once started, navigate to **`http://localhost:8080`** to access the **Interactiv
 
 ### Running with Docker Compose
 ```bash
+# Set the four MOVEINSYNC_*_KEY environment variables to unique secrets first.
 docker compose up --build
 ```
 
@@ -274,7 +275,7 @@ docker compose up --build
 - **Consistency and availability:** Writes commit durably under one global version before acknowledgment. Connected clients receive ordered SSE deltas and use a one-second version check to heal missed messages. During a network partition, they keep serving their last snapshot; staleness then has no finite bound. Callers capture one SDK snapshot for a consistent multi-key evaluation.
 - **Rollback:** A rollback restores all override scopes in one SQLite transaction and one new version. Clients receive one tenant-filtered replacement snapshot, so inherited values are restored without exposing a mixed state. Replacing a whole tenant snapshot costs more bandwidth and allocation than an ordinary small delta.
 - **Capacity:** SQLite uses one writer and the SSE broadcaster runs in one server process. The recorded commit benchmark reached 172 writes/sec on its measured machine; capacity on other hardware needs measurement. The largest reconnect test has 500 clients. Multiple server nodes would require a shared event transport and storage design.
-- **Operations:** Demo credentials are for local evaluation; production deployment needs managed credentials. The SSE browser endpoint allows a query-string API key because native `EventSource` cannot set headers. Metrics expose lag, rejections, errors, catch-up requests, subscriber count and queue depth. Server logs emit one JSON object per line.
+- **Operations:** Demo credentials are for local evaluation; production deployment requires rotated, managed credentials. Browser SSE uses the session cookie, and service SSE uses an authentication header; keys in URL query strings are rejected. Metrics expose lag, rejections, errors, catch-up requests, subscriber count and queue depth. Server logs emit one JSON object per line.
 
 See the [short design note](docs/design-note.md) for the architecture, update sequence and failure modes.
 

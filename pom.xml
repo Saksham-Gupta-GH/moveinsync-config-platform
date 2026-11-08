@@ -92,6 +92,9 @@
                     <version>3.3.1</version>
                     <configuration>
                         <useManifestOnlyJar>false</useManifestOnlyJar>
+                        <environmentVariables>
+                            <MOVEINSYNC_ALLOW_DEMO_KEYS>true</MOVEINSYNC_ALLOW_DEMO_KEYS>
+                        </environmentVariables>
                     </configuration>
                 </plugin>
                 <plugin>

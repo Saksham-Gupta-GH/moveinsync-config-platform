@@ -12,6 +12,10 @@ services:
       - SPRING_PROFILES_ACTIVE=prod
       - SERVER_PORT=8080
       - SPRING_DATASOURCE_URL=jdbc:sqlite:/app/data/config_server.db
+      - MOVEINSYNC_ADMIN_KEY=${MOVEINSYNC_ADMIN_KEY:?Set a unique production admin key}
+      - MOVEINSYNC_OPERATOR_KEY=${MOVEINSYNC_OPERATOR_KEY:?Set a unique production operator key}
+      - MOVEINSYNC_GOOGLE_KEY=${MOVEINSYNC_GOOGLE_KEY:?Set a unique production Google service key}
+      - MOVEINSYNC_AMAZON_KEY=${MOVEINSYNC_AMAZON_KEY:?Set a unique production Amazon service key}
     volumes:
       - config-data:/app/data
     restart: unless-stopped

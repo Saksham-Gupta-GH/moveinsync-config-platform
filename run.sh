@@ -20,7 +20,7 @@ if [ -z "${JAVA_HOME:-}" ]; then
     fi
 fi
 
-echo "[1/3] Running Full Test Suite (27 Tests across Core, Client SDK, Server)..."
+echo "[1/3] Running Full Test Suite (37 Tests across Core, Client SDK, Server)..."
 ./mvnw clean test
 
 echo ""
@@ -36,5 +36,6 @@ echo ""
 echo "Press Ctrl+C to stop the server."
 echo "==============================================================================="
 
+export MOVEINSYNC_ALLOW_DEMO_KEYS=true
 java -jar config-server/target/config-server-1.0.0-SNAPSHOT.jar
 
