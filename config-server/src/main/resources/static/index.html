@@ -1214,6 +1214,7 @@
           <label for="dlgShiftId">Shift Identifier</label>
           <input type="text" id="dlgShiftId" class="google-form-input" value="NIGHT">
         </div>
+        <div id="dlgScopeImpact" class="draft-notice" role="status"></div>
 
         <div class="google-form-group">
           <label id="dlgValueLabel" for="dlgValue">New value</label>
@@ -1226,7 +1227,7 @@
           <div id="dlgBoundsHint" class="google-form-hint"></div>
         </div>
 
-        <div class="google-form-group">
+        <div class="google-form-group" id="dlgCanaryGroup">
           <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: normal;">
             <input type="checkbox" id="dlgCanaryCheck">
             <span>Staged canary rollout (target BLR-1 only)</span>
@@ -1280,8 +1281,12 @@
       setInterval(fetchMetrics, 3500);
 
       document.getElementById('selClient').addEventListener('change', () => { refreshSnapshot(); initSse(); });
-      document.getElementById('selOffice').addEventListener('change', refreshSnapshot);
+      document.getElementById('selOffice').addEventListener('change', () => { syncViewShiftAvailability(); refreshSnapshot(); });
       document.getElementById('selShift').addEventListener('change', refreshSnapshot);
+      document.getElementById('dlgOfficeId').addEventListener('input', updateScopeImpact);
+      document.getElementById('dlgShiftId').addEventListener('input', updateScopeImpact);
+      document.getElementById('dlgCanaryCheck').addEventListener('change', updateScopeImpact);
+      syncViewShiftAvailability();
     });
 
     // Connect SSE streaming after full page load finishes so browser stops tab spinner
@@ -1591,13 +1596,53 @@
       document.getElementById('dlgShiftId').required = sc === 'SHIFT';
       document.getElementById('dlgOfficeGroup').style.display = (sc === 'OFFICE' || sc === 'SHIFT') ? 'block' : 'none';
       document.getElementById('dlgShiftGroup').style.display = (sc === 'SHIFT') ? 'block' : 'none';
+      const canaryGroup = document.getElementById('dlgCanaryGroup');
+      const canaryCheck = document.getElementById('dlgCanaryCheck');
+      canaryGroup.hidden = sc !== 'CLIENT';
+      canaryCheck.disabled = sc !== 'CLIENT';
+      if (sc !== 'CLIENT') canaryCheck.checked = false;
+      updateScopeImpact();
+    }
+
+    function syncViewShiftAvailability() {
+      const allCampuses = document.getElementById('selOffice').value === 'ALL';
+      const shift = document.getElementById('selShift');
+      if (allCampuses) shift.value = 'ALL';
+      shift.disabled = allCampuses;
+    }
+
+    function syncDialogScopeFromView() {
+      const office = document.getElementById('selOffice').value;
+      const shift = document.getElementById('selShift').value;
+      document.getElementById('dlgScope').value = office === 'ALL' ? 'CLIENT' : shift === 'ALL' ? 'OFFICE' : 'SHIFT';
+      document.getElementById('dlgOfficeId').value = office === 'ALL' ? '' : office;
+      document.getElementById('dlgShiftId').value = shift === 'ALL' ? '' : shift;
+      handleModalScopeChange();
+    }
+
+    function updateScopeImpact() {
+      const scope = document.getElementById('dlgScope').value;
+      const client = document.getElementById('selClient').selectedOptions[0].textContent;
+      const office = document.getElementById('dlgOfficeId').value.trim();
+      const shift = document.getElementById('dlgShiftId').value.trim();
+      const officeOption = [...document.getElementById('selOffice').options].find(option => option.value === office);
+      const shiftOption = [...document.getElementById('selShift').options].find(option => option.value === shift);
+      const officeName = officeOption ? officeOption.textContent : office || 'an office';
+      const shiftName = shiftOption ? shiftOption.textContent : shift || 'a shift';
+      const impact = document.getElementById('dlgScopeImpact');
+      if (scope === 'SHIFT') impact.textContent = `Applies only to ${client} / ${officeName} / ${shiftName}.`;
+      else if (scope === 'OFFICE') impact.textContent = `Applies to all shifts at ${client} / ${officeName}. Existing shift overrides still take priority.`;
+      else if (scope === 'CLIENT') impact.textContent = document.getElementById('dlgCanaryCheck').checked
+        ? `Staged rollout: applies only to Bangalore (BLR-1) in ${client} until promoted.`
+        : `Applies across ${client}. Existing office and shift overrides still take priority.`;
+      else impact.textContent = 'Applies across all clients. Existing client, office, and shift overrides still take priority.';
     }
 
     function openPublishModal() {
       document.getElementById('draftNotice').hidden = true;
       document.getElementById('publishForm').reset();
       handleModalKeyChange();
-      handleModalScopeChange();
+      syncDialogScopeFromView();
       document.getElementById('publishModal').showModal();
     }
 
@@ -1607,7 +1652,7 @@
       document.getElementById('dlgKey').value = k;
       handleModalKeyChange();
       const office = document.getElementById('selOffice').value;
-      document.getElementById('dlgOfficeId').value = office === 'ALL' ? '' : office;
+      syncDialogScopeFromView();
       document.getElementById('dlgReason').value = '';
       const resolved = resolveKeyHierarchy(k, document.getElementById('selClient').value,
         office === 'ALL' ? null : office, document.getElementById('selShift').value === 'ALL' ? null : document.getElementById('selShift').value);
@@ -1616,7 +1661,6 @@
       } else {
         document.getElementById('dlgValue').value = Array.isArray(resolved.val) ? resolved.val.join(', ') : String(resolved.val);
       }
-      handleModalScopeChange();
       document.getElementById('publishModal').showModal();
     }
 
