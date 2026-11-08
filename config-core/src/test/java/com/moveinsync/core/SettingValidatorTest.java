@@ -18,6 +18,26 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class SettingValidatorTest {
 
     @Test
+    @DisplayName("Boolean settings require JSON Boolean values, not strings")
+    void shouldRequireBooleanType() {
+        SettingDefinition def = new SettingDefinition(
+                "night_escort_required",
+                SettingType.BOOLEAN,
+                true,
+                "Night escort required",
+                ValidationRule.none()
+        );
+
+        SettingValidator.validate(def, true);
+        SettingValidator.validate(def, false);
+        for (Object invalid : new Object[] {"true", "false", "hello", 1}) {
+            assertThatThrownBy(() -> SettingValidator.validate(def, invalid))
+                    .isInstanceOf(ValidationException.class)
+                    .hasMessageContaining("Expected boolean value");
+        }
+    }
+
+    @Test
     @DisplayName("Negative duration cut-offs (e.g. -30 min) must be strictly rejected")
     void shouldRejectNegativeDuration() {
         SettingDefinition def = new SettingDefinition(

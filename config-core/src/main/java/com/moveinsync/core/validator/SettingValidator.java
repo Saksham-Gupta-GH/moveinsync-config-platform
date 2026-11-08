@@ -106,9 +106,7 @@ public class SettingValidator {
 
     private static void validateBoolean(String key, Object value) {
         if (!(value instanceof Boolean)) {
-            if (!"true".equalsIgnoreCase(value.toString()) && !"false".equalsIgnoreCase(value.toString())) {
-                throw new ValidationException(key, "Expected boolean value (true/false), received: " + value);
-            }
+            throw new ValidationException(key, "Expected boolean value (true/false), received: " + value);
         }
     }
 
